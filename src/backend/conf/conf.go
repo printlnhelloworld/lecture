@@ -10,10 +10,11 @@ import (
 type Conf struct {
 	App        string   `toml:"app"`        //App 名称
 	ListenAddr string   `toml:"listenAddr"` //监听地址如 0.0.0.0:8000
-	Database   database `toml:"database"`   //数据库配置
+	Database   Database `toml:"database"`   //数据库配置
 }
 
-type database struct {
+//Database 数据库配置
+type Database struct {
 	User     string `toml:"user"`     //用户名
 	Password string `toml:"password"` //密码
 	Addr     string `toml:"addr"`     //数据库地址 tcp(ip:port)

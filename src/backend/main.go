@@ -2,10 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"os"
 
 	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
+	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/routers"
 )
 
@@ -14,10 +13,17 @@ var confpath = flag.String("confile", "conf/app.toml", "配置路径 默认 conf
 func main() {
 	flag.Parse()
 	conf, err := conf.LoadConfig(*confpath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	checkErr(err)
+
+	err = model.InitDB(conf)
+	checkErr(err)
+
 	r := routers.SetupRouters()
 	r.Run(conf.ListenAddr)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
