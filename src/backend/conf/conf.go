@@ -3,7 +3,7 @@ package conf
 import (
 	"io/ioutil"
 
-	toml "github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml"
 )
 
 //Conf 配置文件
