@@ -1,0 +1,7 @@
+app = "线上讲座系统"
+listenAddr = "0.0.0.0:8000"
+[database]
+user = "root"
+password = ""
+addr = "tcp(127.0.0.1:3306)"
+db = "lecture"
