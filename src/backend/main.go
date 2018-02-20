@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"git.hduhelp.com/hduhelper/lecture/src/backend/routers"
 )
 
 func main() {
@@ -10,6 +12,6 @@ func main() {
 		fmt.Println("Usage: ip:port")
 		os.Exit(1)
 	}
-	r := setupRouters()
+	r := routers.SetupRouters()
 	r.Run(os.Args[1])
 }

@@ -1,4 +1,4 @@
-package main
+package routers
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ import (
 )
 
 //获取讲座列表
-func getLectures() func(*gin.Context) {
+func GetLectures() func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -19,21 +19,21 @@ func getLectures() func(*gin.Context) {
 }
 
 //创建讲座
-func createLecture() func(*gin.Context) {
+func CreateLecture() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //修改讲座，不用带上全部参数
-func putLectureByID() func(*gin.Context) {
+func PutLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //获取特定讲座
-func getlectureByID() func(*gin.Context) {
+func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 		time.Sleep(time.Millisecond * 100)
 		lectureid, err := strconv.Atoi(c.Param("lectureid"))
@@ -53,35 +53,35 @@ func getlectureByID() func(*gin.Context) {
 }
 
 //删除特定讲座
-func deleteLectureByID() func(*gin.Context) {
+func DeleteLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //生成特定讲座的签到码
-func generateLectureByID() func(*gin.Context) {
+func GenerateLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //添加特定讲座签到记录
-func addSigninRecordLecturesByID() func(*gin.Context) {
+func AddSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //获取特定讲座签到记录
-func getSigninRecordLecturesByID() func(*gin.Context) {
+func GetSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
 //删除特定讲座签到记录
-func deleteOneSigninRecordLecturesByID() func(*gin.Context) {
+func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
