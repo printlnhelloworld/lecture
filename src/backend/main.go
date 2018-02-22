@@ -15,7 +15,7 @@ func main() {
 	conf, err := conf.LoadConfig(*confpath)
 	checkErr(err)
 
-	err = model.InitDB(conf)
+	err = model.InitDB(&conf.Database)
 	checkErr(err)
 
 	r := routers.SetupRouters()

@@ -8,6 +8,7 @@ import (
 	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 )
 
+//SetupRouters 初始化路由
 func SetupRouters() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.CorsHeader)
@@ -55,8 +56,8 @@ func SetupRouters() *gin.Engine {
 	ann := apiv1.Group("/announcements")
 	ann.GET("", GetAnnouncements())
 	ann.POST("", CreateAnnouncements())
-	ann.GET("/:annoncementid", GetAnnouncementByID())
-	ann.DELETE("/:annoncementid", DeleteAnnouncementByID())
-	ann.PUT("/:annoncementid", PutAnnouncements())
+	ann.GET("/:announcementid", GetAnnouncementByID())
+	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
+	ann.PUT("/:announcementid", PutAnnouncementByID())
 	return r
 }

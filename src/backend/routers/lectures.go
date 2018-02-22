@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//获取讲座列表
+//GetLectures 获取讲座列表
 func GetLectures() func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -18,21 +18,21 @@ func GetLectures() func(*gin.Context) {
 	}
 }
 
-//创建讲座
+//CreateLecture 创建讲座
 func CreateLecture() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//修改讲座，不用带上全部参数
+//PutLectureByID 修改讲座，不用带上全部参数
 func PutLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//获取特定讲座
+//GetlectureByID 获取特定讲座
 func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 		time.Sleep(time.Millisecond * 100)
@@ -52,35 +52,35 @@ func GetlectureByID() func(*gin.Context) {
 	}
 }
 
-//删除特定讲座
+//DeleteLectureByID 删除特定讲座
 func DeleteLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//生成特定讲座的签到码
+//GenerateLectureByID 生成特定讲座的签到码
 func GenerateLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//添加特定讲座签到记录
+//AddSigninRecordLecturesByID 添加特定讲座签到记录
 func AddSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//获取特定讲座签到记录
+//GetSigninRecordLecturesByID 获取特定讲座签到记录
 func GetSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
 }
 
-//删除特定讲座签到记录
+//DeleteOneSigninRecordLecturesByID 删除特定讲座签到记录
 func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 

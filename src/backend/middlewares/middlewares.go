@@ -17,13 +17,17 @@ func CorsHeader(c *gin.Context) {
 func CasAuth(path string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
-		c.Set("token", token)
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status": "Unauthorized",
 				"msg":    "需要登录",
 			})
+		} else {
+			c.Set("token", token)
+			//TODO 实现真正的通过token获取学号
+			if token == "x" {
+				c.Set("UserID", "15051237")
+			}
 		}
-		c.Next()
 	}
 }
