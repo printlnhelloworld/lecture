@@ -1,12 +1,8 @@
 package model
 
 import (
-	"errors"
 	"time"
 )
-
-//NotFoundError 未找到错误
-var NotFoundError = errors.New("NotFoundError")
 
 //Announcement 公告
 type Announcement struct {
@@ -44,52 +40,41 @@ func CreateAnnouncement(title, content, userid string, important bool) (id int, 
 		Important: important,
 		CreateAt:  time.Now(),
 	}
-	DB.Create(&a)
-	if errs := DB.GetErrors(); len(errs) != 0 {
-		return 0, errs[0]
+
+	if err := DB.Create(&a).Error; err != nil {
+		return 0, err
 	}
 	return a.ID, nil
 }
 
 //PutAnnouncement 修改公告
 func PutAnnouncement(aid int, title, content, userid string, important bool) error {
-	var a []Announcement
-	DB.Find(&a, aid)
-	if DB.Error != nil {
-		return DB.Error
+	var ann Announcement
+	if err := DB.Find(&ann, aid).Error; err != nil {
+		return err
 	}
-	if len(a) == 0 {
-		return NotFoundError
-	}
-	ann := a[0]
 	ann.Title = title
 	ann.Content = content
 	ann.Important = important
 	ann.UserID = userid
-	DB.Save(ann)
-	if DB.Error != nil {
-		return DB.Error
-	}
-	return nil
+
+	return DB.Save(&ann).Error
 }
 
 //DeleteAnnouncementByID 删除公告
-func DeleteAnnouncementByID(id int) error {
-	DB.Delete(Announcement{}, "id = ?", id)
-	return DB.Error
+func DeleteAnnouncementByID(id int) (int64, error) {
+	db := DB.Delete(Announcement{}, "id = ?", id)
+	return db.RowsAffected, db.Error
 }
 
 //GetAnnouncementByID 通过ID获取公告
 func GetAnnouncementByID(id int) (*Announcement, error) {
-	var a []Announcement
-	DB.Find(&a, id)
-	if DB.Error != nil {
-		return nil, DB.Error
+	var a Announcement
+	if err := DB.Find(&a, id).Error; err != nil {
+		return nil, err
 	}
-	if len(a) == 0 {
-		return nil, NotFoundError
-	}
-	DB.Model(&a[0]).Related(&a[0].Author, "UserID")
-	return &a[0], nil
+
+	DB.Model(&a).Related(&a.Author, "UserID")
+	return &a, nil
 
 }

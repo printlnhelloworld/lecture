@@ -7,6 +7,7 @@ import (
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/jinzhu/gorm"
 )
 
 type annnouncement struct {
@@ -22,24 +23,13 @@ type annnouncement struct {
 //GetAnnouncements 获取所有公告
 func GetAnnouncements() func(*gin.Context) {
 	return func(c *gin.Context) {
-		nextStr := c.DefaultQuery("next", "0")
-		limitStr := c.DefaultQuery("limit", "10")
+		next, err1 := strconv.Atoi(c.DefaultQuery("next", "0"))
+		limit, err2 := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-		next, err := strconv.Atoi(nextStr)
-		if err != nil {
+		if err1 != nil || err2 != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "param type error",
-				"msg":    "参数类型错误",
-				"next":   nextStr,
-			})
-			return
-		}
-		limit, err := strconv.Atoi(limitStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "param type error",
-				"msg":    "参数类型错误",
-				"next":   limitStr,
+				"msg":    "参数类型错误 limit/next 必须为int",
 			})
 			return
 		}
@@ -80,24 +70,20 @@ func CreateAnnouncements() func(*gin.Context) {
 					"msg":    "服务出现错误",
 					"err":    "Lost UserID",
 				})
-				c.Abort()
-				return
 			}
-			aid, err := model.CreateAnnouncement(a.Title, a.Content, userid.(string), a.Important)
-			if err != nil {
+			if aid, err := model.CreateAnnouncement(a.Title, a.Content, userid.(string), a.Important); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"status": "ServerError",
 					"msg":    "服务出现错误",
 					"err":    "CreateError",
 				})
-				c.Abort()
-				return
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"status": "ok",
+					"msg":    "ok",
+					"id":     aid,
+				})
 			}
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-				"msg":    "ok",
-				"id":     aid,
-			})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "ParamLostError",
@@ -122,11 +108,10 @@ func GetAnnouncementByID() func(*gin.Context) {
 		}
 		ann, err := model.GetAnnouncementByID(id)
 		if err != nil {
-			if err == model.NotFoundError {
+			if err == gorm.ErrRecordNotFound {
 				c.JSON(http.StatusBadRequest, gin.H{
-					"status": "NotFoundError",
+					"status": "ErrRecordNotFound",
 					"msg":    "没有数据",
-					"err":    err.Error(),
 				})
 			} else {
 				c.JSON(http.StatusBadGateway, gin.H{
@@ -166,21 +151,18 @@ func PutAnnouncementByID() func(*gin.Context) {
 					"msg":    "服务出现错误",
 					"err":    "Lost UserID",
 				})
-				return
-			}
-			err := model.PutAnnouncement(aid, a.Title, a.Content, userid.(string), a.Important)
-			if err != nil {
+			} else if err := model.PutAnnouncement(aid, a.Title, a.Content, userid.(string), a.Important); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"status": "ServerError",
 					"msg":    "服务出现错误",
 					"err":    err.Error(),
 				})
-				return
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"status": "ok",
+					"msg":    "ok",
+				})
 			}
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-				"msg":    "ok",
-			})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "ParamLostError",
@@ -203,19 +185,24 @@ func DeleteAnnouncementByID() func(*gin.Context) {
 			})
 			return
 		}
-		err = model.DeleteAnnouncementByID(id)
+		count, err := model.DeleteAnnouncementByID(id)
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{
 				"status": "databaseError",
 				"msg":    "数据库错误",
 				"err":    err.Error(),
 			})
-			return
+		} else if count == 0 {
+			c.JSON(http.StatusNotFound, gin.H{
+				"status": "RecordNotFound",
+				"msg":    "记录不存在",
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+			})
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-			"msg":    "ok",
-		})
 	}
 }
 
