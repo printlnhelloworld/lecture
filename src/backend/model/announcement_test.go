@@ -73,7 +73,7 @@ func TestGetAnnoucementByID(t *testing.T) {
 
 func TestDeleteAnnoucementByID(t *testing.T) {
 	for i, _ := range data {
-		err := model.DeleteAnnouncementByID(i + 1)
+		_, err := model.DeleteAnnouncementByID(i + 1)
 		if err != nil {
 			t.Error(err)
 		}
