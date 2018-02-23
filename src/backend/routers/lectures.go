@@ -14,7 +14,6 @@ import (
 
 //GetLectures 获取讲座列表
 func GetLectures() func(*gin.Context) {
-	//TODO 接口中添加排序方式 id / startAt
 	return func(c *gin.Context) {
 		limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 		next, err1 := strconv.Atoi(c.DefaultQuery("next", "0"))
@@ -288,7 +287,6 @@ func GetlectureByID() func(*gin.Context) {
 					"data": map[string]interface{}{
 						"id":            lec.ID,
 						"creatorUserID": lec.UserID,
-						"creatorName":   "", //TODO 未实现
 						"topic":         lec.Topic,
 						"location":      lec.Location,
 						"startAt":       lec.StartAt.Unix(),
