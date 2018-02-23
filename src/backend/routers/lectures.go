@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/jinzhu/gorm"
 
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
-
-	"github.com/gin-gonic/gin"
 )
 
 //GetLectures 获取讲座列表
@@ -92,15 +92,168 @@ func GetLectures() func(*gin.Context) {
 
 //CreateLecture 创建讲座
 func CreateLecture() func(*gin.Context) {
+	//TODO 实现教师校验
+	type lecture struct {
+		Topic        string `json:"topic" binding:"required"`
+		Location     string `json:"location" binding:"required"`
+		Introduction string `json:"introduction" binding:"required"`
+		StartAt      int64  `json:"startAt" binding:"required"`
+		Host         string `json:"host" binding:"required"`
+		Lecturer     string `json:"lecturer" binding:"required"`
+		Type         string `json:"type" binding:"required"`
+		Reviewed     bool   `json:"reviewed" binding:"required"`
+	}
 	return func(c *gin.Context) {
-
+		var lec lecture
+		if err := c.ShouldBindWith(&lec, binding.JSON); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "参数必须带全",
+				"err":    err.Error(),
+			})
+		} else {
+			if userid, exist := c.Get("UserID"); !exist {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"status": "ServerError",
+					"msg":    "服务出现错误",
+					"err":    "Lost UserID",
+				})
+			} else if id, err := model.CreateLecture(
+				userid.(string),
+				lec.Topic,
+				lec.Location,
+				lec.Introduction,
+				lec.Host,
+				lec.Lecturer,
+				lec.Type,
+				lec.Reviewed,
+				time.Unix(lec.StartAt, 0),
+			); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"status": "DatabaseError",
+					"msg":    "数据库出现错误",
+					"err":    err.Error(),
+				})
+			} else {
+				c.JSON(http.StatusCreated, gin.H{
+					"status": "ok",
+					"msg":    "ok",
+					"id":     id,
+				})
+			}
+		}
 	}
 }
 
-//PutLectureByID 修改讲座，不用带上全部参数
-func PutLectureByID() func(*gin.Context) {
+//PatchLectureByID 修改讲座，不用带上全部参数
+func PatchLectureByID() func(*gin.Context) {
+	type lecture struct {
+		Topic        *string `json:"topic"`
+		Location     *string `json:"location"`
+		Introduction *string `json:"introduction"`
+		StartAt      *int64  `json:"startAt"`
+		Host         *string `json:"host"`
+		Lecturer     *string `json:"lecturer"`
+		Type         *string `json:"type"`
+		Reviewed     *bool   `json:"reviewed"`
+		CanSignin    *bool   `json:"canSignin"`
+		Finished     *bool   `json:"finished"`
+	}
 	return func(c *gin.Context) {
+		var lec lecture
+		if err := c.ShouldBindWith(&lec, binding.JSON); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "至少要有空的 {} ",
+				"err":    err.Error(),
+			})
+			return
+		}
+		userid, exist := c.Get("UserID")
+		if !exist {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "ServerError",
+				"msg":    "服务出现错误",
+				"err":    "Lost UserID",
+			})
+			return
+		}
+		lecid, err := strconv.Atoi(c.Param("lectureid"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "参数 lecid 必须是数字",
+			})
+			return
+		}
+		oldlec, err := model.GetLectureByID(lecid)
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"status": "NotFoundErr",
+				"msg":    "没有数据",
+			})
+			return
+		}
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "DatabaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+			return
+		}
 
+		//TODO 多个人的权限？
+		if oldlec.UserID != userid {
+			c.JSON(http.StatusForbidden, gin.H{
+				"status": "Forbidden",
+				"msg":    "禁止修改，只有创建者可以修改",
+			})
+			return
+		}
+
+		//TODO 无聊的过程
+		//TODO 处理CanSignin
+		var m = map[string]interface{}{}
+		{
+			if lec.Topic != nil {
+				m["Topic"] = *lec.Topic
+			}
+			if lec.Location != nil {
+				m["Location"] = *lec.Location
+			}
+			if lec.Introduction != nil {
+				m["StartAt"] = *lec.StartAt
+			}
+			if lec.Host != nil {
+				m["Host"] = *lec.Host
+			}
+			if lec.Lecturer != nil {
+				m["Lecturer"] = *lec.Lecturer
+			}
+			if lec.Type != nil {
+				m["Type"] = *lec.Type
+			}
+			if lec.Reviewed != nil {
+				m["Reviewed"] = *lec.Reviewed
+			}
+			if lec.Finished != nil {
+				m["Finished"] = *lec.Finished
+			}
+		}
+		err = model.PatchLecture(lecid, m)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "DatabaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+			})
+		}
 	}
 }
 

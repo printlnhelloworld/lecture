@@ -25,7 +25,7 @@ func SetupRouters() *gin.Engine {
 	lectures := apiv1.Group("/lectures")
 	lectures.GET("", GetLectures())
 	lectures.POST("", CreateLecture())
-	lectures.PATCH("/:lectureid", PutLectureByID())
+	lectures.PATCH("/:lectureid", PatchLectureByID())
 	lectures.GET("/:lectureid", GetlectureByID())
 	lectures.DELETE("/:lectureid", DeleteLectureByID())
 	lectures.POST("/:lectureid/siginCode", GenerateLectureByID())

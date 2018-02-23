@@ -66,13 +66,24 @@ func GetLectures(limit, next int, owner, status, sort string, now time.Time) (*[
 }
 
 //CreateLecture 创建讲座
-func CreateLecture() error {
-	return nil
+func CreateLecture(userid, topic, location, introduction, host, lecturer, lectype string, reviewed bool, startAt time.Time) (int, error) {
+	var lec Lecture
+	lec.UserID = userid
+	lec.Topic = topic
+	lec.Introducation = introduction
+	lec.StartAt = startAt
+	lec.Location = location
+	lec.Host = host
+	lec.Lecturer = lecturer
+	lec.Type = lectype
+	lec.Reviewed = reviewed
+	lec.CreateAt = time.Now()
+	return lec.ID, DB.Create(&lec).Error
 }
 
 //PatchLecture 修改讲座
-func PatchLecture(lid int) error {
-	return nil
+func PatchLecture(lid int, m map[string]interface{}) error {
+	return DB.Model(&Lecture{}).Where(&Lecture{ID: lid}).Update(m).Error
 }
 
 //GetLectureByID 获取特定讲座信息
