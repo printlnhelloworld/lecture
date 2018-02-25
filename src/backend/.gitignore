@@ -2,3 +2,4 @@ vendor
 *.exe
 backend
 conf/app.toml
+debug
