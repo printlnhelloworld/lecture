@@ -3,6 +3,8 @@ package middleware
 import (
 	"net/http"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,9 +32,15 @@ func Auth(unAuthPath ...string) func(*gin.Context) {
 			})
 		} else {
 			c.Set("token", token)
-			//TODO 实现真正的通过token获取学号
-			if token == "x" {
-				c.Set("UserID", "15051237")
+			userid, err := model.GetUserIDByToken(token)
+			if err == nil {
+				c.Set("UserID", userid)
+			} else {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"status": "badTokenErr",
+					"msg":    "错误或过期的token",
+					"token":  token,
+				})
 			}
 		}
 	}

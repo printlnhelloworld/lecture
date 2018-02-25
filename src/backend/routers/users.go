@@ -120,14 +120,20 @@ func GetLoginURL(appconf *conf.Conf) func(*gin.Context) {
 //GetTokensByUserID 登录列表
 func GetUserTokens() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		c.JSON(http.StatusNotImplemented, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+		})
 	}
 }
 
 //DeleteUserToken 登出
 func DeleteUserToken() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		c.JSON(http.StatusNotImplemented, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+		})
 	}
 }
 
