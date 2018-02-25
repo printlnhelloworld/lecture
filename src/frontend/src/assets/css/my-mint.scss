@@ -1,0 +1,14 @@
+$color-primary: white;
+$font-color: black;
+$font-family: "Microsoft YaHei";
+.mint-header {  
+  background-color: $color-primary;
+  color: $font-color;
+  font-family: $font-family;
+  font-weight: bold;
+  border-bottom: #eeeeee 1px solid;
+}
+.page-wrap{
+  height: 100%;
+  background-color: #bfd7e2;
+}
