@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gobuffalo/packr"
 
 	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
@@ -62,5 +63,8 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	ann.GET("/:announcementid", GetAnnouncementByID())
 	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
 	ann.PUT("/:announcementid", PutAnnouncementByID())
+
+	front := packr.NewBox("../../../dist")
+	r.StaticFS("/app", front)
 	return r
 }

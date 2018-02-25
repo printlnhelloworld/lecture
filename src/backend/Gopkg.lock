@@ -24,6 +24,12 @@
   version = "v1.3"
 
 [[projects]]
+  name = "github.com/gobuffalo/packr"
+  packages = ["."]
+  revision = "6434a292ac52e6964adebfdce3f9ce6d9f16be01"
+  version = "v1.10.4"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "925541529c1fa6821df4e44ce2723319eb2be768"
@@ -57,6 +63,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "9831f2c3ac1068a78f50999a30db84270f647af6"
@@ -83,6 +95,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7d93ad235c2a796cdb30ba8cddfecf3284351a6a5687548ddc60c692c3863014"
+  inputs-digest = "3018ee32507f18aca194cedde23f43f33f1ad5a96b861167c7d8eed07c3c4091"
   solver-name = "gps-cdcl"
   solver-version = 1
