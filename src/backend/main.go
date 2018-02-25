@@ -18,7 +18,7 @@ func main() {
 	err = model.InitDB(&conf.Database)
 	checkErr(err)
 
-	r := routers.SetupRouters()
+	r := routers.SetupRouters(conf)
 	r.Run(conf.ListenAddr)
 }
 

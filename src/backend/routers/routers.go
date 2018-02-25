@@ -5,15 +5,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 )
 
 //SetupRouters 初始化路由
-func SetupRouters() *gin.Engine {
+func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.CorsHeader)
 
-	apiv1 := r.Group("/api/v1", middleware.CasAuth("http://cas.hdu.edu.cn/cas/"))
+	apiv1 := r.Group("/api/v1", middleware.Auth("/api/v1/loginCallback", "/api/v1/loginURL"))
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -42,6 +43,8 @@ func SetupRouters() *gin.Engine {
 	users.POST("/:userid/tokens", AddTokensByUserID())
 	users.GET("/:userid/tokens", GetTokensByUserID())
 	users.DELETE("/:userid/token/:token", DeleteTokenByUserID())
+	apiv1.GET("/loginCallback", UserLoginCallBack(conf))
+	apiv1.GET("/loginURL", GetLoginURL(conf))
 
 	//管理员
 	admin := apiv1.Group("/admin")

@@ -13,5 +13,6 @@ func TestConf(t *testing.T) {
 	}
 	t.Log(c.App)
 	t.Log(c.ListenAddr)
+	t.Log(c.BaseURL)
 	t.Log(c.Database)
 }

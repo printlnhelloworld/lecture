@@ -10,6 +10,7 @@ import (
 type Conf struct {
 	App        string   `toml:"app"`        //App 名称
 	ListenAddr string   `toml:"listenAddr"` //监听地址如 0.0.0.0:8000
+	BaseURL    string   `toml:"baseURL"`    //外部地址
 	Database   Database `toml:"database"`   //数据库配置
 }
 

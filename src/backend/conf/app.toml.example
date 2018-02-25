@@ -1,5 +1,6 @@
 app = "线上讲座系统"
 listenAddr = "0.0.0.0:8000"
+baseURL = "http://127.0.0.1:8000"
 [database]
 user = "root"
 password = ""

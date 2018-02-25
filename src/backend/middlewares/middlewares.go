@@ -13,9 +13,15 @@ func CorsHeader(c *gin.Context) {
 	return
 }
 
-//CasAuth
-func CasAuth(path string) func(*gin.Context) {
+//Auth 认证授权等
+func Auth(unAuthPath ...string) func(*gin.Context) {
 	return func(c *gin.Context) {
+		path := c.Request.URL.Path
+		for _, uap := range unAuthPath {
+			if uap == path {
+				return
+			}
+		}
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

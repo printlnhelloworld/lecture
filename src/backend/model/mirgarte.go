@@ -20,6 +20,7 @@ func InitDB(dbconf *conf.Database) error {
 		return errors.New(conStr + err.Error())
 	}
 
+	db.LogMode(true)
 	db.AutoMigrate(
 		&Announcement{},
 		&Lecture{},
@@ -27,7 +28,6 @@ func InitDB(dbconf *conf.Database) error {
 		&UserInfo{},
 		&Session{},
 	)
-	db.LogMode(true)
 	DB = db
 	return nil
 }

@@ -1,16 +1,24 @@
 package routers
 
 import (
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"regexp"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
-//GetUsers 获取用户列表
+//GetUsers 获取用户列表 //TODO未实现
 func GetUsers() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		c.JSON(http.StatusNotImplemented, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+		})
 	}
 }
 
@@ -28,9 +36,21 @@ func GetUserByID() func(*gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"stauts": "ok",
 				"msg":    "ok",
-				"id":     u.UserID,
-				"name":   u.Name,
-				"agree":  u.Agreed,
+				"data": map[string]interface{}{
+					"id":       u.UserID,
+					"name":     u.Name,
+					"type":     u.Type,
+					"classId":  u.ClassID,
+					"sex":      u.Sex,
+					"unitID":   u.UnitID,
+					"unitName": u.UnitName,
+					"agree":    u.Agreed,
+					"agreeAt":  u.AgreedAt.Unix(),
+					"joinAt":   u.JoinAt.Unix(),
+					"permit": map[string]string{
+						"": "",
+					},
+				},
 			})
 		}
 	}
@@ -53,7 +73,68 @@ func GetLectureByLectureIDByUserID() func(*gin.Context) {
 //AddTokensByUserID 登录
 func AddTokensByUserID() func(*gin.Context) {
 	return func(c *gin.Context) {
+		userid := c.Param("userid")
+		type login struct {
+			ID       string `json:"id" binding:"required"`
+			Password string `json:"password" binding:"required"`
+			Remark   string `json:"remark"`
+		}
+		var loginvar login
+		c.ShouldBindWith(&loginvar, binding.JSON)
+		if loginvar.ID == "" || loginvar.Password == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "id/password必须不为空",
+			})
+			return
+		}
+		if userid != loginvar.ID {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "userid 和 id 不相同",
+			})
+			return
+		}
 
+	}
+}
+
+//UserLoginCallBack //登录回调
+func UserLoginCallBack(appconf *conf.Conf) func(*gin.Context) {
+	return func(c *gin.Context) {
+		ticket := c.Query("ticket")
+		service := appconf.BaseURL + "/api/v1/loginCallback"
+		encodeURL := "http://cas.hdu.edu.cn/cas/serviceValidate?ticket=" + ticket + "&service=" + url.QueryEscape(service)
+		resp, err := http.Get(encodeURL)
+		if err != nil {
+			c.Redirect(http.StatusFound, "?auth=&err=CasGetErr"+err.Error())
+		} else {
+			databytes, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				c.Redirect(http.StatusFound, "?auth=&err=ReadErr"+err.Error())
+			} else {
+				m := ParseUserInfoFromCas(string(databytes))
+				if len(m) == 0 {
+					c.JSON(http.StatusUnauthorized, gin.H{
+						"status": "NoDataErr",
+						"msg":    "没有数据，请重新登陆",
+					})
+					return
+				}
+				c.JSON(http.StatusOK, m)
+			}
+		}
+	}
+}
+
+//GetLoginURL 获取登录连接，给前端使用
+func GetLoginURL(appconf *conf.Conf) func(*gin.Context) {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":   "ok",
+			"msg":      "ok",
+			"loginURL": "http://cas.hdu.edu.cn/cas/login?service=" + url.QueryEscape(appconf.BaseURL+"/api/v1/loginCallback"),
+		})
 	}
 }
 
@@ -69,4 +150,15 @@ func DeleteTokenByUserID() func(*gin.Context) {
 	return func(c *gin.Context) {
 
 	}
+}
+
+var re = regexp.MustCompile(`<sso:attribute name="(.*)" type="java.lang.String" value="(.*)"/>`)
+
+//ParseUserInfoFromCas 解析数据
+func ParseUserInfoFromCas(data string) (m map[string]string) {
+	m = map[string]string{}
+	for _, match := range re.FindAllStringSubmatch(data, -1) {
+		m[match[1]] = match[2]
+	}
+	return
 }
