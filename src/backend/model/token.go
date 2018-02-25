@@ -31,6 +31,7 @@ func DeleteToken(token string) error {
 
 //GetUserIDByToken 根据token获取用户id
 func GetUserIDByToken(token string) (string, error) {
+	//TODO 提供参数过滤过期token
 	t := Token{
 		Token: token,
 	}

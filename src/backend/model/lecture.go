@@ -28,6 +28,7 @@ type Lecture struct {
 
 //GetLectures 获取讲座列表
 func GetLectures(limit, next int, owner, status, sort string, now time.Time) (*[]Lecture, error) {
+	//TODO 添加 reviewed 参数，来表示是否通过审核
 	var db *gorm.DB
 	switch sort {
 	case "id":
