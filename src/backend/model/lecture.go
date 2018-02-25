@@ -11,7 +11,7 @@ type Lecture struct {
 	ID            int       `gorm:"type:int AUTO_INCREMENT;primary_key;not null"`
 	UserID        string    `gorm:"type:varchar(20);index;not null"`
 	Topic         string    `gorm:"type:varchar(50);not null;"`
-	Introducation string    `gorm:"type:varchar(1000);not null;"`
+	Introducation string    `gorm:"type:text;not null;"`
 	StartAt       time.Time `gorm:"type:datetime;index;not null;"`
 	Location      string    `gorm:"type:varchar(100);not null;"`
 	Host          string    `gorm:"type:varchar(50);not null;"`

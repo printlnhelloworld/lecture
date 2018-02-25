@@ -26,7 +26,7 @@ func InitDB(dbconf *conf.Database) error {
 		&Lecture{},
 		&LectureRecord{},
 		&UserInfo{},
-		&Session{},
+		&Token{},
 	)
 	DB = db
 	return nil

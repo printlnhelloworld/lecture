@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
+	"git.hduhelp.com/hduhelper/lecture/src/backend/routers"
 )
 
 func TestParseCas(t *testing.T) {
@@ -43,7 +43,7 @@ func TestParseCas(t *testing.T) {
 `,
 	}
 	for _, s := range str {
-		m := model.ParseUserInfoFromCas(s)
+		m := routers.ParseUserInfoFromCas(s)
 		fmt.Println(m)
 	}
 }

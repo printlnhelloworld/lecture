@@ -38,12 +38,13 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	//用户
 	users := apiv1.Group("/users")
 	users.GET("", GetUsers())
-	users.GET("/:userid", GetUserByID())
-	users.GET("/:userid/lectures", GetLecturesByUserID())
-	users.GET("/:userid/lectures/:lectureid", GetLectureByLectureIDByUserID())
-	users.POST("/:userid/tokens", AddTokensByUserID())
-	users.GET("/:userid/tokens", GetTokensByUserID())
-	users.DELETE("/:userid/token/:token", DeleteTokenByUserID())
+	users.GET("/userinfo", GetUserInfo())
+	users.GET("/lectures", GetUserLectures())
+	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
+	users.GET("/tokens", GetUserTokens())
+	users.DELETE("/tokens/:tokenid", DeleteUserToken())
+
+	//登录
 	apiv1.GET("/loginCallback", UserLoginCallBack(conf))
 	apiv1.GET("/loginURL", GetLoginURL(conf))
 
@@ -64,6 +65,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
 	ann.PUT("/:announcementid", PutAnnouncementByID())
 
+	//前端页面
 	front := packr.NewBox("../../../dist")
 	r.StaticFS("/app", front)
 	return r
