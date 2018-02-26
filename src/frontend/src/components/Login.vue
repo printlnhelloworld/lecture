@@ -1,8 +1,8 @@
 <template>
-  <div class="wrap">
-    <img v-if="flag && loading && agree" src="../assets/icon/success.png" alt="">
-    <img v-if="!flag && loading && agree" src="../assets/icon/warning.png" alt="">
-    <div v-if="loading && agree">{{ flag ? '登陆成功' : '登录信息失效'}}</div>
+  <div class="wrap" v-if="!loading">
+    <img v-if="flag && agree" src="../assets/icon/success.png" alt="">
+    <img v-if="!flag && agree" src="../assets/icon/warning.png" alt="">
+    <div v-if="agree">{{ flag ? '登陆成功' : '登录信息失效'}}</div>
     <div v-if="!agree" class="rule">
       <h4 class="title">使用本系统前,请先阅读《课外教育规定》</h4>
       <p>
@@ -20,19 +20,35 @@ export default {
     return {
       loading: true,
       flag: true,
-      agree: true
+      agree: true,
+      auth: localStorage.getItem('auth')
     }
   },
   methods: {
-    setAuth() {
+    login() {
       let _self = this;
-      localStorage.setItem('auth', _self.$route.auth)
+      let auth = _self.$route.query
+      // 判断是否是url中是否带有auth(即是不是新登录)
+      if (auth) {
+        localStorage.setItem('auth', auth)
+        _self.getUserInfo();
+      } else if (_self.auth) {
+      // 判断本地是否已存在auth (即是不是已登录)
+        console.log('login already')
+        _self.getUserInfo();
+      } else {
+        console.log('no login')
+        _self.gotoLogin()
+      }
+    },
+    getUserInfo() {
+      let _self = this;
       _self.$ajax({
-        url: '/users',
+        url: '/users/userinfo',
         method: 'get'
       }).then(res => {
         let data = res.data;
-        _self.agree = data.agree;
+        _self.agree = data.data.agree;
         // 判断是否登录token是否有效
         if (data.status === 'ok') {
           _self.loading = false;
@@ -43,18 +59,22 @@ export default {
             }, 1000)
           }
         } else {
+          localStorage.removeItem('auth');
           _self.loading = false;
           _self.flag = false;
           setTimeout(() => {
             _self.gotoLogin();
           }, 1000)
         }
+      }).catch(err => {
+        alert(err)
       })
     },
     gotoLogin() {
+      console.log('gotologin')
       let _self = this;
       _self.$ajax({
-        url: 'https://lecture.hduhelp.com/api/v1/loginURL',
+        url: '/loginURL',
         method: 'get'
       }).then(res => {
         let data = res.data;
@@ -62,13 +82,31 @@ export default {
           window.location.href = data.loginURL;
         }
       })
+    },
+    editUserinfo() {
+      let _self = this;
+      _self.$ajax({
+        url: '/user/userinfo',
+        method: 'put',
+        data: {
+          agree: 'true'
+        }
+      }).then(res => {
+        let data = res.data;
+        if (data.status === 'ok') {
+          _self.$router.push({
+            path: '/index'
+          })
+        } else {
+          alert(data.msg);
+        }
+      }).catch(err => {
+        console.log(err);
+      })
     }
   },
   mounted() {
-    let _self = this;
-    if (_self.$route.params.auth) {
-      _self.setAuth();
-    }
+    this.login();
   }
 }
 </script>

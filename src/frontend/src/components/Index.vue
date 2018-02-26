@@ -18,14 +18,14 @@
           bottomLoadingText="加载中"
           ref="loadmore">
             <div class="lectureList">
-              <div v-for="item in list" class="lectureItem" :key="item.item">
+              <div v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                 <span>{{ item.topic }}</span>
                 <section>
                   <p>
+                    <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
                     <span>{{item.status}}</span>
-                    <span>{{ getHM(item.startTimeStamp) }}</span>
                   </p>
-                    <span>{{ getYMD(item.startTimeStamp) }}</span>
+                    <span>{{ getTime(item.startTimeStamp) }}</span>
                 </section>
               </div>
             </div>
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { formatDateYMD, formatDateHM } from '../utils.js'
+import { formatDate } from '../utils.js'
 export default {
   data() {
     return {
@@ -221,12 +221,15 @@ export default {
         }
       })
     },
-    getYMD(time) {
-      return formatDateYMD(time);
-    },
-    getHM(time) {
-      return formatDateHM(time);
+    getTime(time) {
+      return formatDate(time);
     }
+    // getYMD(time) {
+    //   return formatDateYMD(time);
+    // },
+    // getHM(time) {
+    //   return formatDateHM(time);
+    // }
   }
 }
 </script>
@@ -242,14 +245,14 @@ export default {
 //   background-color: #bfd7e2;
 // }
 .page-wrap{
-  // overflow: scroll;
+  overflow: scroll;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 .page-tabbar-container{
   flex:1;
-  padding-bottom: 55px;
+  margin-bottom: 55px;
   overflow: scroll;
 }
 .lectureList{
