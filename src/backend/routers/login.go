@@ -36,7 +36,7 @@ func UserLoginCallBack(appconf *conf.Conf) func(*gin.Context) {
 						c.Header("Location", baseHashURL+"&err=DatabaseErr&msg="+err.Error()+"&msg1=数据库错误")
 					}
 					token := rendToken()
-					if err := model.AddToken(m["userName"], token); err != nil {
+					if err := model.AddToken(m["userName"], token, c.ClientIP()); err != nil {
 						c.Header("Location", baseHashURL+"&err=DatabaseErr&msg="+err.Error()+"&msg1=数据库错误")
 					} else {
 						c.Header("Location", baseHashURL+token)

@@ -80,6 +80,7 @@ func GetUserTokens() func(*gin.Context) {
 		for _, t := range *tokens {
 			m = append(m, map[string]interface{}{
 				"remark":   t.Remark,
+				"ip":       t.IP,
 				"createAt": t.CreateAt.Unix(),
 				"expireAt": t.ExpireAt.Unix(),
 			})

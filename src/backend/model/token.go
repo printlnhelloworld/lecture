@@ -6,18 +6,20 @@ import "time"
 type Token struct {
 	Token    string    `gorm:"type:varchar(100);not null;primary_key"`
 	UserID   string    `gorm:"type:varchar(20);not null;index"`
+	IP       string    `gorm:"type:varchar(25);not null;"` //用户登录时ip
 	Remark   string    `gorm:"type:varchar(20);not null;default:''"`
 	CreateAt time.Time `gorm:"type:datetime;not null"` //创建时间
 	ExpireAt time.Time `gorm:"type:datetime;not null"` //过期时间
 }
 
 //AddToken 添加用户token
-func AddToken(userid, token string) error {
+func AddToken(userid, token, ip string) error {
 	return DB.Create(
 		&Token{
 			Token:    token,
 			UserID:   userid,
 			Remark:   "",
+			IP:       ip,
 			CreateAt: time.Now(),
 			ExpireAt: time.Now().AddDate(0, 0, 30),
 		},
@@ -52,7 +54,7 @@ func GetUserIDByToken(token string) (string, error) {
 //GetUserTokensByUserID 通过用户 id 获取 token列表
 func GetUserTokensByUserID(userid string) *[]Token {
 	tokens := make([]Token, 0)
-	DB.Where(&Token{UserID: userid}).Find(&tokens)
+	DB.Where(&Token{UserID: userid}).Where("`expire_at` >= ?", time.Now().Format("2006-01-02 15:04:05")).Find(&tokens)
 	return &tokens
 }
 
