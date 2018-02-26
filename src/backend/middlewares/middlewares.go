@@ -17,11 +17,11 @@ func CorsHeader(c *gin.Context) {
 }
 
 //Auth 认证授权等
-func Auth(unAuthPath ...string) func(*gin.Context) {
+func Auth(prefix string, unAuthPath ...string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
 		for _, uap := range unAuthPath {
-			if uap == path {
+			if prefix+uap == path {
 				return
 			}
 		}

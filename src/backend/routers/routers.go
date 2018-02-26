@@ -18,7 +18,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/app")
 	})
-	apiv1 := r.Group("/api/v1", middleware.Auth("/api/v1/loginCallback", "/api/v1/loginURL"))
+	apiv1 := r.Group("/api/v1", middleware.Auth("/api/v1", "/loginCallback", "/loginURL", "/public/agreement"))
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -70,6 +70,11 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	ann.GET("/:announcementid", GetAnnouncementByID())
 	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
 	ann.PUT("/:announcementid", PutAnnouncementByID())
+
+	//公开信息
+
+	public := apiv1.Group("/public")
+	public.GET("/agreement", GetPublicAgreement(conf.Agreement))
 
 	//前端页面
 	front := packr.NewBox("../../../dist")
