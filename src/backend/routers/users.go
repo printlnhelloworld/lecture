@@ -118,7 +118,7 @@ func GetUserTokens() func(*gin.Context) {
 }
 
 //DeleteUserToken 登出
-func DeleteUserToken() func(*gin.Context) {
+func DeleteUserToken(filter string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusNotImplemented, gin.H{
 			"status": "ok",

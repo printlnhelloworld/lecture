@@ -41,7 +41,9 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	users.GET("/lectures", GetUserLectures())
 	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
 	users.GET("/tokens", GetUserTokens())
-	users.DELETE("/tokens/:tokenid", DeleteUserToken())
+	users.DELETE("/tokens", DeleteUserToken("all"))
+	users.DELETE("/tokens/self", DeleteUserToken("selef"))
+	users.DELETE("/tokens/other", DeleteUserToken("other"))
 
 	//登录
 	apiv1.GET("/loginCallback", UserLoginCallBack(conf))
