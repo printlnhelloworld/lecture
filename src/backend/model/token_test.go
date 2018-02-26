@@ -11,7 +11,7 @@ func TestGetUserIDByToken(t *testing.T) {
 	if err == nil {
 		t.Error(id)
 	}
-	if err = model.AddToken("111111", "token"); err != nil {
+	if err = model.AddToken("111111", "token", "127.0.0.1"); err != nil {
 		t.Error(err.Error())
 	}
 

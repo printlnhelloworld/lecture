@@ -43,6 +43,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	//用户
 	users := apiv1.Group("/user")
 	users.GET("/userinfo", GetUserInfo())
+	users.POST("/agree", UpdateUserInfo())
 	users.GET("/lectures", GetUserLectures())
 	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
 	users.GET("/tokens", GetUserTokens())

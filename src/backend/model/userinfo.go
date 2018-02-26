@@ -65,3 +65,17 @@ func UpdateUserInfo(m map[string]string) error {
 	}
 	return err
 }
+
+//UpdateUserAgree 更新用户同意用户协议
+func UpdateUserAgree(userid string) error {
+	now := time.Now()
+	return DB.Model(UserInfo{}).
+		Where(&UserInfo{UserID: userid}).
+		Update(
+			UserInfo{
+				Agreed:   true,
+				AgreedAt: &now,
+			},
+		).
+		Error
+}

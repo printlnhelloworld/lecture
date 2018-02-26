@@ -57,6 +57,26 @@ func GetUserLectures() func(*gin.Context) {
 	}
 }
 
+//UpdateUserInfo 更新用户同意用户协议（包含课外教育部分）
+func UpdateUserInfo() func(*gin.Context) {
+	return func(c *gin.Context) {
+		userid, _ := c.Get("UserID")
+		err := model.UpdateUserAgree(userid.(string))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "datbaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+			})
+		}
+	}
+}
+
 //GetUserLectureByLectureID 获取用户的参加的特定讲座
 func GetUserLectureByLectureID() func(*gin.Context) {
 	return func(c *gin.Context) {
