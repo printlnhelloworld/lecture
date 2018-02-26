@@ -12,6 +12,7 @@ import (
 func CorsHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
+	c.Header("Access-Control-Allow-Headers", "Authorization")
 	return
 }
 
@@ -24,6 +25,11 @@ func Auth(unAuthPath ...string) func(*gin.Context) {
 				return
 			}
 		}
+
+		if c.Request.Method == "OPTIONS" {
+			return
+		}
+
 		token := c.GetHeader("Authorization")
 		if token == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

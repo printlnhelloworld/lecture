@@ -15,6 +15,9 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.CorsHeader)
 
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/app")
+	})
 	apiv1 := r.Group("/api/v1", middleware.Auth("/api/v1/loginCallback", "/api/v1/loginURL"))
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -22,6 +25,8 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			"msg":    "ok",
 		})
 	})
+
+	apiv1.OPTIONS("/*all", func(c *gin.Context) {})
 
 	//讲座
 	lectures := apiv1.Group("/lectures")

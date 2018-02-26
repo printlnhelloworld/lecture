@@ -25,7 +25,7 @@ func GetUserInfo() func(*gin.Context) {
 			})
 		} else {
 			c.JSON(http.StatusOK, gin.H{
-				"stauts": "ok",
+				"status": "ok",
 				"msg":    "ok",
 				"data": map[string]interface{}{
 					"id":       u.UserID,
@@ -107,7 +107,7 @@ func GetLoginURL(appconf *conf.Conf) func(*gin.Context) {
 	}
 }
 
-//GetTokensByUserID 登录列表
+//GetUserTokens 登录列表
 func GetUserTokens() func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusNotImplemented, gin.H{
