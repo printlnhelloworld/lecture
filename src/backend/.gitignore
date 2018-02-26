@@ -3,3 +3,4 @@ vendor
 backend
 conf/app.toml
 debug
+*packr.go
