@@ -22,7 +22,7 @@ func TestGetUserIDByToken(t *testing.T) {
 	if id != "111111" {
 		t.Error(id)
 	}
-	if err = model.DeleteToken("token"); err != nil {
+	if err = model.DeleteToken("self", "111111", "token"); err != nil {
 		t.Error(err.Error())
 	}
 }

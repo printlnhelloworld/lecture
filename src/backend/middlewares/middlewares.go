@@ -37,7 +37,7 @@ func Auth(prefix string, unAuthPath ...string) func(*gin.Context) {
 				"msg":    "需要登录",
 			})
 		} else {
-			c.Set("token", token)
+			c.Set("Token", token)
 			userid, err := model.GetUserIDByToken(token)
 			if err == nil {
 				c.Set("UserID", userid)

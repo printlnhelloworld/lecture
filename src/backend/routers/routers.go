@@ -47,7 +47,8 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
 	users.GET("/tokens", GetUserTokens())
 	users.DELETE("/tokens", DeleteUserToken("all"))
-	users.DELETE("/tokens/self", DeleteUserToken("selef"))
+	users.DELETE("/tokens/self", DeleteUserToken("self"))
+	users.PUT("/tokens/self", UpdateUserTokenRemark())
 	users.DELETE("/tokens/other", DeleteUserToken("other"))
 
 	//登录

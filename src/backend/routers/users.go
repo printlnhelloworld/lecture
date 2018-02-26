@@ -1,16 +1,12 @@
 package routers
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/url"
-	"regexp"
 
-	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
+	"github.com/gin-gonic/gin/binding"
 )
 
 //GetUserInfo 获取用户信息
@@ -61,56 +57,68 @@ func GetUserLectureByLectureID() func(*gin.Context) {
 	}
 }
 
-//UserLoginCallBack //登录回调
-func UserLoginCallBack(appconf *conf.Conf) func(*gin.Context) {
+//GetUserTokens 登录列表
+func GetUserTokens() func(*gin.Context) {
 	return func(c *gin.Context) {
-		ticket := c.Query("ticket")
-		service := appconf.BaseURL + "/api/v1/loginCallback"
-		encodeURL := "http://cas.hdu.edu.cn/cas/serviceValidate?ticket=" + ticket + "&service=" + url.QueryEscape(service)
-		baseHashURL := "/app/#/login?auth="
-		resp, err := http.Get(encodeURL)
-		if err != nil {
-			c.Header("Location", baseHashURL+"&err=CasGetErr&msg="+err.Error()+"&msg1=服务错误")
-		} else {
-			databytes, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				c.Header("Location", baseHashURL+"&err=ReadErr"+"&msg="+err.Error())
-			} else {
-				m := ParseUserInfoFromCas(string(databytes))
-				if len(m) == 0 {
-					c.Header("Location", baseHashURL+"&err=UnauthErr&msg=登录出现错误，请重试")
-				} else {
-					if err := model.UpdateUserInfo(m); err != nil {
-						c.Header("Location", baseHashURL+"&err=DatabaseErr&msg="+err.Error()+"&msg1=数据库错误")
-					}
-					token := rendToken()
-					if err := model.AddToken(m["userName"], token); err != nil {
-						c.Header("Location", baseHashURL+"&err=DatabaseErr&msg="+err.Error()+"&msg1=数据库错误")
-					} else {
-						c.Header("Location", baseHashURL+token)
-					}
-				}
-			}
+		userid, exist := c.Get("UserID")
+		if !exist {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": "UnauthErr",
+				"msg":    "未认证",
+			})
+			return
 		}
-		c.JSON(http.StatusFound, gin.H{})
-	}
-}
-
-//GetLoginURL 获取登录连接，给前端使用
-func GetLoginURL(appconf *conf.Conf) func(*gin.Context) {
-	return func(c *gin.Context) {
+		tokens := model.GetUserTokensByUserID(userid.(string))
+		m := []map[string]interface{}{}
+		for _, t := range *tokens {
+			m = append(m, map[string]interface{}{
+				"remark":   t.Remark,
+				"createAt": t.CreateAt.Unix(),
+				"expireAt": t.ExpireAt.Unix(),
+			})
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"status":   "ok",
-			"msg":      "ok",
-			"loginURL": "http://cas.hdu.edu.cn/cas/login?service=" + url.QueryEscape(appconf.BaseURL+"/api/v1/loginCallback"),
+			"status": "ok",
+			"msg":    "ok",
+			"list":   m,
 		})
 	}
 }
 
-//GetUserTokens 登录列表
-func GetUserTokens() func(*gin.Context) {
+//UpdateUserTokenRemark 更新 token 备注
+func UpdateUserTokenRemark() func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{
+		token, exist := c.Get("Token")
+		if !exist {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": "UnauthErr",
+				"msg":    "未认证",
+			})
+			return
+		}
+
+		type remark struct {
+			Remark string `json:"remark"`
+		}
+		rmk := remark{}
+		if err := c.ShouldBindWith(&rmk, binding.JSON); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "参数错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		err := model.UpdateTokenRemark(token.(string), rmk.Remark)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "databaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
 		})
@@ -120,25 +128,27 @@ func GetUserTokens() func(*gin.Context) {
 //DeleteUserToken 登出
 func DeleteUserToken(filter string) func(*gin.Context) {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{
+		userid, exist1 := c.Get("UserID")
+		token, exist2 := c.Get("Token")
+		if !exist1 || !exist2 {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status": "UnauthErr",
+				"msg":    "未认证",
+			})
+			return
+		}
+		err := model.DeleteToken(filter, userid.(string), token.(string))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "databaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
 		})
 	}
-}
-
-var re = regexp.MustCompile(`<sso:attribute name="(.*)" type="java.lang.String" value="(.*)"/>`)
-
-//ParseUserInfoFromCas 解析数据
-func ParseUserInfoFromCas(data string) (m map[string]string) {
-	m = map[string]string{}
-	for _, match := range re.FindAllStringSubmatch(data, -1) {
-		m[match[1]] = match[2]
-	}
-	return
-}
-
-func rendToken() string {
-	u := uuid.NewV4()
-	return u.String()
 }
