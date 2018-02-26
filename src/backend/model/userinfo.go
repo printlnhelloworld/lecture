@@ -24,7 +24,7 @@ type UserInfo struct {
 //GetUserByID 通过ID查用户信息
 func GetUserByID(id string) (*UserInfo, error) {
 	var user UserInfo
-	DB.Find(&user, id)
+	DB.Where("`user_id` = ?", id).Find(&user, id)
 	if DB.Error != nil {
 		return nil, DB.Error
 	}

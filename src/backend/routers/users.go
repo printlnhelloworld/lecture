@@ -12,8 +12,15 @@ import (
 //GetUserInfo 获取用户信息
 func GetUserInfo() func(*gin.Context) {
 	return func(c *gin.Context) {
-		userid := c.Param("userid")
-		u, err := model.GetUserByID(userid)
+		userid, exist := c.Get("UserID")
+		if !exist {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "ServerError",
+				"msg":    "服务错误，未定义的 userid",
+			})
+			return
+		}
+		u, err := model.GetUserByID(userid.(string))
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{
 				"status": "DatabaseError",
