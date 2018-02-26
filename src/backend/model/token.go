@@ -38,7 +38,6 @@ func GetUserIDByToken(token string) (string, error) {
 	err := DB.Find(&t).Error
 	if err != nil {
 		return "", err
-	} else {
-		return t.UserID, nil
 	}
+	return t.UserID, nil
 }

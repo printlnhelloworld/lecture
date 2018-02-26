@@ -13,16 +13,6 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-//GetUsers 获取用户列表 //TODO未实现
-func GetUsers() func(*gin.Context) {
-	return func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{
-			"status": "ok",
-			"msg":    "ok",
-		})
-	}
-}
-
 //GetUserInfo 获取用户信息
 func GetUserInfo() func(*gin.Context) {
 	return func(c *gin.Context) {
