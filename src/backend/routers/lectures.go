@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -350,21 +351,163 @@ func GenerateLectureByID() func(*gin.Context) {
 //AddSigninRecordLecturesByID 添加特定讲座签到记录
 func AddSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
+		type record struct {
+			Type *string `json:"type" binding:"required"`
+			Code *string `json:"code"`
+			ID   *string `json:"id"`
+			Name *string `json:"name"`
+		}
+		r := record{}
+		if err := c.ShouldBindWith(&r, binding.JSON); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "参数 type 是必须包含的",
+				"err":    err.Error(),
+			})
+			return
+		}
+		lid, err := strconv.Atoi(c.Param("lectureid"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "讲座id必须是数字",
+			})
+			return
+		}
 
+		lecture, err := model.GetLectureByID(lid)
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "讲座不存在，id 为：" + strconv.Itoa(lid),
+			})
+			return
+		} else if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "DatabaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		switch *r.Type {
+		case "byhand":
+			userid, _ := c.Get("UserID")
+			if lecture.UserID != userid {
+				c.JSON(http.StatusForbidden, gin.H{
+					"status": "ok",
+					"msg":    "只有讲座创建者才能手动添加签到记录",
+				})
+			} else {
+				//TODO 返回系统中没有用户的情况
+				lr, err := model.AddLectureRecord("byhand", *r.ID, lecture.ID)
+				if err != nil {
+					if strings.Contains(err.Error(), "1062") {
+						c.JSON(http.StatusOK, gin.H{
+							"status": "CreatedErr",
+							"msg":    "已经添加过了",
+							"err":    err.Error(),
+						})
+					} else {
+						c.JSON(http.StatusInternalServerError, gin.H{
+							"status": "DatabaseErr",
+							"msg":    "数据库错误",
+							"err":    err.Error(),
+						})
+					}
+				} else {
+					c.JSON(http.StatusOK, gin.H{
+						"status": "ok",
+						"msg":    "ok",
+						"data": map[string]interface{}{
+							"lecture_id": lr.LectureID,
+							"user_id":    lr.UserID,
+							"type":       lr.Type,
+							"createAt":   lr.CreateAt.Unix(),
+							"remark":     lr.Remark,
+						},
+					})
+				}
+			}
+		case "qcode", "code":
+			c.JSON(http.StatusNotImplemented, gin.H{
+				"satatus": "ok",
+				"msg":     "ok",
+			})
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "type 值不对，必须是 byhand/qcode/code 中的一种",
+			})
+		}
 	}
 }
 
 //GetSigninRecordLecturesByID 获取特定讲座签到记录
 func GetSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		lid, err := strconv.Atoi(c.Param("lectureid"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "参数 lectureid 必须是数字",
+			})
+			return
+		}
+		_, err = model.GetLectureByID(lid)
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "讲座不存在，id 为：" + strconv.Itoa(lid),
+			})
+			return
+		}
+		total, lrs := model.GetLectureRecordsByLectureID(lid)
+		var tmp []map[string]interface{}
+		for _, lr := range lrs {
+			tmp = append(tmp, map[string]interface{}{
+				"userId":   lr.UserID,
+				"name":     "", //TODO 实现获取名字
+				"signedAt": lr.CreateAt.Unix(),
+				"type":     lr.Type,
+				"remark":   lr.Remark,
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+			"total":  total,
+			"data":   tmp,
+		})
 	}
 }
 
-//DeleteOneSigninRecordLecturesByID 删除特定讲座签到记录
+//DeleteOneSigninRecordLecturesByID 删除特定讲座特定用户签到记录
 func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		lid, err := strconv.Atoi(c.Param("lectureid"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "ParamErr",
+				"msg":    "讲座id必须是数字",
+			})
+			return
+		}
+		userid := c.Param("userid")
+		err = model.DeleteLectureRecord(lid, userid)
+		//TODO 设置只能删除手动添加的记录
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "databaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+			})
+		}
 	}
 }
 

@@ -100,5 +100,6 @@ func DeleteLectureByID(id int) error {
 	if db.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
+	_ = DeleteLectureAllRecord(id)
 	return db.Error
 }

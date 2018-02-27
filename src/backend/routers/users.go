@@ -57,8 +57,8 @@ func GetUserLectures() func(*gin.Context) {
 	}
 }
 
-//UpdateUserInfo 更新用户同意用户协议（包含课外教育部分）
-func UpdateUserInfo() func(*gin.Context) {
+//UpdateUserAgree 更新用户同意用户协议（包含课外教育部分）
+func UpdateUserAgree() func(*gin.Context) {
 	return func(c *gin.Context) {
 		userid, _ := c.Get("UserID")
 		err := model.UpdateUserAgree(userid.(string))

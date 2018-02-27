@@ -38,12 +38,12 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	lectures.POST("/:lectureid/siginCode", GenerateLectureByID())
 	lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
 	lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
-	lectures.DELETE("/:lectureid/user/:userid", DeleteOneSigninRecordLecturesByID())
+	lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
 
 	//用户
 	users := apiv1.Group("/user")
 	users.GET("/userinfo", GetUserInfo())
-	users.POST("/agree", UpdateUserInfo())
+	users.POST("/agree", UpdateUserAgree())
 	users.GET("/lectures", GetUserLectures())
 	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
 	users.GET("/tokens", GetUserTokens())
