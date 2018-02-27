@@ -17,6 +17,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   let auth = localStorage.getItem('auth');
+  console.log(auth)
   if (auth) {
     config.headers.common['Authorization'] = auth;
   } else {

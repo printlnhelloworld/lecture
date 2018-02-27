@@ -27,7 +27,7 @@ export default {
   methods: {
     login() {
       let _self = this;
-      let auth = _self.$route.query
+      let auth = _self.$route.query.auth;
       // 判断是否是url中是否带有auth(即是不是新登录)
       if (auth) {
         localStorage.setItem('auth', auth)
@@ -44,7 +44,7 @@ export default {
     getUserInfo() {
       let _self = this;
       _self.$ajax({
-        url: '/users/userinfo',
+        url: '/user/userinfo',
         method: 'get'
       }).then(res => {
         let data = res.data;
@@ -79,7 +79,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
-          window.location.href = data.loginURL;
+          // window.location.href = data.loginURL;
         }
       })
     },

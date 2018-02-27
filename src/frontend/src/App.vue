@@ -15,6 +15,11 @@ export default {
   padding: 0;
   margin: 0;
 }
+a {
+    text-decoration:none;
+    out-line: none;
+    color: black;
+}
 html, body, #app{
   height: 100%;
   width: 100%;

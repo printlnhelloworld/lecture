@@ -18,7 +18,7 @@
           bottomLoadingText="加载中"
           ref="loadmore">
             <div class="lectureList">
-              <div v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+              <router-link v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                 <span>{{ item.topic }}</span>
                 <section>
                   <p>
@@ -27,7 +27,7 @@
                   </p>
                     <span>{{ getTime(item.startTimeStamp) }}</span>
                 </section>
-              </div>
+              </router-link>
             </div>
             <!-- <ul class="page-loadmore-list">
               <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
@@ -230,6 +230,9 @@ export default {
     // getHM(time) {
     //   return formatDateHM(time);
     // }
+  },
+  mounted() {
+    this.getData();
   }
 }
 </script>
