@@ -6,7 +6,7 @@
       </div>
     </mt-header>
     <section>
-      <ul class="detials">
+      <ul class="detials" v-if="!edit">
         <li><span>主题：{{ lecture.topic }}</span></li>
         <li><span>时间：{{ getTime(lecture.startAt) }}</span></li>
         <li><span>地点：{{ lecture.location }}</span></li>
@@ -15,6 +15,22 @@
         <li><span>讲座类型：{{ lecture.type }}</span></li>
         <li><span>内容简介：{{ lecture.introduction }}</span></li>
       </ul>
+      <div class="buttonGroup">
+        <mt-button type="primary">开始讲座</mt-button>
+        <mt-button type="primary">编辑讲座</mt-button>
+        <mt-button type="primary">签到管理</mt-button>
+        <mt-button type="primary">签到列表</mt-button>
+        <mt-button type="danger">结束讲座</mt-button>
+      </div>
+      <div v-if="edit">
+        <mt-field label="主题" placeholder="请输入用户名" v-model="username"></mt-field>
+        <mt-field label="时间" placeholder="请输入邮箱" type="email" v-model="email"></mt-field>
+        <mt-field label="地点" placeholder="请输入密码" type="password" v-model="password"></mt-field>
+        <mt-field label="主办方" placeholder="请输入手机号" type="tel" v-model="phone"></mt-field>
+        <mt-field label="主讲人" placeholder="请输入网址" type="url" v-model="website"></mt-field>
+        <mt-field label="讲座类型" placeholder="请输入数字" type="number" v-model="number"></mt-field>
+        <mt-field label="内容简介" placeholder="自我介绍" type="textarea" rows="4" v-modal="introduction"></mt-field>
+      </div>
     </section>
   </div>
 </template>
@@ -41,7 +57,16 @@ export default {
         finished: true,
         canSignin: true,
         remark: '讲座自动完成'
-      }
+      },
+      edit: false
+    }
+  },
+  computed: {
+    type() {
+      return this.$store.state.data.type;
+    },
+    createrFlag() {
+      return this.$store.data.id === this.lecture.creatorUserID
     }
   },
   methods: {
@@ -70,15 +95,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+section{
+  padding:10%;
+}
 .detials{
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
   >li{
     list-style: none;
-    width: 60%;
+    width: 100%;
     line-height: 1.5rem;
+  }
+}
+.buttonGroup{
+  margin: 2rem 0 0 0;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  >button{
+    width: 80%;
   }
 }
 </style>

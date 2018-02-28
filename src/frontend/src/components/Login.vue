@@ -1,16 +1,6 @@
 <template>
-  <div class="wrap" v-if="!loading">
-    <img v-if="flag && agree" src="../assets/icon/success.png" alt="">
-    <img v-if="!flag && agree" src="../assets/icon/warning.png" alt="">
-    <div v-if="agree">{{ flag ? '登陆成功' : '登录信息失效'}}</div>
-    <div v-if="!agree" class="rule">
-      <h4 class="title">使用本系统前,请先阅读《课外教育规定》</h4>
-      <p>
-        asddddddddddddddddddddddddasdddddddddd
-        asdasdasddddddddd
-      </p>
-      <mt-button type="primary" >已阅读并同意使用本系统</mt-button>
-    </div>
+  <div class="wrap">
+    <router-view/>
   </div>
 </template>
 
@@ -18,9 +8,6 @@
 export default {
   data() {
     return {
-      loading: true,
-      flag: true,
-      agree: true,
       auth: localStorage.getItem('auth')
     }
   },
@@ -51,12 +38,13 @@ export default {
         _self.agree = data.data.agree;
         // 判断是否登录token是否有效
         if (data.status === 'ok') {
-          _self.loading = false;
+          localStorage.setItem('type', data.data.type);
+          _self.$store.commit('initData', data.data);
           // 判断是否阅读相关规则并同意使用本系统
           if (_self.agree === true) {
-            setTimeout(() => {
-              _self.$router.push('/index');
-            }, 1000)
+            _self.$router.push('/index');
+          } else {
+            _self.$router.push('/login/tips');
           }
         } else {
           localStorage.removeItem('auth');
@@ -79,7 +67,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
-          // window.location.href = data.loginURL;
+          window.location.href = data.loginURL;
         }
       })
     },

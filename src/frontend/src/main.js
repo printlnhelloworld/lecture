@@ -7,6 +7,7 @@ import axios from 'axios'
 import Mint from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import './assets/css/my-mint.scss'
+import store from './vuex/store'
 require('es6-promise').polyfill();
 Vue.use(Mint);
 const axiosInstance = axios.create({
@@ -36,6 +37,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

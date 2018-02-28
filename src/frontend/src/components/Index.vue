@@ -2,47 +2,68 @@
   <div class="wrap">
     <div class="page-wrap">
       <mt-header :title="title"></mt-header>
-      <div>
-        <mt-cell class="page-part" title="当前选中" :value="selected"/>
-      </div>
       <!-- tabcontainer -->
-      <mt-tab-container class="page-tabbar-container" v-model="selected">
+      <mt-tab-container class="page-tabbar-container" v-model="selected" ref="wrap">
         <mt-tab-container-item id="list">
-          <mt-loadmore
-          :top-method="loadTop"
-          :bottom-method="loadBottom"
-          :bottom-all-loaded="allLoaded"
-          auto-fill
-          bottomPullText="上拉加载更多"
-          bottomDropText="释放加载更多"
-          bottomLoadingText="加载中"
-          ref="loadmore">
+          <div class="searchBar">
+            <!-- <select2 :options="options" v-model="selected">
+              <option disabled value="0">Select one</option>
+            </select2> -->
+          </div>
+          <div class="loadmore_wrap" :style="{height: wrapHeight + 'px'}">
+            <mt-loadmore
+            :top-method="loadTop"
+            :bottom-method="loadBottom"
+            :bottom-all-loaded="allLoaded"
+            auto-fill
+            ref="loadmore">
+              <div class="lectureList">
+                <router-link v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                  <span>{{ item.topic }}</span>
+                  <section>
+                    <p>
+                      <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                      <span>{{item.status}}</span>
+                    </p>
+                      <span>{{ getTime(item.startAt) }}</span>
+                  </section>
+                </router-link>
+              </div>
+              <!-- <ul class="page-loadmore-list">
+                <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
+              </ul> -->
+            </mt-loadmore>
+          </div>
+        </mt-tab-container-item>
+        <mt-tab-container-item id="mine">
+          <div class="page-part">
+            <mt-cell class="account" :title="'学院专业讲座×' + mine.marjorCount"/>
             <div class="lectureList">
-              <router-link v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+              <router-link v-for="item in list2" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                 <span>{{ item.topic }}</span>
                 <section>
                   <p>
                     <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
                     <span>{{item.status}}</span>
                   </p>
-                    <span>{{ getTime(item.startTimeStamp) }}</span>
+                    <span>{{ getTime(item.startAt) }}</span>
                 </section>
               </router-link>
             </div>
-            <!-- <ul class="page-loadmore-list">
-              <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
-            </ul> -->
-          </mt-loadmore>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="mine">
-          <div class="page-part">
-           <!-- cell -->
-            <mt-cell v-for="n in 12" :title="'我的 ' + n" :key="n"/>
+            <mt-cell class="account" :title="'校团委讲座×' + mine.marjorCount"/>
+            <div class="lectureList">
+              <router-link v-for="item in list2" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                <span>{{ item.topic }}</span>
+                <section>
+                  <p>
+                    <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                    <span>{{item.status}}</span>
+                  </p>
+                    <span>{{ getTime(item.startAt) }}</span>
+                </section>
+              </router-link>
+            </div>
           </div>
-          <router-link to="/">
-           <!-- button -->
-            <mt-button type="danger" size="large">退出</mt-button>
-          </router-link>
         </mt-tab-container-item>
       </mt-tab-container>
     </div>
@@ -65,122 +86,53 @@ export default {
   data() {
     return {
       selected: 'list',
-      list: [
+      list: [],
+      list2: [
         {
           'id': 1,
           'topic': 'xxx讲座',
           'type': 'xxx',
           'status': '未开始',
-          'startTimeStamp': 1519389118000
+          'startAt': 1519389118000
         },
         {
           'id': 2,
           'topic': 'xxx讲座',
           'type': 'xxx',
           'status': '未开始',
-          'startTimeStamp': 1519389118000
+          'startAt': 1519389118000
         },
         {
           'id': 3,
           'topic': 'xxx讲座',
           'type': 'xxx',
           'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 4,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 5,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 6,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 7,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 8,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 9,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 10,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 11,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 12,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 13,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 14,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 15,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startTimeStamp': 1519389118000
-        },
-        {
-          'id': 16,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': 'prepare',
-          'startTimeStamp': 1519389118000
+          'startAt': 1519389118000
         }
       ],
       allLoaded: false,
-      scrollMode: 'auto'
+      scrollMode: 'auto',
+      mine: {
+        // 参与专业讲座数目
+        marjorCount: 0,
+        // 参与校团委讲他做数目
+        schoolCount: 0,
+        list: [
+          {
+            // 讲座id
+            id: 1,
+            // 讲座主题
+            topic: 'xxxx讲座',
+            // 讲座类别 参考数字字典
+            type: '校团委讲座',
+            // 时间戳 秒级
+            startAt: 1519389118000,
+            signType: 'qcode'
+          }
+        ]
+      },
+      wrapHeight: '',
+      options: [1, 2, 3]
     }
   },
   computed: {
@@ -193,36 +145,49 @@ export default {
         default:
           return '';
       }
+    },
+    type() {
+      return this.$store.state.data.type;
     }
   },
   methods: {
-    // 上拉加载更多
-    loadBottom() {
-      console.log('bottom');
-      this.allLoaded = true;// if all data are loaded
-      this.$refs.loadmore.onBottomLoaded();
-    },
-    // 下拉刷新
-    loadTop() {
-      this.$refs.loadmore.onTopLoaded();
-    },
     // 获取列表数据
     getData() {
       let _self = this;
-      _self.$ajax({
+      return _self.$ajax({
         url: '/lectures',
         method: 'get'
-      }).then(res => {
-        let data = res.data;
-        _self.list.push(...data.data)
-        if (data.isLast === false) {
-          // 数据加载完毕,无法上拉
-          _self.allLoaded = true;
-        }
       })
+    },
+    // 上拉加载更多
+    loadBottom() {
+      let _self = this;
+      console.log('bottom');      
+      _self.$refs.loadmore.onBottomLoaded();
+    },
+    // 下拉刷新
+    loadTop() {
+      let _self = this;
+      _self.$refs.loadmore.onTopLoaded();
+      this.allLoaded = false;
+      console.log('bottom');
+      _self.getData().then(res => {
+        let data = res.data;
+        _self.list = data.data;
+      });
+    },
+    getMineData() {
+
     },
     getTime(time) {
       return formatDate(time);
+    },
+    wrapInit() {
+      let wrapHeight = document.getElementsByClassName('mint-tab-container')[0].offsetHeight;
+      let searchBarHeight = document.getElementsByClassName('searchBar')[0].offsetHeight;
+      document.getElementsByClassName('loadmore_wrap')[0].style.height = wrapHeight - searchBarHeight + 'px';
+      // document.getElementsByClassName('lectureList')[0].style.height = wrapHeight - searchBarHeight + 'px';
+      console.log(document.getElementsByClassName('loadmore_wrap')[0].style.height)
     }
     // getYMD(time) {
     //   return formatDateYMD(time);
@@ -232,7 +197,11 @@ export default {
     // }
   },
   mounted() {
-    this.getData();
+    let _self = this;
+    this.$nextTick(() => {
+      _self.wrapInit();
+    })
+    this.loadTop();
   }
 }
 </script>
@@ -244,22 +213,33 @@ export default {
   display: flex;
   flex-direction: column;
 }
-// .lectureList{
-//   background-color: #bfd7e2;
-// }
+.mint-cell{
+  position:relative;
+  top:0;
+  left: 0;
+}
 .page-wrap{
   overflow: scroll;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
+.loadmore_wrap{
+  // flex:1;
+  overflow: scroll;
+  // height: 200px;
+}
 .page-tabbar-container{
   flex:1;
   margin-bottom: 55px;
   overflow: scroll;
 }
+#mine{
+  overflow:scroll;
+}
 .lectureList{
   height: 100%;
+  margin: 0.5rem 0 0.5rem  0
 }
 .lectureItem{
   display: flex;
@@ -282,5 +262,9 @@ export default {
       justify-content: space-between;
     }
   }
+}
+.mint-cell-wrapper{
+  height:1rem;
+  font-size: 0.75rem;
 }
 </style>

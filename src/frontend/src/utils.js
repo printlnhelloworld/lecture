@@ -23,7 +23,7 @@ function formatDate(now) {
   let hour = time.getHours();
   let minute = time.getMinutes();
   // let second = now.getSeconds();
-  return year + '/' + month + '/' + date + ' ' + hour + ':' + minute;
+  return year + '年' + month + '月' + date + '日' + hour + ':' + minute;
 }
 export { formatDate }
 // export { formatDateYMD, formatDateHM }
