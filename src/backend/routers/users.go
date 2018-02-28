@@ -12,14 +12,8 @@ import (
 //GetUserInfo 获取用户信息
 func GetUserInfo() func(*gin.Context) {
 	return func(c *gin.Context) {
-		userid, exist := c.Get("UserID")
-		if !exist {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "ServerError",
-				"msg":    "服务错误，未定义的 userid",
-			})
-			return
-		}
+		userid, _ := c.Get("UserID")
+
 		u, err := model.GetUserByID(userid.(string))
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{
@@ -87,18 +81,12 @@ func GetUserLectureByLectureID() func(*gin.Context) {
 //GetUserTokens 登录列表
 func GetUserTokens() func(*gin.Context) {
 	return func(c *gin.Context) {
-		userid, exist := c.Get("UserID")
-		if !exist {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": "UnauthErr",
-				"msg":    "未认证",
-			})
-			return
-		}
+		userid, _ := c.Get("UserID")
+
 		tokens := model.GetUserTokensByUserID(userid.(string))
-		m := []map[string]interface{}{}
+		m := []gin.H{}
 		for _, t := range *tokens {
-			m = append(m, map[string]interface{}{
+			m = append(m, gin.H{
 				"remark":   t.Remark,
 				"ip":       t.IP,
 				"createAt": t.CreateAt.Unix(),
@@ -116,14 +104,7 @@ func GetUserTokens() func(*gin.Context) {
 //UpdateUserTokenRemark 更新 token 备注
 func UpdateUserTokenRemark() func(*gin.Context) {
 	return func(c *gin.Context) {
-		token, exist := c.Get("Token")
-		if !exist {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": "UnauthErr",
-				"msg":    "未认证",
-			})
-			return
-		}
+		token, _ := c.Get("Token")
 
 		type remark struct {
 			Remark string `json:"remark"`
@@ -156,15 +137,9 @@ func UpdateUserTokenRemark() func(*gin.Context) {
 //DeleteUserToken 登出
 func DeleteUserToken(filter string) func(*gin.Context) {
 	return func(c *gin.Context) {
-		userid, exist1 := c.Get("UserID")
-		token, exist2 := c.Get("Token")
-		if !exist1 || !exist2 {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"status": "UnauthErr",
-				"msg":    "未认证",
-			})
-			return
-		}
+		userid, _ := c.Get("UserID")
+		token, _ := c.Get("Token")
+
 		err := model.DeleteToken(filter, userid.(string), token.(string))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{

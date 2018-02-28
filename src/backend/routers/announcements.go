@@ -62,14 +62,7 @@ func CreateAnnouncements() func(*gin.Context) {
 	return func(c *gin.Context) {
 		var a annnouncement
 		if err := c.ShouldBindWith(&a, binding.JSON); err == nil {
-			userid, exist := c.Get("UserID")
-			if !exist {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"status": "ServerError",
-					"msg":    "服务出现错误",
-					"err":    "Lost UserID",
-				})
-			}
+			userid, _ := c.Get("UserID")
 			if aid, err := model.CreateAnnouncement(a.Title, a.Content, userid.(string), a.Important); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"status": "ServerError",
@@ -114,14 +107,8 @@ func PutAnnouncementByID() func(*gin.Context) {
 		aid := annstr.(int)
 		var a annnouncement
 		if err := c.ShouldBindWith(&a, binding.JSON); err == nil {
-			userid, exist := c.Get("UserID")
-			if !exist {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"status": "ServerError",
-					"msg":    "服务出现错误",
-					"err":    "Lost UserID",
-				})
-			} else if err := model.PutAnnouncement(aid, a.Title, a.Content, userid.(string), a.Important); err != nil {
+			userid, _ := c.Get("UserID")
+			if err := model.PutAnnouncement(aid, a.Title, a.Content, userid.(string), a.Important); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"status": "ServerError",
 					"msg":    "服务出现错误",

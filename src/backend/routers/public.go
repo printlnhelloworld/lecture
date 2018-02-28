@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//GetPublicAgreement 获取公共信息
+//GetPublicAgreement 获取用户协议
 func GetPublicAgreement(agreement []string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

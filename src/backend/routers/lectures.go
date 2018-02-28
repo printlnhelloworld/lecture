@@ -111,13 +111,8 @@ func CreateLecture() func(*gin.Context) {
 				"err":    err.Error(),
 			})
 		} else {
-			if userid, exist := c.Get("UserID"); !exist {
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"status": "ServerError",
-					"msg":    "服务出现错误",
-					"err":    "Lost UserID",
-				})
-			} else if id, err := model.CreateLecture(
+			userid, _ := c.Get("UserID")
+			if id, err := model.CreateLecture(
 				userid.(string),
 				lec.Topic,
 				lec.Location,
@@ -168,15 +163,7 @@ func PatchLectureByID() func(*gin.Context) {
 			})
 			return
 		}
-		userid, exist := c.Get("UserID")
-		if !exist {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "ServerError",
-				"msg":    "服务出现错误",
-				"err":    "Lost UserID",
-			})
-			return
-		}
+		userid, _ := c.Get("UserID")
 
 		lectureidStr, _ := c.Get("lectureid")
 		lecid := lectureidStr.(int)
