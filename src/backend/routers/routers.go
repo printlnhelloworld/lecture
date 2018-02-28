@@ -13,12 +13,12 @@ import (
 //SetupRouters 初始化路由
 func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
-	r.Use(middleware.CorsHeader)
+	r.Use(middlewares.CorsHeader)
 
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/app")
 	})
-	apiv1 := r.Group("/api/v1", middleware.Auth("/api/v1", "/loginCallback", "/loginURL", "/public/agreement"))
+	apiv1 := r.Group("/api/v1", middlewares.Auth("/api/v1", "/loginCallback", "/loginURL", "/public/agreement"))
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -32,10 +32,14 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	lectures := apiv1.Group("/lectures")
 	lectures.GET("", GetLectures())
 	lectures.POST("", CreateLecture())
+	lectures = lectures.Group("",
+		middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
+		middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
+	)
 	lectures.PATCH("/:lectureid", PatchLectureByID())
 	lectures.GET("/:lectureid", GetlectureByID())
 	lectures.DELETE("/:lectureid", DeleteLectureByID())
-	lectures.POST("/:lectureid/siginCode", GenerateLectureByID())
+	lectures.GET("/:lectureid/siginCode", GetLectureCodeByID())
 	lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
 	lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
 	lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
@@ -45,7 +49,11 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	users.GET("/userinfo", GetUserInfo())
 	users.POST("/agree", UpdateUserAgree())
 	users.GET("/lectures", GetUserLectures())
-	users.GET("/lectures/:lectureid", GetUserLectureByLectureID())
+	users.GET(
+		"/lectures/:lectureid",
+		middlewares.PathParamMustBeInt("lectureid"),
+		GetUserLectureByLectureID(),
+	)
 	users.GET("/tokens", GetUserTokens())
 	users.DELETE("/tokens", DeleteUserToken("all"))
 	users.DELETE("/tokens/self", DeleteUserToken("self"))
@@ -69,6 +77,10 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	ann := apiv1.Group("/announcements")
 	ann.GET("", GetAnnouncements())
 	ann.POST("", CreateAnnouncements())
+	ann = ann.Group("",
+		middlewares.PathParamMustBeInt("announcementid"),
+		middlewares.AnnouncementMustBeExist("announcementid"),
+	)
 	ann.GET("/:announcementid", GetAnnouncementByID())
 	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
 	ann.PUT("/:announcementid", PutAnnouncementByID())

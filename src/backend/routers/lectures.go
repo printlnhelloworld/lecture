@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/jinzhu/gorm"
 
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 )
@@ -178,30 +177,11 @@ func PatchLectureByID() func(*gin.Context) {
 			})
 			return
 		}
-		lecid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "参数 lecid 必须是数字",
-			})
-			return
-		}
-		oldlec, err := model.GetLectureByID(lecid)
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{
-				"status": "NotFoundErr",
-				"msg":    "没有数据",
-			})
-			return
-		}
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "DatabaseErr",
-				"msg":    "数据库错误",
-				"err":    err.Error(),
-			})
-			return
-		}
+
+		lectureidStr, _ := c.Get("lectureid")
+		lecid := lectureidStr.(int)
+
+		oldlec, _ := model.GetLectureByID(lecid)
 
 		//TODO 多个人的权限？
 		if oldlec.UserID != userid {
@@ -241,7 +221,7 @@ func PatchLectureByID() func(*gin.Context) {
 				m["Finished"] = *lec.Finished
 			}
 		}
-		err = model.PatchLecture(lecid, m)
+		err := model.PatchLecture(lecid, m)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status": "DatabaseErr",
@@ -260,91 +240,79 @@ func PatchLectureByID() func(*gin.Context) {
 //GetlectureByID 获取特定讲座
 func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		lectureid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "err",
-				"msg":    "讲座id必须是数字",
-			})
-		} else {
-			lec, err := model.GetLectureByID(lectureid)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					c.JSON(http.StatusNotFound, gin.H{
-						"status": "NotFoundErr",
-						"msg":    "没有数据",
-					})
-				} else {
-					c.JSON(http.StatusInternalServerError, gin.H{
-						"status": "DatabaseErr",
-						"msg":    "数据库错误",
-						"err":    err.Error(),
-					})
-				}
-			} else {
-				c.JSON(http.StatusOK, gin.H{
-					"status": "ok",
-					"msg":    "ok",
-					"data": map[string]interface{}{
-						"id":            lec.ID,
-						"creatorUserID": lec.UserID,
-						"topic":         lec.Topic,
-						"location":      lec.Location,
-						"startAt":       lec.StartAt.Unix(),
-						"host":          lec.Host,
-						"lecturer":      lec.Lecturer,
-						"type":          lec.Type,
-						"status":        getLectureStatus(*lec, time.Now()),
-						"createAt":      lec.CreateAt.Unix(),
-						"finished":      lec.Finished,
-						"finishedAt":    lec.FinishedAt.Unix(),
-						"canSignin":     false, //TODO 未实现
-						"remark":        lec.Remark,
-					},
-				})
-			}
-		}
+		lectureidStr, _ := c.Get("lectureid")
+		lectureid := lectureidStr.(int)
+
+		lec, _ := model.GetLectureByID(lectureid)
+
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+			"data": gin.H{
+				"id":            lec.ID,
+				"creatorUserID": lec.UserID,
+				"topic":         lec.Topic,
+				"location":      lec.Location,
+				"startAt":       lec.StartAt.Unix(),
+				"host":          lec.Host,
+				"lecturer":      lec.Lecturer,
+				"type":          lec.Type,
+				"status":        getLectureStatus(*lec, time.Now()),
+				"createAt":      lec.CreateAt.Unix(),
+				"finished":      lec.Finished,
+				"finishedAt":    lec.FinishedAt.Unix(),
+				"canSignin":     false, //TODO 未实现
+				"remark":        lec.Remark,
+			},
+		})
+
 	}
 }
 
 //DeleteLectureByID 删除特定讲座
 func DeleteLectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		lectureid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "err",
-				"msg":    "讲座id必须是数字",
-			})
-		} else {
-			err = model.DeleteLectureByID(lectureid)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					c.JSON(http.StatusNotFound, gin.H{
-						"status": "NotFoundErr",
-						"msg":    "没有数据",
-					})
-				} else {
-					c.JSON(http.StatusInternalServerError, gin.H{
-						"status": "DatabaseErr",
-						"msg":    "数据库错误",
-						"err":    err.Error(),
-					})
-				}
-			} else {
-				c.JSON(http.StatusOK, gin.H{
-					"status": "ok",
-					"msg":    "ok",
-				})
-			}
-		}
+		lectureidStr, _ := c.Get("lectureid")
+		lectureid := lectureidStr.(int)
+
+		_ = model.DeleteLectureByID(lectureid)
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+		})
+
 	}
 }
 
-//GenerateLectureByID 生成特定讲座的签到码
-func GenerateLectureByID() func(*gin.Context) {
-	return func(c *gin.Context) {
+//lectureCode 讲座的状态
+var lectureCodeMap = map[int]lectureCode{}
 
+type lectureCode struct {
+	canSign  bool      //是否能签到
+	isEnd    bool      //是否结束
+	code     string    //签到码
+	expireAt time.Time //签到码过期时间
+}
+
+//GetLectureCodeByID 生成特定讲座的签到码
+func GetLectureCodeByID() func(*gin.Context) {
+	return func(c *gin.Context) {
+		lid := 0 //TODO
+		initLectureCode(lid)
+	}
+}
+
+func initLectureCode(lid int) {
+	if _, ok := lectureCodeMap[lid]; ok {
+		return
+	}
+
+	l, _ := model.GetLectureByID(lid)
+	lectureCodeMap[lid] = lectureCode{
+		canSign:  false,
+		isEnd:    l.Finished,
+		code:     "",
+		expireAt: time.Now(),
 	}
 }
 
@@ -366,30 +334,10 @@ func AddSigninRecordLecturesByID() func(*gin.Context) {
 			})
 			return
 		}
-		lid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "讲座id必须是数字",
-			})
-			return
-		}
+		lectureidStr, _ := c.Get("lectureid")
+		lid := lectureidStr.(int)
 
-		lecture, err := model.GetLectureByID(lid)
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "讲座不存在，id 为：" + strconv.Itoa(lid),
-			})
-			return
-		} else if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "DatabaseErr",
-				"msg":    "数据库错误",
-				"err":    err.Error(),
-			})
-			return
-		}
+		lecture, _ := model.GetLectureByID(lid)
 		switch *r.Type {
 		case "byhand":
 			userid, _ := c.Get("UserID")
@@ -446,22 +394,9 @@ func AddSigninRecordLecturesByID() func(*gin.Context) {
 //GetSigninRecordLecturesByID 获取特定讲座签到记录
 func GetSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		lid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "参数 lectureid 必须是数字",
-			})
-			return
-		}
-		_, err = model.GetLectureByID(lid)
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "讲座不存在，id 为：" + strconv.Itoa(lid),
-			})
-			return
-		}
+		lectureidStr, _ := c.Get("lectureid")
+		lid := lectureidStr.(int)
+
 		total, lrs := model.GetLectureRecordsByLectureID(lid)
 		var tmp []map[string]interface{}
 		for _, lr := range lrs {
@@ -485,16 +420,11 @@ func GetSigninRecordLecturesByID() func(*gin.Context) {
 //DeleteOneSigninRecordLecturesByID 删除特定讲座特定用户签到记录
 func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		lid, err := strconv.Atoi(c.Param("lectureid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamErr",
-				"msg":    "讲座id必须是数字",
-			})
-			return
-		}
+		lectureidStr, _ := c.Get("lectureid")
+		lid := lectureidStr.(int)
+
 		userid := c.Param("userid")
-		err = model.DeleteLectureRecord(lid, userid)
+		err := model.DeleteLectureRecord(lid, userid)
 		//TODO 设置只能删除手动添加的记录
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{

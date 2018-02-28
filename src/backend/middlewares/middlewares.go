@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"net/http"
@@ -42,7 +42,7 @@ func Auth(prefix string, unAuthPath ...string) func(*gin.Context) {
 			if err == nil {
 				c.Set("UserID", userid)
 			} else {
-				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 					"status": "badTokenErr",
 					"msg":    "错误或过期的token",
 					"token":  token,

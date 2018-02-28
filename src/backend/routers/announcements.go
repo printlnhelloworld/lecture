@@ -7,7 +7,6 @@ import (
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/jinzhu/gorm"
 )
 
 type annnouncement struct {
@@ -97,31 +96,9 @@ func CreateAnnouncements() func(*gin.Context) {
 //GetAnnouncementByID 获取单个公告
 func GetAnnouncementByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("announcementid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "param type error",
-				"msg":    "参数类型错误",
-				"next":   c.Param("announcementid"),
-			})
-			return
-		}
-		ann, err := model.GetAnnouncementByID(id)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"status": "ErrRecordNotFound",
-					"msg":    "没有数据",
-				})
-			} else {
-				c.JSON(http.StatusBadGateway, gin.H{
-					"status": "databaseError",
-					"msg":    "数据库错误",
-					"err":    err.Error(),
-				})
-			}
-			return
-		}
+		annstr, _ := c.Get("announcementid")
+		aid := annstr.(int)
+		ann, _ := model.GetAnnouncementByID(aid)
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
@@ -133,15 +110,8 @@ func GetAnnouncementByID() func(*gin.Context) {
 //PutAnnouncementByID 修改公告
 func PutAnnouncementByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		aid, err := strconv.Atoi(c.Param("announcementid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "ParamError",
-				"msg":    "参数错误",
-				"err":    "announcementid must be int",
-			})
-			return
-		}
+		annstr, _ := c.Get("announcementid")
+		aid := annstr.(int)
 		var a annnouncement
 		if err := c.ShouldBindWith(&a, binding.JSON); err == nil {
 			userid, exist := c.Get("UserID")
@@ -176,16 +146,10 @@ func PutAnnouncementByID() func(*gin.Context) {
 //DeleteAnnouncementByID 删除公告
 func DeleteAnnouncementByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("announcementid"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status": "param type error",
-				"msg":    "参数类型错误",
-				"next":   c.Param("announcementid"),
-			})
-			return
-		}
-		count, err := model.DeleteAnnouncementByID(id)
+		annstr, _ := c.Get("announcementid")
+		aid := annstr.(int)
+		count, err := model.DeleteAnnouncementByID(aid)
+
 		if err != nil {
 			c.JSON(http.StatusBadGateway, gin.H{
 				"status": "databaseError",
