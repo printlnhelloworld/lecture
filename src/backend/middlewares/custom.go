@@ -14,6 +14,7 @@ func CorsHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Authorization")
+	c.Header("X-Powered-By", "php")
 	return
 }
 
