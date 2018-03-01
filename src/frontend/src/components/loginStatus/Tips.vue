@@ -47,7 +47,7 @@ export default {
           console.log(data.msg);
         }
       })
-    }    
+    }
   },
   mounted() {
     this.getAgreement();

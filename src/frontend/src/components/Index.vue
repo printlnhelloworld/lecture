@@ -14,11 +14,11 @@
             <mt-loadmore
             :top-method="loadTop"
             :bottom-method="loadBottom"
-            :bottom-all-loaded="allLoaded"
+            :bottom-all-loaded="lectures.allLoaded"
             auto-fill
             ref="loadmore">
               <div class="lectureList">
-                <router-link v-for="item in list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                   <span>{{ item.topic }}</span>
                   <section>
                     <p>
@@ -86,7 +86,6 @@ export default {
   data() {
     return {
       selected: 'list',
-      list: [],
       list2: [
         {
           'id': 1,
@@ -110,7 +109,6 @@ export default {
           'startAt': 1519389118000
         }
       ],
-      allLoaded: false,
       scrollMode: 'auto',
       mine: {
         // 参与专业讲座数目
@@ -132,7 +130,12 @@ export default {
         ]
       },
       wrapHeight: '',
-      options: [1, 2, 3]
+      options: [1, 2, 3],
+      lectures: {
+        allLoaded: false,
+        next: 0,
+        list: []
+      }
     }
   },
   computed: {
@@ -156,24 +159,38 @@ export default {
       let _self = this;
       return _self.$ajax({
         url: '/lectures',
-        method: 'get'
+        method: 'get',
+        params: {
+          next: _self.lectures.next
+        }
       })
     },
     // 上拉加载更多
     loadBottom() {
       let _self = this;
-      console.log('bottom');      
-      _self.$refs.loadmore.onBottomLoaded();
+      console.log('bottom');
+      _self.getData().then(res => {
+        let data = res.data;
+        _self.$refs.loadmore.onBottomLoaded();
+        if (_self.lectures.list.length === 0) {
+          _self.lectures.allLoaded = true;
+        } else {
+          _self.lectures.list = data.data;
+          _self.lectures.next = data.next;
+          console.log(_self.lectures.list);
+        }
+      });
     },
     // 下拉刷新
     loadTop() {
       let _self = this;
       _self.$refs.loadmore.onTopLoaded();
-      this.allLoaded = false;
-      console.log('bottom');
+      _self.lectures.allLoaded = false;
+      _self.lectures.next = 0;
+      console.log('top');
       _self.getData().then(res => {
         let data = res.data;
-        _self.list = data.data;
+        _self.lectures.list = data.data;
       });
     },
     getMineData() {
@@ -219,7 +236,7 @@ export default {
   left: 0;
 }
 .page-wrap{
-  overflow: scroll;
+  overflow: hidden;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -232,7 +249,7 @@ export default {
 .page-tabbar-container{
   flex:1;
   margin-bottom: 55px;
-  overflow: scroll;
+  overflow: hidden;
 }
 #mine{
   overflow:scroll;

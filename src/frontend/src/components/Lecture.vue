@@ -15,23 +15,45 @@
         <li><span>讲座类型：{{ lecture.type }}</span></li>
         <li><span>内容简介：{{ lecture.introduction }}</span></li>
       </ul>
-      <div class="buttonGroup">
-        <mt-button type="primary">开始讲座</mt-button>
-        <mt-button type="primary">编辑讲座</mt-button>
-        <mt-button type="primary">签到管理</mt-button>
-        <mt-button type="primary">签到列表</mt-button>
-        <mt-button type="danger">结束讲座</mt-button>
+      <div class="buttonGroup" v-if="authority && !edit">
+        <mt-button type="primary" size="small">开始讲座</mt-button>
+        <mt-button type="primary" size="small" @click="edit = true, create = false, temp = lecture">编辑讲座</mt-button>
+        <mt-button type="primary" size="small">签到管理</mt-button>
+        <mt-button type="primary" size="small">签到列表</mt-button>
+        <mt-button type="danger" size="small">结束讲座</mt-button>
       </div>
-      <div v-if="edit">
-        <mt-field label="主题" placeholder="请输入用户名" v-model="username"></mt-field>
-        <mt-field label="时间" placeholder="请输入邮箱" type="email" v-model="email"></mt-field>
-        <mt-field label="地点" placeholder="请输入密码" type="password" v-model="password"></mt-field>
-        <mt-field label="主办方" placeholder="请输入手机号" type="tel" v-model="phone"></mt-field>
-        <mt-field label="主讲人" placeholder="请输入网址" type="url" v-model="website"></mt-field>
-        <mt-field label="讲座类型" placeholder="请输入数字" type="number" v-model="number"></mt-field>
-        <mt-field label="内容简介" placeholder="自我介绍" type="textarea" rows="4" v-modal="introduction"></mt-field>
+      <div class="edit" v-if="edit">
+        <mt-field label="主题" placeholder="请输入用户名" v-model="temp.topic"></mt-field>
+        <mt-field label="时间" :placeholder="getTime(temp.startAt)" readonly v-on:click.native="openPicker"></mt-field>
+        <mt-field label="地点" placeholder="请输入密码" v-model="temp.location"></mt-field>
+        <mt-field label="主办方" placeholder="请输入手机号" v-model="temp.host"></mt-field>
+        <mt-field label="主讲人" placeholder="请输入网址" v-model="temp.lecturer"></mt-field>
+        <mt-field label="讲座类型" placeholder="请选择讲座类型" readonly v-model="temp.type" v-on:click.native="handleClick"></mt-field>
+        <mt-field label="简介"  class="introduction" placeholder="请输入简介" type="textarea" rows="8" v-model="temp.introduction"></mt-field>
+        <mt-button type="primary" size="small" @click="submit" v-if="create">提交</mt-button>
+        <mt-button type="primary" size="small" @click="submit" v-if="!create">保存</mt-button>
+        <mt-button type="primary" size="small" @click="submit" v-if="!create">取消</mt-button>
+      </div>
+      <div v-if="lecture.canSignin">
+        <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
       </div>
     </section>
+    <mt-datetime-picker
+      ref="picker"
+      v-model="pickerTime"
+      type="datetime"
+      year-format="{value}"
+      month-format="{value}"
+      date-format="{value}"
+      hourFormat="{value}"
+      minuteFormat="{value}"
+      @confirm="handleConfirm">
+    </mt-datetime-picker>
+    <mt-popup
+      v-model="popupVisible"
+      position="bottom">
+        <mt-picker :slots="slots" @change="TypeChange"></mt-picker>
+    </mt-popup>
   </div>
 </template>
 
@@ -40,40 +62,63 @@ import { formatDate } from '../utils.js'
 export default {
   data() {
     return {
+      slots: [
+        {
+          values: ['', '校团委讲座', '机械工程学院', '计算机学院讲座', '数字媒体与艺术设计学院', '国际教育学院', '外国语学院', '经济学院', '理学院', '材料与环境工程学院']
+        }
+      ],
+      signCode: 0,
+      pickerValue: null,
       title: '讲座详情',
       lecture: {
         id: 1,
-        creatorUserID: '04xxx',
-        topic: 'xxxx讲座',
-        location: '6教南110',
-        introduction: 'xxxxxxx',
-        startAt: 1519389118000,
-        host: 'xxx',
-        lecturer: 'XXX',
-        type: '校团委讲座',
-        status: 'runing/ended/prepare',
-        createAt: 1111111111,
-        finishedAt: 1111111111,
-        finished: true,
+        creatorUserID: '',
+        topic: '',
+        location: '',
+        introduction: '',
+        startAt: 0,
+        host: '',
+        lecturer: '',
+        type: '',
+        status: '',
+        createAt: 0,
+        finishedAt: 0,
+        finished: false,
         canSignin: true,
-        remark: '讲座自动完成'
+        remark: ''
       },
-      edit: false
+      temp: {
+        topic: '',
+        location: '',
+        introduction: '',
+        startAt: new Date(),
+        host: '',
+        lecturer: '',
+        type: ''
+      },
+      // 进入编辑模式
+      edit: false,
+      // 编辑模式 时间控件临时参数
+      pickerTime: new Date(),
+      // 编辑模式 切换讲座类下选择的弹出层
+      popupVisible: false,
+      // 区别是创建还是修改 默认创建
+      create: true
     }
   },
   computed: {
     type() {
       return this.$store.state.data.type;
     },
-    createrFlag() {
-      return this.$store.data.id === this.lecture.creatorUserID
+    authority() {
+      return this.$store.state.data.id === this.lecture.creatorUserID
     }
   },
   methods: {
     getData() {
       let _self = this;
       _self.$ajax({
-        url: '/lectures',
+        url: '/lectures/' + _self.$route.query.id,
         method: 'get'
       }).then(res => {
         let data = res.data;
@@ -89,14 +134,43 @@ export default {
     },
     getTime(time) {
       return formatDate(time);
+    },
+    // 创建/修改讲座信息
+    submit() {
+      let _self = this;
+      let url = _self.create ? '/lectures/' : '/lectures/' + _self.lecture.id
+      let method = _self.create ? 'post' : 'patch'
+      _self.$ajax({
+        url: url,
+        method: method,
+        data: _self.temp
+      })
+    },
+    openPicker() {
+      this.$refs.picker.open();
+    },
+    handleConfirm() {
+      this.temp.startAt = this.pickerTime;
+    },
+    // 讲座类型点击后显示选择的弹出层
+    handleClick() {
+      this.popupVisible = true;
+    },
+    TypeChange(picker, values) {
+      this.temp.type = values[0]
     }
+  },
+  mounted() {
+    this.getData();
+    console.log(this.create)
+    console.log(this.edit)
   }
 }
 </script>
 
 <style lang="scss" scoped>
 section{
-  padding:10%;
+  padding:2rem;
 }
 .detials{
   display: flex;
@@ -116,5 +190,12 @@ section{
   >button{
     width: 80%;
   }
+}
+.introduction{
+  height: 10rem;
+}
+.edit{
+  display: flex;
+  flex-direction: column;
 }
 </style>

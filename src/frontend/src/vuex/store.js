@@ -4,9 +4,7 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    data: {
-      type: 1
-    }
+    data: JSON.parse(localStorage.getItem('data'))
   },
   mutations: {
     initData(state, data) {

@@ -15,8 +15,13 @@
 //   return hour + ':' + minute;
 // }
 function formatDate(now) {
-  now = (now.toString().length === 13) ? now / 1000 : now;
-  let time = new Date(parseInt(now) * 1000)
+  let time;
+  if (now instanceof Date) {
+    time = now;
+  } else {
+    now = (now.toString().length === 13) ? now / 1000 : now;
+    time = new Date(parseInt(now) * 1000);
+  }
   let year = time.getFullYear();
   let month = time.getMonth() + 1;
   let date = time.getDate();

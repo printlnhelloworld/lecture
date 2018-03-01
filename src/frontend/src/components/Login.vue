@@ -38,8 +38,9 @@ export default {
         _self.agree = data.data.agree;
         // 判断是否登录token是否有效
         if (data.status === 'ok') {
-          localStorage.setItem('type', data.data.type);
-          _self.$store.commit('initData', data.data);
+          localStorage.setItem('data', JSON.stringify(data.data));
+          _self.$store.commit('initData', JSON.parse(localStorage.getItem('data')));
+          // console.log(_self.$store.state.data)
           // 判断是否阅读相关规则并同意使用本系统
           if (_self.agree === true) {
             _self.$router.push('/index');
