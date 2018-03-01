@@ -26,3 +26,28 @@
 使用 Git 做版本管理
 
 ## 怎么编译运行
+
+首先需要安装 dep、go 、packr、git，同时需要配置好 git、dep、go 等的代理设置，防止有些包没有办法获取到。
+
+进入 `src/backend/`， 运行 `dep ensure` 进行依赖安装 ，`packr build` 会将前端文档编译包含的编译好的二进制中。然后复制 `conf/app.toml.example` 为 `conf/app.toml`，同时配置监听端口，监听路径、以及配置好的配置文件，然后运行即可。
+
+对于使用 nginx 反代的情况，一个参考配置
+
+```conf
+server {
+    listen 443 ssl http2;
+    server_name lecture.hduhelp.com;
+
+    access_log /var/log/nginx/lecture.hduhelp.com-access.log;
+
+    ssl_certificate  /etc/letsencrypt/live/lecture.hduhelp.com/fullchain.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/lecture.hduhelp.com/privkey.pem;
+
+
+    location / {
+        proxy_set_header X-Forwarded-For $remote_addr; #主要是要设置这个请求头，让 gin 能够获取到准确客户端的 ip
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
+
+```
