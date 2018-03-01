@@ -61,7 +61,7 @@ func UpdateUserInfo(m map[string]string) error {
 			UnitName: m["unit_name"],
 			ClassID:  m["classid"],
 		}
-		err = DB.Update(&user).Error
+		err = DB.Model(&UserInfo{}).Update(&user).Error
 	}
 	return err
 }
