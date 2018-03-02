@@ -161,6 +161,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.lecture.list)
     this.getData();
     console.log(this.create)
     console.log(this.edit)

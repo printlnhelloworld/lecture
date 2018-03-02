@@ -172,11 +172,12 @@ export default {
       _self.getData().then(res => {
         let data = res.data;
         _self.$refs.loadmore.onBottomLoaded();
-        if (_self.lectures.list.length === 0) {
+        if (data.data.length === 0) {
           _self.lectures.allLoaded = true;
         } else {
-          _self.lectures.list = data.data;
+          _self.lectures.list.push(...data.data);
           _self.lectures.next = data.next;
+          console.log(_self.lectures.next);
           console.log(_self.lectures.list);
         }
       });
@@ -191,6 +192,7 @@ export default {
       _self.getData().then(res => {
         let data = res.data;
         _self.lectures.list = data.data;
+        _self.lectures.next = data.next;
       });
     },
     getMineData() {
@@ -214,6 +216,8 @@ export default {
     // }
   },
   mounted() {
+    console.log('mounted')
+    console.log(this.lectures.list);
     let _self = this;
     this.$nextTick(() => {
       _self.wrapInit();
