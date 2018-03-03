@@ -189,7 +189,7 @@ func PatchLectureByID() func(*gin.Context) {
 				m["Location"] = *lec.Location
 			}
 			if lec.StartAt != nil {
-				m["StartAt"] = *lec.StartAt
+				m["StartAt"] = time.Unix(*lec.StartAt, 0)
 			}
 			if lec.Introduction != nil {
 				m["Introduction"] = *lec.Introduction
