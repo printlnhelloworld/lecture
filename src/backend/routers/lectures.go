@@ -151,7 +151,6 @@ func PatchLectureByID() func(*gin.Context) {
 		Type         *string `json:"type"`
 		Reviewed     *bool   `json:"reviewed"`
 		CanSignin    *bool   `json:"canSignin"`
-		Finished     *bool   `json:"finished"`
 	}
 	return func(c *gin.Context) {
 		var lec lecture
@@ -189,8 +188,11 @@ func PatchLectureByID() func(*gin.Context) {
 			if lec.Location != nil {
 				m["Location"] = *lec.Location
 			}
-			if lec.Introduction != nil {
+			if lec.StartAt != nil {
 				m["StartAt"] = *lec.StartAt
+			}
+			if lec.Introduction != nil {
+				m["Introduction"] = *lec.Introduction
 			}
 			if lec.Host != nil {
 				m["Host"] = *lec.Host
@@ -203,9 +205,6 @@ func PatchLectureByID() func(*gin.Context) {
 			}
 			if lec.Reviewed != nil {
 				m["Reviewed"] = *lec.Reviewed
-			}
-			if lec.Finished != nil {
-				m["Finished"] = *lec.Finished
 			}
 		}
 		err := model.PatchLecture(lecid, m)
@@ -240,6 +239,7 @@ func GetlectureByID() func(*gin.Context) {
 				"creatorUserID": lec.UserID,
 				"topic":         lec.Topic,
 				"location":      lec.Location,
+				"introduction":  lec.Introducation,
 				"startAt":       lec.StartAt.Unix(),
 				"host":          lec.Host,
 				"lecturer":      lec.Lecturer,
