@@ -8,20 +8,20 @@ import (
 
 //Lecture 讲座表
 type Lecture struct {
-	ID            int       `gorm:"type:int AUTO_INCREMENT;primary_key;not null"`
-	UserID        string    `gorm:"type:varchar(20);index;not null"`
-	Topic         string    `gorm:"type:varchar(50);not null;"`
-	Introducation string    `gorm:"type:text;not null;"`
-	StartAt       time.Time `gorm:"type:datetime;index;not null;"`
-	Location      string    `gorm:"type:varchar(100);not null;"`
-	Host          string    `gorm:"type:varchar(50);not null;"`
-	Lecturer      string    `gorm:"type:varchar(50);not null;"`
-	Type          string    `gorm:"type:varchar(50);index;not null;"`
-	Reviewed      bool      `gorm:"type:bool;index;not null;"`
-	Finished      bool      `gorm:"type:bool;index;not null;"`
-	CreateAt      time.Time `gorm:"type:datetime;not null;"`
-	FinishedAt    time.Time `gorm:"type:datetime;not null;"`
-	Remark        string    `gorm:"type:varchar(100);not null;"`
+	ID           int       `gorm:"type:int AUTO_INCREMENT;primary_key;not null"`
+	UserID       string    `gorm:"type:varchar(20);index;not null"`
+	Topic        string    `gorm:"type:varchar(50);not null;"`
+	Introduction string    `gorm:"type:text;not null;"`
+	StartAt      time.Time `gorm:"type:datetime;index;not null;"`
+	Location     string    `gorm:"type:varchar(100);not null;"`
+	Host         string    `gorm:"type:varchar(50);not null;"`
+	Lecturer     string    `gorm:"type:varchar(50);not null;"`
+	Type         string    `gorm:"type:varchar(50);index;not null;"`
+	Reviewed     bool      `gorm:"type:bool;index;not null;"`
+	Finished     bool      `gorm:"type:bool;index;not null;"`
+	CreateAt     time.Time `gorm:"type:datetime;not null;"`
+	FinishedAt   time.Time `gorm:"type:datetime;not null;"`
+	Remark       string    `gorm:"type:varchar(100);not null;"`
 }
 
 //TODO 讲座类型到底是 int 字典表还是，字符串
@@ -71,7 +71,7 @@ func CreateLecture(userid, topic, location, introduction, host, lecturer, lectyp
 	var lec Lecture
 	lec.UserID = userid
 	lec.Topic = topic
-	lec.Introducation = introduction
+	lec.Introduction = introduction
 	lec.StartAt = startAt
 	lec.Location = location
 	lec.Host = host

@@ -239,7 +239,7 @@ func GetlectureByID() func(*gin.Context) {
 				"creatorUserID": lec.UserID,
 				"topic":         lec.Topic,
 				"location":      lec.Location,
-				"introduction":  lec.Introducation,
+				"introduction":  lec.Introduction,
 				"startAt":       lec.StartAt.Unix(),
 				"host":          lec.Host,
 				"lecturer":      lec.Lecturer,
