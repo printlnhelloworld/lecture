@@ -9,11 +9,6 @@
       <!-- tabcontainer -->
       <mt-tab-container class="page-tabbar-container" v-model="selected" ref="wrap">
         <mt-tab-container-item id="list">
-          <div class="searchBar">
-            <!-- <select2 :options="options" v-model="selected">
-              <option disabled value="0">Select one</option>
-            </select2> -->
-          </div>
           <div class="loadmore_wrap" :style="{height: wrapHeight + 'px'}">
             <mt-loadmore
             :top-method="loadTop"
@@ -41,32 +36,45 @@
         </mt-tab-container-item>
         <mt-tab-container-item id="mine">
           <div class="page-part">
-            <mt-cell class="account" :title="'学院专业讲座×' + mine.marjorCount"/>
-            <div class="lectureList">
-              <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                <span>{{ item.topic }}</span>
-                <section>
-                  <p>
-                    <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                    <span>{{item.status}}</span>
-                  </p>
-                    <span>{{ getTime(item.startAt) }}</span>
-                </section>
-              </router-link>
+            <div>
+              <mt-cell v-on:click.native="toogle(0)" class="account" :title="'学院专业讲座×' + mine.marjorCount">
+                <img class="arrow" src="../assets/icon/show.png" v-if="show[0]"/>
+                <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[0]"/>
+              </mt-cell>
+              <transition name="slide-fade">
+                <div class="lectureList" v-if="show[0]">
+                  <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                    <span>{{ item.topic }}</span>
+                    <section>
+                      <p>
+                        <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                        <span>{{item.status}}</span>
+                      </p>
+                        <span>{{ getTime(item.startAt) }}</span>
+                    </section>
+                  </router-link>
+                </div>
+              </transition>
+              <mt-cell v-on:click.native="toogle(1)" class="account" :title="'校团委讲座×' + mine.marjorCount">
+                <img class="arrow" src="../assets/icon/show.png" v-if="show[1]"/>
+                <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[1]"/>
+              </mt-cell>
+              <transition name="slide-fade">
+                <div class="lectureList" v-if="show[1]">
+                  <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                    <span>{{ item.topic }}</span>
+                    <section>
+                      <p>
+                        <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                        <span>{{item.status}}</span>
+                      </p>
+                        <span>{{ getTime(item.startAt) }}</span>
+                    </section>
+                  </router-link>
+                </div>
+              </transition>
             </div>
-            <mt-cell class="account" :title="'校团委讲座×' + mine.marjorCount"/>
-            <div class="lectureList">
-              <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                <span>{{ item.topic }}</span>
-                <section>
-                  <p>
-                    <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                    <span>{{item.status}}</span>
-                  </p>
-                    <span>{{ getTime(item.startAt) }}</span>
-                </section>
-              </router-link>
-            </div>
+            <mt-button @click="logout" type="danger">登出</mt-button>
           </div>
         </mt-tab-container-item>
       </mt-tab-container>
@@ -90,6 +98,7 @@ export default {
   data() {
     return {
       selected: 'list',
+      show: [false, false],
       list2: [
         {
           'id': 1,
@@ -203,11 +212,11 @@ export default {
     // 下拉刷新
     loadTop() {
       let _self = this;
-      _self.$refs.loadmore.onTopLoaded();
       _self.lectures.allLoaded = false;
       _self.lectures.next = 0;
       console.log('top');
       _self.getData().then(res => {
+        _self.$refs.loadmore.onTopLoaded();
         let data = res.data;
         _self.lectures.list = data.data;
         _self.lectures.next = data.next;
@@ -216,12 +225,23 @@ export default {
     getTime(time) {
       return formatDate(time);
     },
-    wrapInit() {
-      let wrapHeight = document.getElementsByClassName('mint-tab-container')[0].offsetHeight;
-      let searchBarHeight = document.getElementsByClassName('searchBar')[0].offsetHeight;
-      document.getElementsByClassName('loadmore_wrap')[0].style.height = wrapHeight - searchBarHeight + 'px';
-      // document.getElementsByClassName('lectureList')[0].style.height = wrapHeight - searchBarHeight + 'px';
-      console.log(document.getElementsByClassName('loadmore_wrap')[0].style.height)
+    toogle(index) {
+      this.show.splice(index, 1, !this.show[index]);
+      console.log(this.show[index]);
+    },
+    logout() {
+      let _self = this;
+      _self.$ajax({
+        url: '/user/tokens/self',
+        method: 'delete'
+      }).then(res => {
+        let data = res.data;
+        if (data.status === 'ok') {
+          window.open('http://i.hdu.edu.cn/dcp/logout0.jsp');
+        } else {
+          console.log(data.msg);
+        }
+      })
     }
     // getYMD(time) {
     //   return formatDateYMD(time);
@@ -233,11 +253,7 @@ export default {
   mounted() {
     console.log('mounted')
     console.log(this.lectures.list);
-    let _self = this;
-    this.$nextTick(() => {
-      _self.wrapInit();
-    })
-    this.loadTop();
+    // this.loadBottom();
     this.getMineData();
   }
 }
@@ -264,7 +280,7 @@ export default {
 .loadmore_wrap{
   // flex:1;
   overflow: scroll;
-  // height: 200px;
+  height: 100%;
 }
 .page-tabbar-container{
   flex:1;
@@ -299,5 +315,30 @@ export default {
 .mint-cell-wrapper{
   height:1rem;
   font-size: 0.75rem;
+}
+.arrow{
+  height: 1rem;
+  width: 1rem;
+}
+.slide-fade-enter-active {
+  transition: all .3s ease;
+}
+.slide-fade-leave-active {
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active for below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
+}
+.page-part{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: scroll;
+  >button{
+    flex: 0 0 auto;
+  }
 }
 </style>

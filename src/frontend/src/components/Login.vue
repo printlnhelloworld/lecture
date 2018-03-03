@@ -13,6 +13,7 @@ export default {
   },
   methods: {
     login() {
+      console.log(this.auth);
       let _self = this;
       let auth = _self.$route.query.auth;
       // 判断是否是url中是否带有auth(即是不是新登录)
@@ -49,14 +50,8 @@ export default {
           }
         } else {
           localStorage.removeItem('auth');
-          _self.loading = false;
-          _self.flag = false;
-          setTimeout(() => {
-            _self.gotoLogin();
-          }, 1000)
+          _self.$router.push('/login/error');
         }
-      }).catch(err => {
-        alert(err)
       })
     },
     gotoLogin() {
@@ -89,8 +84,6 @@ export default {
         } else {
           alert(data.msg);
         }
-      }).catch(err => {
-        console.log(err);
       })
     }
   },

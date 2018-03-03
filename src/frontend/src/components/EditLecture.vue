@@ -102,13 +102,14 @@ export default {
     // 创建/修改讲座信息
     submit() {
       let _self = this;
-      let url = _self.create ? '/lectures/' : '/lectures/' + _self.lecture.id
-      let method = _self.create ? 'post' : 'patch'
-      console.log(method)
+      let url = _self.create ? '/lectures/' : '/lectures/' + _self.temp.id;
+      let method = _self.create ? 'post' : 'patch';
+      let data = _self.temp;
+      data.startAt = Date.parse(_self.temp.startAt) / 1000;
       _self.$ajax({
         url: url,
         method: method,
-        data: _self.temp
+        data: data
       })
     },
     changeStatus(status) {

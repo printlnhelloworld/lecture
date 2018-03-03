@@ -23,7 +23,7 @@ export default {
     }
   },
   mounted() {
-    this.gotoLogin();
+    setTimeout(this.gotoLogin, 2000);
   }
 }
 </script>

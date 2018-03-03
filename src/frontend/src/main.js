@@ -11,7 +11,7 @@ import store from './vuex/store'
 require('es6-promise').polyfill();
 Vue.use(Mint);
 const axiosInstance = axios.create({
-  baseURL: 'https://lecture.hduhelp.com/api/v1'
+  baseURL: localStorage.getItem('baseURL') ? localStorage.getItem('baseURL') : 'https://lecture.hduhelp.com/api/v1'
 })
 
 // 添加请求拦截器
@@ -29,6 +29,21 @@ axiosInstance.interceptors.request.use(function (config) {
   return config;
 }, function (error) {
   // 对请求错误做些什么
+  return Promise.reject(error);
+});
+// 添加响应拦截器
+axiosInstance.interceptors.response.use(function (response) {
+  // 对响应数据做点什么
+  return response;
+}, function (error) {
+  // 对响应错误做点什么
+  if (error.response.status === 401) {
+    router.replace({
+      path: '/login/error'
+    })
+  } else if (error.response.status === 403) {
+    Vue.$toast('无权限执行该操作')
+  };
   return Promise.reject(error);
 });
 Vue.prototype.$ajax = axiosInstance;
