@@ -10,6 +10,7 @@ import Error from '@/components/loginStatus/Error'
 Vue.use(Router)
 
 const router = new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
