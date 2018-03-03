@@ -19,7 +19,7 @@ func UserLoginCallBack(appconf *conf.Conf) func(*gin.Context) {
 		ticket := c.Query("ticket")
 		service := appconf.BaseURL + "/api/v1/loginCallback"
 		encodeURL := "http://cas.hdu.edu.cn/cas/serviceValidate?ticket=" + ticket + "&service=" + url.QueryEscape(service)
-		baseHashURL := "/app/#/login?auth="
+		baseHashURL := "/login?auth="
 		resp, err := http.Get(encodeURL)
 		if err != nil {
 			c.Header("Location", baseHashURL+"&err=CasGetErr&msg="+err.Error()+"&msg1=服务错误")

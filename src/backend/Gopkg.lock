@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/gin-contrib/gzip"
+  packages = ["."]
+  revision = "4fbfcc6122759afed2efbc762c4c41164a403951"
+
+[[projects]]
+  branch = "master"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
@@ -101,6 +107,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a3a10cecc5e8563e02ba920562d0b59cbce31fc39636a18ba6256ed1249206e4"
+  inputs-digest = "f6babc6397d9e9ad3788531823e644bb19d4a9aaa99dec6b8dfaab62769d427e"
   solver-name = "gps-cdcl"
   solver-version = 1

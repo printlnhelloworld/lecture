@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/gobuffalo/packr"
 
@@ -14,10 +15,7 @@ import (
 func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CorsHeader)
-
-	r.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/app")
-	})
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	apiv1 := r.Group("/api/v1", middlewares.Auth("/api/v1", "/loginCallback", "/loginURL", "/public/agreement"))
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -39,7 +37,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	lectures.PATCH("/:lectureid", PatchLectureByID())
 	lectures.GET("/:lectureid", GetlectureByID())
 	lectures.DELETE("/:lectureid", DeleteLectureByID())
-	lectures.GET("/:lectureid/siginCode", GetLectureCodeByID())
+	lectures.GET("/:lectureid/siginCode", GetLectureCodeByID()) //获取签到码
 	lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
 	lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
 	lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
@@ -90,8 +88,16 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	public := apiv1.Group("/public")
 	public.GET("/agreement", GetPublicAgreement(conf.Agreement))
 
-	//前端页面
+	//前端static页面
+	r.StaticFS("/static", packr.NewBox("../../../dist/static"))
+
 	front := packr.NewBox("../../../dist")
-	r.StaticFS("/app", front)
+	handleIndex := func(c *gin.Context) {
+		c.Status(http.StatusOK)
+		c.Header("Content-Type", "text/html; charset=utf-8")
+		c.Writer.Write(front.Bytes("index.html"))
+	}
+	r.GET("index.html", handleIndex)
+	r.NoRoute(handleIndex)
 	return r
 }
