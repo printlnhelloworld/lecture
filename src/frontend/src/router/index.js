@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Index from '@/components/Index'
 import Login from '@/components/Login'
 import Lecture from '@/components/Lecture'
+import EditLecture from '@/components/EditLecture'
 import Tips from '@/components/loginStatus/Tips'
 import Error from '@/components/loginStatus/Error'
 
@@ -16,7 +17,7 @@ const router = new Router({
     },
     {
       path: '/index',
-      name: 'Index',
+      name: 'index',
       component: Index,
       meta: {
         keepAlive: true
@@ -46,6 +47,14 @@ const router = new Router({
       path: '/lecture',
       name: 'Lecture',
       component: Lecture,
+      meta: {
+        keepAlive: false
+      }
+    },
+    {
+      path: '/editLecture',
+      name: 'EditLecture',
+      component: EditLecture,
       meta: {
         keepAlive: false
       }

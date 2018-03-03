@@ -32,6 +32,9 @@ axiosInstance.interceptors.request.use(function (config) {
   return Promise.reject(error);
 });
 Vue.prototype.$ajax = axiosInstance;
+Vue.prototype.$messageBox = Mint.MessageBox;
+Vue.prototype.$toast = Mint.Toast;
+Vue.prototype.$indicator = Mint.Indicator;
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({

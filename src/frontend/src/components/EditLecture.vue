@@ -6,28 +6,17 @@
       </div>
     </mt-header>
     <section>
-      <ul class="detials">
-        <li><span>主题：{{ lecture.topic }}</span></li>
-        <li><span>时间：{{ getTime(lecture.startAt) }}</span></li>
-        <li><span>地点：{{ lecture.location }}</span></li>
-        <li><span>主办方：{{ lecture.host }}</span></li>
-        <li><span>主讲人：{{ lecture.lecturer }}</span></li>
-        <li><span>讲座类型：{{ lecture.type }}</span></li>
-        <li><span>内容简介：{{ lecture.introduction }}</span></li>
-      </ul>
-      <div class="buttonGroup" v-if="authority">
-        <mt-button v-if="lecture.status === 'prepare'" type="primary" size="small" @click="changeStatus('runing')">开始讲座</mt-button>
-        <mt-button v-if="lecture.status != 'ended'" type="primary" size="small" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
-        <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">签到管理</mt-button>
-        <mt-button v-if="lecture.status != 'prepare'" type="primary" size="small">签到记录</mt-button>
-        <mt-button v-if="lecture.status != 'ended'" type="danger" size="small" @click="deleteLecture">删除讲座</mt-button>
-        <mt-button v-if="lecture.status === 'runing'" type="danger" size="small" @click="changeStatus('ended')">结束讲座</mt-button>
-      </div>
-      <div v-if="$store.state.data.type == 1">
-        <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
-          <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
-          <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
-        </div>
+      <div class="edit">
+        <mt-field label="主题" placeholder="主题名称" v-model="temp.topic"></mt-field>
+        <mt-field label="时间" :placeholder="getTime(temp.startAt)" readonly v-on:click.native="openPicker"></mt-field>
+        <mt-field label="地点" placeholder="地点" v-model="temp.location"></mt-field>
+        <mt-field label="主办方" placeholder="主办方名称" v-model="temp.host"></mt-field>
+        <mt-field label="主讲人" placeholder="主讲人姓名" v-model="temp.lecturer"></mt-field>
+        <mt-field label="讲座类型" placeholder="请选择讲座类型" readonly v-model="temp.type" v-on:click.native="handleClick"></mt-field>
+        <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="temp.introduction"></mt-field>
+        <mt-button type="primary" size="small" @click="submit" v-if="create">提交</mt-button>
+        <mt-button type="primary" size="small" @click="submit" v-if="!create">保存</mt-button>
+        <mt-button type="primary" size="small"  @click="$router.go(-1)">取消</mt-button>
       </div>
     </section>
     <mt-datetime-picker
@@ -61,31 +50,9 @@ export default {
       ],
       signCode: '',
       pickerValue: null,
-      title: '讲座详情',
-      lecture: {
-        id: 1,
-        // creatorUserID: '15051342',
-        creatorUserID: '',
-        topic: '',
-        location: '',
-        introduction: '',
-        startAt: 0,
-        host: '',
-        lecturer: '',
-        type: '',
-        status: 'runing',
-        createAt: 0,
-        finishedAt: 0,
-        finished: false,
-        canSignin: false,
-        remark: '',
-        signin: {
-          isSigned: false, // 当前token的用户是否已经完成签到
-          SignedAt: 111111111111111, // 签到时间
-          type: 'byhand', // 签到类型
-          remark: '' // 备注
-        }
-      },
+      // 判断是创建还是修改
+      create: !this.$route.query.id,
+      title: this.$route.query.id ? '讲座编辑' : '创建讲座',
       temp: {
         topic: '',
         location: '',
@@ -98,9 +65,8 @@ export default {
       // 编辑模式 时间控件临时参数
       pickerTime: new Date(),
       // 编辑模式 切换讲座类下选择的弹出层
-      popupVisible: false,
+      popupVisible: false
       // 区别是创建还是修改 默认创建
-      create: true
     }
   },
   computed: {
@@ -121,7 +87,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
-          _self.lecture = data.data;
+          _self.temp = data.data;
         } else {
           alert(data.msg);
         }
@@ -138,6 +104,7 @@ export default {
       let _self = this;
       let url = _self.create ? '/lectures/' : '/lectures/' + _self.lecture.id
       let method = _self.create ? 'post' : 'patch'
+      console.log(method)
       _self.$ajax({
         url: url,
         method: method,
@@ -231,7 +198,10 @@ export default {
     }
   },
   mounted() {
-    this.getData();
+    if (!this.create) {
+      this.getData();
+    }
+    console.log(!this.create)
   }
 }
 </script>

@@ -1,7 +1,11 @@
 <template>
   <div class="wrap">
     <div class="page-wrap">
-      <mt-header :title="title"></mt-header>
+      <mt-header :title="title">
+        <router-link id="mine" to="/editLecture" slot="right" v-if="$store.state.data.type == 3">
+          <mt-button>创建</mt-button>
+        </router-link>
+      </mt-header>
       <!-- tabcontainer -->
       <mt-tab-container class="page-tabbar-container" v-model="selected" ref="wrap">
         <mt-tab-container-item id="list">
@@ -39,7 +43,7 @@
           <div class="page-part">
             <mt-cell class="account" :title="'学院专业讲座×' + mine.marjorCount"/>
             <div class="lectureList">
-              <router-link v-for="item in list2" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+              <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                 <span>{{ item.topic }}</span>
                 <section>
                   <p>
@@ -52,7 +56,7 @@
             </div>
             <mt-cell class="account" :title="'校团委讲座×' + mine.marjorCount"/>
             <div class="lectureList">
-              <router-link v-for="item in list2" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+              <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
                 <span>{{ item.topic }}</span>
                 <section>
                   <p>
@@ -116,17 +120,17 @@ export default {
         // 参与校团委讲他做数目
         schoolCount: 0,
         list: [
-          {
-            // 讲座id
-            id: 1,
-            // 讲座主题
-            topic: 'xxxx讲座',
-            // 讲座类别 参考数字字典
-            type: '校团委讲座',
-            // 时间戳 秒级
-            startAt: 1519389118000,
-            signType: 'qcode'
-          }
+          // {
+          //   // 讲座id
+          //   id: 1,
+          //   // 讲座主题
+          //   topic: 'xxxx讲座',
+          //   // 讲座类别 参考数字字典
+          //   type: '校团委讲座',
+          //   // 时间戳 秒级
+          //   startAt: 1519389118000,
+          //   signType: 'qcode'
+          // }
         ]
       },
       wrapHeight: '',
@@ -165,6 +169,20 @@ export default {
         }
       })
     },
+    getMineData() {
+      let _self = this;
+      _self.$ajax({
+        url: '/user/lectures',
+        method: 'get'
+      }).then(res => {
+        let data = res.data;
+        if (data.status === 'ok') {
+          _self.mine.list = data.list;
+        } else {
+          _self.$toast(data.msg);
+        }
+      })
+    },
     // 上拉加载更多
     loadBottom() {
       let _self = this;
@@ -195,9 +213,6 @@ export default {
         _self.lectures.next = data.next;
       });
     },
-    getMineData() {
-
-    },
     getTime(time) {
       return formatDate(time);
     },
@@ -223,6 +238,7 @@ export default {
       _self.wrapInit();
     })
     this.loadTop();
+    this.getMineData();
   }
 }
 </script>
@@ -257,10 +273,6 @@ export default {
 }
 #mine{
   overflow:scroll;
-}
-.lectureList{
-  height: 100%;
-  margin: 0.5rem 0 0.5rem  0
 }
 .lectureItem{
   display: flex;

@@ -7,7 +7,7 @@ yarn-error.log*
 /test/unit/coverage/
 /test/e2e/reports/
 selenium-debug.log
-
+dist.zip
 # Editor directories and files
 .idea
 .vscode
