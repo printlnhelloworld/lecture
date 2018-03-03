@@ -244,6 +244,7 @@ func GetlectureByID() func(*gin.Context) {
 				"host":          lec.Host,
 				"lecturer":      lec.Lecturer,
 				"type":          lec.Type,
+				"reviewed":      lec.Reviewed,
 				"status":        getLectureStatus(*lec, time.Now()),
 				"createAt":      lec.CreateAt.Unix(),
 				"finished":      lec.Finished,
