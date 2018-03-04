@@ -47,11 +47,11 @@ func GetLectures(limit, next int, owner, status, sort string, now time.Time) (*[
 	}
 	nowF := now.Format("2006-01-02 15:04:05")
 	switch status {
-	case "preparing":
+	case "prepare":
 		db = db.Where("start_at > ?", nowF)
-	case "ongoing":
+	case "runing":
 		db = db.Where("start_at <= ? and finished_at > ?", nowF, nowF)
-	case "end":
+	case "ended":
 		db = db.Where("finished = ?", true)
 	default:
 	}

@@ -431,9 +431,9 @@ func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 
 func getLectureStatus(lec model.Lecture, now time.Time) string {
 	if lec.Finished {
-		return "end"
+		return "ended"
 	} else if now.Before(lec.StartAt) {
-		return "preparing"
+		return "prepare"
 	}
-	return "ongoing"
+	return "running"
 }
