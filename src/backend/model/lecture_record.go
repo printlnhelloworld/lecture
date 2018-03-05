@@ -42,6 +42,13 @@ func DeleteLectureRecord(lid int, uid string) error {
 	return DB.Delete(LectureRecord{}, "`lecture_id` = ? AND `user_id` = ? AND `type` = 'byhand'", lid, uid).Error
 }
 
+//GetLectureRecord 获取特定签到记录
+func GetLectureRecord(lid int, uid string) (LectureRecord, error) {
+	var lr LectureRecord
+	err := DB.Find(&lr, "`lecture_id` = ? AND `user_id` = ? AND `type` = 'byhand'", lid, uid).Error
+	return lr, err
+}
+
 //DeleteLectureAllRecord 删除特定讲座的所有签到记录
 func DeleteLectureAllRecord(lid int) error {
 	return DB.Delete(LectureRecord{}, "`lecture_id` = ?", lid).Error

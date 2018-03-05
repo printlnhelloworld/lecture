@@ -15,8 +15,13 @@ import (
 func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CorsHeader)
-	r.Use(gzip.Gzip(gzip.DefaultCompression))
-	apiv1 := r.Group("/api/v1", middlewares.Auth("/api/v1", "/loginCallback", "/loginURL", "/public/agreement"))
+	r.Use(gzip.Gzip(gzip.DefaultCompression)) //gzip压缩
+	apiv1 := r.Group("/api/v1",
+		middlewares.Auth(
+			"/api/v1",        //接口前缀
+			"/loginCallback", //登录相关
+			"/loginURL",      //登录相关
+		)) //不需要登录的接口
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -35,13 +40,15 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
 			middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
 		)
-		lectures.PATCH("/:lectureid", PatchLectureByID())
+		lectures.PATCH("/:lectureid", PatchLectureByID()) //修改讲座
+		lectures.PUT("/:lectureid/status", UpdateLectureStatusByID())
 		lectures.GET("/:lectureid", GetlectureByID())
 		lectures.DELETE("/:lectureid", DeleteLectureByID())
 		lectures.GET("/:lectureid/siginCode", GetLectureCodeByID()) //获取签到码
 		lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
 		lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
 		lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
+		lectures.GET("/:lectureid/users/:userid", GetOneSigninRecordLecturesByID())
 	}
 	//用户
 	users := apiv1.Group("/user")
@@ -86,6 +93,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 
 	public := apiv1.Group("/public")
 	public.GET("/agreement", GetPublicAgreement(conf.Agreement))
+	public.GET("/lecture_type", GetLectureTypes())
 
 	//前端static页面
 	r.StaticFS("/static", packr.NewBox("../../../dist/static"))

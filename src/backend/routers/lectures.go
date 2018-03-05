@@ -150,7 +150,6 @@ func PatchLectureByID() func(*gin.Context) {
 		Lecturer     *string `json:"lecturer"`
 		Type         *string `json:"type"`
 		Reviewed     *bool   `json:"reviewed"`
-		CanSignin    *bool   `json:"canSignin"`
 	}
 	return func(c *gin.Context) {
 		var lec lecture
@@ -223,6 +222,14 @@ func PatchLectureByID() func(*gin.Context) {
 	}
 }
 
+//UpdateLectureStatusByID 更新讲座状态
+func UpdateLectureStatusByID() func(*gin.Context) {
+
+	return func(c *gin.Context) {
+
+	}
+}
+
 //GetlectureByID 获取特定讲座
 func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
@@ -263,7 +270,7 @@ func DeleteLectureByID() func(*gin.Context) {
 		lectureidStr, _ := c.Get("lectureid")
 		lectureid := lectureidStr.(int)
 
-		_ = model.DeleteLectureByID(lectureid)
+		_ = model.DeleteLectureByID(lectureid) //TODO handle error
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
@@ -424,6 +431,29 @@ func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"status": "ok",
 				"msg":    "ok",
+			})
+		}
+	}
+}
+
+//GetOneSigninRecordLecturesByID 获取特定讲座的特定用户签到记录
+func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		lectureidStr, _ := c.Get("lectureid")
+		lid := lectureidStr.(int)
+		userid := c.Param("userid")
+		lr, err := model.GetLectureRecord(lid, userid)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "databaseErr",
+				"msg":    "数据库错误",
+				"err":    err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+				"data":   lr,
 			})
 		}
 	}

@@ -16,3 +16,13 @@ func GetPublicAgreement(agreement []string) func(*gin.Context) {
 		})
 	}
 }
+
+//GetLectureTypes 获取讲座类型
+func GetLectureTypes() func(*gin.Context) {
+	return func(c *gin.Context) { //TODO 实现
+		c.JSON(http.StatusNotImplemented, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+		})
+	}
+}
