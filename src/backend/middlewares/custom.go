@@ -70,3 +70,17 @@ func PathParamMustBeInt(args ...string) func(*gin.Context) {
 		}
 	}
 }
+
+//RequireSiteAdmin 需要管理员权限
+func RequireSiteAdmin() func(*gin.Context) {
+	return func(c *gin.Context) {
+		uidif, _ := c.Get("UserID")
+		uid := uidif.(string)
+		if uid != "15051236" { //TODO 实现真正的权限控制
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"status": "Forbidden",
+				"msg":    "你没有站点管理员权限",
+			})
+		}
+	}
+}

@@ -24,65 +24,69 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		})
 	})
 
-	apiv1.OPTIONS("/*all", func(c *gin.Context) {})
+	apiv1.OPTIONS("/*all", func(c *gin.Context) {}) //cors
 
 	//讲座
 	lectures := apiv1.Group("/lectures")
-	lectures.GET("", GetLectures())
-	lectures.POST("", CreateLecture())
-	lectures = lectures.Group("",
-		middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
-		middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
-	)
-	lectures.PATCH("/:lectureid", PatchLectureByID())
-	lectures.GET("/:lectureid", GetlectureByID())
-	lectures.DELETE("/:lectureid", DeleteLectureByID())
-	lectures.GET("/:lectureid/siginCode", GetLectureCodeByID()) //获取签到码
-	lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
-	lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
-	lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
-
+	{
+		lectures.GET("", GetLectures())
+		lectures.POST("", CreateLecture())
+		lectures = lectures.Group("",
+			middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
+			middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
+		)
+		lectures.PATCH("/:lectureid", PatchLectureByID())
+		lectures.GET("/:lectureid", GetlectureByID())
+		lectures.DELETE("/:lectureid", DeleteLectureByID())
+		lectures.GET("/:lectureid/siginCode", GetLectureCodeByID()) //获取签到码
+		lectures.POST("/:lectureid/users", AddSigninRecordLecturesByID())
+		lectures.GET("/:lectureid/users", GetSigninRecordLecturesByID())
+		lectures.DELETE("/:lectureid/users/:userid", DeleteOneSigninRecordLecturesByID())
+	}
 	//用户
 	users := apiv1.Group("/user")
-	users.GET("/userinfo", GetUserInfo())
-	users.POST("/agree", UpdateUserAgree())
-	users.GET("/lectures", GetUserLectures())
-	users.GET(
-		"/lectures/:lectureid",
-		middlewares.PathParamMustBeInt("lectureid"),
-		GetUserLectureByLectureID(),
-	)
-	users.GET("/tokens", GetUserTokens())
-	users.DELETE("/tokens", DeleteUserToken("all"))
-	users.DELETE("/tokens/self", DeleteUserToken("self"))
-	users.PUT("/tokens/self", UpdateUserTokenRemark())
-	users.DELETE("/tokens/other", DeleteUserToken("other"))
-
+	{
+		users.GET("/userinfo", GetUserInfo())
+		users.POST("/agree", UpdateUserAgree())
+		users.GET("/lectures", GetUserLectures())
+		users.GET(
+			"/lectures/:lectureid",
+			middlewares.PathParamMustBeInt("lectureid"),
+			GetUserLectureByLectureID(),
+		)
+		users.GET("/tokens", GetUserTokens())
+		users.DELETE("/tokens", DeleteUserToken("all"))
+		users.DELETE("/tokens/self", DeleteUserToken("self"))
+		users.PUT("/tokens/self", UpdateUserTokenRemark())
+		users.DELETE("/tokens/other", DeleteUserToken("other"))
+	}
 	//登录
 	apiv1.GET("/loginCallback", UserLoginCallBack(conf))
 	apiv1.GET("/loginURL", GetLoginURL(conf))
 
 	//管理员
 	admin := apiv1.Group("/admin")
-	admin.GET("/users", GetAdminUsers())
-	admin.POST("/users", AddAdminUser())
-	admin.PATCH("/users/:userid", PatchAdminUser())
-	admin.DELETE("/users/:userid", DeleteAdminUser())
-	admin.GET("/output", AdminOutput())
-	admin.GET("/record", AdminRecords())
-
+	{
+		admin.GET("/users", GetAdminUsers())
+		admin.POST("/users", AddAdminUser())
+		admin.PATCH("/users/:userid", PatchAdminUser())
+		admin.DELETE("/users/:userid", DeleteAdminUser())
+		admin.GET("/output", AdminOutput())
+		admin.GET("/record", AdminRecords())
+	}
 	//公告
 	ann := apiv1.Group("/announcements")
-	ann.GET("", GetAnnouncements())
-	ann.POST("", CreateAnnouncements())
-	ann = ann.Group("",
-		middlewares.PathParamMustBeInt("announcementid"),
-		middlewares.AnnouncementMustBeExist("announcementid"),
-	)
-	ann.GET("/:announcementid", GetAnnouncementByID())
-	ann.DELETE("/:announcementid", DeleteAnnouncementByID())
-	ann.PUT("/:announcementid", PutAnnouncementByID())
-
+	{
+		ann.GET("", GetAnnouncements())
+		ann.POST("", middlewares.RequireSiteAdmin(), CreateAnnouncements())
+		ann = ann.Group("",
+			middlewares.PathParamMustBeInt("announcementid"),
+			middlewares.AnnouncementMustBeExist("announcementid"),
+		)
+		ann.GET("/:announcementid", GetAnnouncementByID())
+		ann.DELETE("/:announcementid", middlewares.RequireSiteAdmin(), DeleteAnnouncementByID())
+		ann.PUT("/:announcementid", middlewares.RequireSiteAdmin(), PutAnnouncementByID())
+	}
 	//公开信息
 
 	public := apiv1.Group("/public")

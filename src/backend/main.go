@@ -19,7 +19,7 @@ func main() {
 	checkErr(err)
 
 	r := routers.SetupRouters(conf)
-	r.Run(conf.ListenAddr)
+	checkErr(r.Run(conf.ListenAddr))
 }
 
 func checkErr(err error) {
