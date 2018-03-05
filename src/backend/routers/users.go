@@ -71,13 +71,6 @@ func UpdateUserAgree() func(*gin.Context) {
 	}
 }
 
-//GetUserLectureByLectureID 获取用户的参加的特定讲座
-func GetUserLectureByLectureID() func(*gin.Context) {
-	return func(c *gin.Context) {
-
-	}
-}
-
 //GetUserTokens 登录列表
 func GetUserTokens() func(*gin.Context) {
 	return func(c *gin.Context) {

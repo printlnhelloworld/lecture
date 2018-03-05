@@ -49,11 +49,6 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		users.GET("/userinfo", GetUserInfo())
 		users.POST("/agree", UpdateUserAgree())
 		users.GET("/lectures", GetUserLectures())
-		users.GET(
-			"/lectures/:lectureid",
-			middlewares.PathParamMustBeInt("lectureid"),
-			GetUserLectureByLectureID(),
-		)
 		users.GET("/tokens", GetUserTokens())
 		users.DELETE("/tokens", DeleteUserToken("all"))
 		users.DELETE("/tokens/self", DeleteUserToken("self"))
