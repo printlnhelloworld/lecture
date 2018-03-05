@@ -14,6 +14,7 @@
         <mt-field label="主讲人" placeholder="主讲人姓名" v-model="temp.lecturer"></mt-field>
         <mt-field label="讲座类型" placeholder="请选择讲座类型" readonly v-model="temp.type" v-on:click.native="handleClick"></mt-field>
         <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="temp.introduction"></mt-field>
+        <mt-switch v-model="temp.reviewed">是否经过相关部门审批</mt-switch>
         <mt-button type="primary" size="small" @click="submit" v-if="create">提交</mt-button>
         <mt-button type="primary" size="small" @click="submit" v-if="!create">保存</mt-button>
         <mt-button type="primary" size="small"  @click="$router.go(-1)">取消</mt-button>
@@ -58,6 +59,7 @@ export default {
         location: '',
         introduction: '',
         startAt: new Date(),
+        reviewed: false,
         host: '',
         lecturer: '',
         type: ''
@@ -242,5 +244,8 @@ section{
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
+}
+.mint-switch{
+  margin: 0.2rem;
 }
 </style>
