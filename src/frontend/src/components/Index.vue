@@ -195,6 +195,9 @@ export default {
     // 上拉加载更多
     loadBottom() {
       let _self = this;
+      if (_self.lectures.allLoaded) {
+        return;
+      }
       console.log('bottom');
       _self.getData().then(res => {
         let data = res.data;
