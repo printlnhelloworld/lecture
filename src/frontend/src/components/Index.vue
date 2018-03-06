@@ -14,7 +14,7 @@
             :top-method="loadTop"
             :bottom-method="loadBottom"
             :bottom-all-loaded="lectures.allLoaded"
-            auto-fill="false"
+            :auto-fill="false"
             ref="loadmore">
               <div class="lectureList">
                 <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
@@ -262,7 +262,7 @@ export default {
   mounted() {
     console.log('mounted')
     console.log(this.lectures.list);
-    this.wrapInit()
+    this.wrapInit();
     this.loadBottom();
     this.getMineData();
   },
