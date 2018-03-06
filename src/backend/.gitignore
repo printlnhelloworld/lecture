@@ -1,5 +1,6 @@
 vendor
+*.exe
+backend
 conf/app.toml
 debug
-backend.exe
-backend
+*packr.go
