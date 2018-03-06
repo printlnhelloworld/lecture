@@ -196,6 +196,7 @@ export default {
     loadBottom() {
       let _self = this;
       if (_self.lectures.allLoaded) {
+        _self.$refs.loadmore.onBottomLoaded();
         return;
       }
       console.log('bottom');
