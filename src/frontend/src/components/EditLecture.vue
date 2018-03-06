@@ -105,7 +105,7 @@ export default {
     submit() {
       let _self = this;
       let url = _self.create ? '/lectures' : '/lectures/' + _self.temp.id;
-      let method = _self.create ? 'post' : 'patch';
+      let method = _self.create ? 'post' : 'put';
       let data = {};
       Object.assign(data, _self.temp);
       data.startAt = Date.parse(_self.temp.startAt) / 1000;
