@@ -21,9 +21,16 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
+    //关闭额外的分号检查
+    //0:关闭，1:警告，2:异常
+    "semi": 0,
+    //函数和括号间不要空格
+    "space-before-function-paren": [0, "always"],
+    // allow paren-less arrow functions
+    'arrow-parens': 0,
     // allow async-await
-    'generator-star-spacing': 'off',
+    'generator-star-spacing': 0,
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   }
 }

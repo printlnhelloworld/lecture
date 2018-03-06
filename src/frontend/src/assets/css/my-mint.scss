@@ -1,0 +1,28 @@
+$color-primary: white;
+$font-color: black;
+$font-family: "Microsoft YaHei";
+.mint-header {  
+  background-color: $color-primary;
+  color: $font-color;
+  font-family: $font-family;
+  font-weight: bold;
+  border-bottom: #eeeeee 1px solid;
+}
+.page-wrap{
+  height: 100%;
+  background-color: #bfd7e2;
+}
+.mint-cell{
+  height: 2rem;
+  min-height: 2rem;
+}
+.mint-cell-wrapper{
+  font-size: 0.75rem;
+}
+.mint-tab-container-wrap{
+  height: 100%;
+}
+// .mint-loadmore{
+//   // min-height: 
+//   height: 100%;
+// }
