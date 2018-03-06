@@ -24,8 +24,14 @@ func GetLectures() func(*gin.Context) {
 			})
 			return
 		}
+
+		if limit > 50 {
+			limit = 50
+		}
+
 		owner := c.DefaultQuery("owner", "")
 		status := c.DefaultQuery("status", "all")
+
 		sort := c.DefaultQuery("sort", "id")
 		sortMatch := false
 		for _, stype := range []string{"id", "startAt"} {
@@ -33,16 +39,12 @@ func GetLectures() func(*gin.Context) {
 				sortMatch = true
 			}
 		}
-
 		if sortMatch == false {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "ParamError",
 				"msg":    "参数sort必须 id / startAt",
 			})
 			return
-		}
-		if limit > 50 {
-			limit = 50
 		}
 		type lecture struct {
 			ID      int    `json:"id"`
