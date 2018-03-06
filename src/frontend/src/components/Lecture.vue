@@ -115,7 +115,7 @@ export default {
   methods: {
     getData() {
       let _self = this;
-      _self.$ajax({
+      return _self.$ajax({
         url: '/lectures/' + _self.$route.query.id,
         method: 'get'
       }).then(res => {
@@ -128,7 +128,7 @@ export default {
       })
     },
     goback() {
-      this.$router.go('-1');
+      history.back();
     },
     getTime(time) {
       return formatDate(time);
@@ -230,8 +230,13 @@ export default {
       })
     }
   },
+  created() {
+    this.$indicator.open('Loading...');
+  },
   mounted() {
-    this.getData();
+    this.getData().then(() => {
+      this.$indicator.close();
+    });
   }
 }
 </script>

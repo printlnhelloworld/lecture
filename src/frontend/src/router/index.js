@@ -6,7 +6,6 @@ import Lecture from '@/components/Lecture'
 import EditLecture from '@/components/EditLecture'
 import Tips from '@/components/loginStatus/Tips'
 import Error from '@/components/loginStatus/Error'
-
 Vue.use(Router)
 
 const router = new Router({
@@ -61,6 +60,18 @@ const router = new Router({
       }
     }
   ]
+  // scrollBehavior(to, from, savedPosition) {
+  //   if (savedPosition) {
+  //     console.log(router.app.$store.state.position)
+  //     return new Promise((resolve, reject) => {
+  //       setTimeout(() => {
+  //         window.scrollTo(0, 0)
+  //       }, 500)
+  //     })
+  //   } else {
+  //     return { x: 0, y: 0 };
+  //   }
+  // }
 })
 router.beforeEach((to, from, next) => {
   var auth = localStorage.getItem('auth');

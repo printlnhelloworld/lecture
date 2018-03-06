@@ -104,15 +104,26 @@ export default {
     // 创建/修改讲座信息
     submit() {
       let _self = this;
-      let url = _self.create ? '/lectures/' : '/lectures/' + _self.temp.id;
+      let url = _self.create ? '/lectures' : '/lectures/' + _self.temp.id;
       let method = _self.create ? 'post' : 'patch';
       let data = {};
       Object.assign(data, _self.temp);
       data.startAt = Date.parse(_self.temp.startAt) / 1000;
+      _self.$indicator.open('Loading...');
       _self.$ajax({
         url: url,
         method: method,
         data: data
+      }).then(res => {
+        let data = res.data;
+        _self.$indicator.close();
+        if (data.status === 'ok') {
+          _self.$toast({
+            message: '操作成功'
+          });
+        } else {
+          _self.$toast(data.msg);
+        }
       })
     },
     changeStatus(status) {

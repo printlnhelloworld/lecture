@@ -21,7 +21,7 @@
                   <span>{{ item.topic }}</span>
                   <section>
                     <p>
-                      <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                      <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
                       <span>{{item.status}}</span>
                     </p>
                       <span>{{ getTime(item.startAt) }}</span>
@@ -201,6 +201,7 @@ export default {
         _self.$refs.loadmore.onBottomLoaded();
         if (data.data.length === 0) {
           _self.lectures.allLoaded = true;
+          console.log(_self.lectures.allLoaded)
         } else {
           _self.lectures.list.push(...data.data);
           _self.lectures.next = data.next;
@@ -255,6 +256,12 @@ export default {
     console.log(this.lectures.list);
     // this.loadBottom();
     this.getMineData();
+  },
+  beforeRouteLeave(to, from, next) {
+    let position = document.getElementsByClassName('loadmore_wrap')[0].scrollTop;
+    console.log(position);
+    this.$store.commit('savePosition', position); // 离开路由时把位置存起来
+    next()
   }
 }
 </script>

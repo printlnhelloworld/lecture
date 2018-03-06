@@ -4,11 +4,15 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    data: JSON.parse(localStorage.getItem('data'))
+    data: JSON.parse(localStorage.getItem('data')),
+    position: 0
   },
   mutations: {
     initData(state, data) {
       state.data = data;
+    },
+    savePosition(state, position) {
+      state.position = position;
     }
   }
 })
