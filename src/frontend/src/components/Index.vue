@@ -22,7 +22,7 @@
                   <section>
                     <p>
                       <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
-                      <span>{{item.status}}</span>
+                      <!-- <span>{{item.status}}</span> -->
                     </p>
                       <span>{{ getTime(item.startAt) }}</span>
                   </section>
@@ -310,21 +310,22 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 2.5rem;
+  height: 4rem;
   margin: 0 0.5rem 0 0.5rem;
   // font-size: 1rem;
   padding: 0 0.5rem 0 0.5rem;
   // border: 0.5rem black dotted;
   // border-top:none;
   border-radius: 0.5rem;
+  font-size: 1.25rem;
   background-color: white;
   >section {
     display: flex;
     flex-direction: column;
-    font-size: 0.75rem;
+    font-size: 1rem;
     >p {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
     }
   }
 }
