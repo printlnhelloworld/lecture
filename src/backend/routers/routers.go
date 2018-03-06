@@ -40,7 +40,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
 			middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
 		)
-		lectures.PATCH("/:lectureid", PatchLectureByID()) //修改讲座
+		lectures.PUT("/:lectureid", PatchLectureByID()) //修改讲座
 		lectures.PUT("/:lectureid/status", UpdateLectureStatusByID())
 		lectures.GET("/:lectureid", GetlectureByID())
 		lectures.DELETE("/:lectureid", DeleteLectureByID())
