@@ -9,12 +9,12 @@
       <!-- tabcontainer -->
       <mt-tab-container class="page-tabbar-container" v-model="selected" ref="wrap">
         <mt-tab-container-item id="list">
-          <div class="loadmore_wrap" :style="{height: wrapHeight + 'px'}">
+          <div class="loadmore_wrap">
             <mt-loadmore
             :top-method="loadTop"
             :bottom-method="loadBottom"
             :bottom-all-loaded="lectures.allLoaded"
-            auto-fill
+            auto-fill="false"
             ref="loadmore">
               <div class="lectureList">
                 <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
@@ -142,7 +142,6 @@ export default {
           // }
         ]
       },
-      wrapHeight: '',
       options: [1, 2, 3],
       lectures: {
         allLoaded: false,
@@ -230,6 +229,11 @@ export default {
     getTime(time) {
       return formatDate(time);
     },
+    wrapInit() {
+      let wrapHeight = document.getElementsByClassName('loadmore_wrap')[0].offsetHeight;
+      // document.getElementsByClassName('loadmore_wrap')[0].style.height = wrapHeight - searchBarHeight + 'px';
+      document.getElementsByClassName('lectureList')[0].style.minHeight = wrapHeight + 'px';
+    },
     toogle(index) {
       this.show.splice(index, 1, !this.show[index]);
       console.log(this.show[index]);
@@ -258,7 +262,8 @@ export default {
   mounted() {
     console.log('mounted')
     console.log(this.lectures.list);
-    // this.loadBottom();
+    this.wrapInit()
+    this.loadBottom();
     this.getMineData();
   },
   beforeRouteLeave(to, from, next) {
