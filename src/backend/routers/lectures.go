@@ -70,7 +70,7 @@ func GetLectures() func(*gin.Context) {
 				ID:      lec.ID,
 				Topic:   lec.Topic,
 				Type:    lec.Type,
-				Status:  getLectureStatus(lec, now),
+				Status:  getLectureStatus(lec),
 				StartAt: lec.StartAt.Unix(),
 			})
 		}
@@ -254,11 +254,10 @@ func GetlectureByID() func(*gin.Context) {
 				"lecturer":      lec.Lecturer,
 				"type":          lec.Type,
 				"reviewed":      lec.Reviewed,
-				"status":        getLectureStatus(*lec, time.Now()),
+				"status":        getLectureStatus(*lec),
 				"createAt":      lec.CreateAt.Unix(),
 				"finished":      lec.Finished,
 				"finishedAt":    lec.FinishedAt.Unix(),
-				"canSignin":     false, //TODO 未实现
 				"remark":        lec.Remark,
 			},
 		})
@@ -461,11 +460,11 @@ func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
 	}
 }
 
-func getLectureStatus(lec model.Lecture, now time.Time) string {
+func getLectureStatus(lec model.Lecture) string {
 	if lec.Finished {
 		return "ended"
-	} else if now.Before(lec.StartAt) {
-		return "prepare"
+	} else if lec.SignCode == "" {
+		return "notsiging"
 	}
-	return "running"
+	return "siging"
 }
