@@ -11,6 +11,11 @@ import (
 	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 )
 
+const (
+	version   = "beta"
+	copyright = "杭电助手 © 版权所有"
+)
+
 //SetupRouters 初始化路由
 func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
@@ -21,6 +26,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			"/api/v1",        //接口前缀
 			"/loginCallback", //登录相关
 			"/loginURL",      //登录相关
+			"/public/system_info",
 		)) //不需要登录的接口
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -93,6 +99,16 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 
 	public := apiv1.Group("/public")
 	public.GET("/agreement", GetPublicAgreement(conf.Agreement))
+	public.GET("/system_info", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status": "ok",
+			"msg":    "ok",
+			"data": gin.H{
+				"version":   version,
+				"copyright": copyright,
+			},
+		})
+	})
 	public.GET("/lecture_type", GetLectureTypes())
 
 	//前端static页面
