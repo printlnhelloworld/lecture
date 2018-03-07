@@ -19,15 +19,17 @@ const (
 //SetupRouters 初始化路由
 func SetupRouters(conf *conf.Conf) *gin.Engine {
 	r := gin.Default()
-	r.Use(middlewares.CorsHeader)
+	r.Use(middlewares.CorsHeader, middlewares.PHP)
 	r.Use(gzip.Gzip(gzip.DefaultCompression)) //gzip压缩
 	apiv1 := r.Group("/api/v1",
-		middlewares.Auth(
-			"/api/v1",        //接口前缀
-			"/loginCallback", //登录相关
-			"/loginURL",      //登录相关
-			"/public/system_info",
-		)) //不需要登录的接口
+		middlewares.Auth( //不需要登录的接口
+			"/api/v1",             //接口前缀
+			"/loginCallback",      //登录相关
+			"/loginURL",           //登录相关
+			"/public/system_info", //
+		),
+		middlewares.LoadPermits(),
+	)
 	apiv1.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
@@ -86,14 +88,14 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	ann := apiv1.Group("/announcements")
 	{
 		ann.GET("", GetAnnouncements())
-		ann.POST("", middlewares.RequireSiteAdmin(), CreateAnnouncements())
+		ann.POST("", middlewares.RequirePermitOr(middlewares.PermitSiteAdmin), CreateAnnouncements())
 		ann = ann.Group("",
 			middlewares.PathParamMustBeInt("announcementid"),
 			middlewares.AnnouncementMustBeExist("announcementid"),
 		)
 		ann.GET("/:announcementid", GetAnnouncementByID())
-		ann.DELETE("/:announcementid", middlewares.RequireSiteAdmin(), DeleteAnnouncementByID())
-		ann.PUT("/:announcementid", middlewares.RequireSiteAdmin(), PutAnnouncementByID())
+		ann.DELETE("/:announcementid", middlewares.RequirePermitOr(middlewares.PermitSiteAdmin), DeleteAnnouncementByID())
+		ann.PUT("/:announcementid", middlewares.RequirePermitOr(middlewares.PermitSiteAdmin), PutAnnouncementByID())
 	}
 	//公开信息
 
