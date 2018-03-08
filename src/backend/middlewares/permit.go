@@ -15,7 +15,7 @@ const (
 	//PermitLectureAgree 讲座同意办理权
 	PermitLectureAgree = "lectureAgree"
 	//PermitRecordView 所有签到记录浏览权
-	PermitRecordView = "RecordView"
+	PermitRecordView = "recordView"
 )
 
 var unitMap map[string]string
