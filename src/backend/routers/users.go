@@ -35,9 +35,7 @@ func GetUserInfo() func(*gin.Context) {
 					"agree":    u.Agreed,
 					"agreeAt":  u.AgreedAt.Unix(),
 					"joinAt":   u.JoinAt.Unix(),
-					"permit": map[string]string{
-						"": "",
-					},
+					"permit":   model.GetUserPermits(u.UserID),
 				},
 			})
 		}
