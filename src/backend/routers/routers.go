@@ -111,7 +111,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			},
 		})
 	})
-	public.GET("/lecture_type", GetLectureTypes())
+	public.GET("/lecture_type", GetLectureTypes(conf))
 
 	//前端static页面
 	r.StaticFS("/static", packr.NewBox("../../../dist/static"))

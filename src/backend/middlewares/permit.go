@@ -18,11 +18,20 @@ const (
 	PermitRecordView = "RecordView"
 )
 
+var unitMap map[string]string
+
 //LoadPermits 加载用户权限
 func LoadPermits() func(*gin.Context) {
 	return func(c *gin.Context) {
 		if u, exist := c.Get("UserID"); exist {
-			c.Set("Permits", model.GetUserPermits(u.(string)))
+			ps := model.GetUserPermits(u.(string))
+			userinfo, _ := model.GetUserByID(u.(string))
+			if isTeacher(userinfo.Type, userinfo.UnitID) {
+				if !havePermit(PermitLectureCreate, ps) {
+					ps = append(ps, PermitLectureCreate)
+				}
+			}
+			c.Set("Permits", ps)
 		}
 	}
 }
@@ -119,4 +128,29 @@ func permitsToMsg(ps []string) (msg string) {
 		msg += permitToMsg(tmp) + " "
 	}
 	return
+}
+
+//PermitsToMap 权限数组变 map
+func PermitsToMap(ps []string) gin.H {
+	return gin.H{
+		PermitSiteAdmin:     havePermit(PermitSiteAdmin, ps),
+		PermitLectureCreate: havePermit(PermitLectureCreate, ps),
+		PermitLectureAgree:  havePermit(PermitLectureAgree, ps),
+		PermitRecordView:    havePermit(PermitRecordView, ps),
+	}
+}
+
+func isTeacher(usertype, unitid string) bool {
+	if usertype != "3" {
+		return false
+	}
+	if _, ok := unitMap[unitid]; ok {
+		return true
+	}
+	return false
+}
+
+//SetUnitMap 设置学院列表
+func SetUnitMap(m map[string]string) {
+	unitMap = m
 }

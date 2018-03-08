@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,16 +19,18 @@ func GetPublicAgreement(agreement []string) func(*gin.Context) {
 }
 
 //GetLectureTypes 获取讲座类型
-func GetLectureTypes() func(*gin.Context) {
-	return func(c *gin.Context) { //TODO 实现
+func GetLectureTypes(conf *conf.Conf) func(*gin.Context) {
+	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
-			"data": []string{
-				"校团委讲座",
-				"理学院讲座",
-				"计算机学院讲座",
-			},
+			"data": func(m map[string]string) []string {
+				tmp := []string{}
+				for _, s := range m {
+					tmp = append(tmp, s)
+				}
+				return tmp
+			}(conf.Unit),
 		})
 	}
 }

@@ -3,6 +3,7 @@ package routers
 import (
 	"net/http"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +36,7 @@ func GetUserInfo() func(*gin.Context) {
 					"agree":    u.Agreed,
 					"agreeAt":  u.AgreedAt.Unix(),
 					"joinAt":   u.JoinAt.Unix(),
-					"permit":   model.GetUserPermits(u.UserID),
+					"permit":   middlewares.PermitsToMap(model.GetUserPermits(u.UserID)),
 				},
 			})
 		}
