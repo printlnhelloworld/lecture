@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="page-wrap">
       <mt-header :title="title">
-        <router-link id="mine" to="/editLecture" slot="right" v-if="$store.state.data.type == 3">
+        <router-link id="mine" to="/editLecture" slot="right" v-if="permit.lectureCreate === true">
           <mt-button>创建</mt-button>
         </router-link>
       </mt-header>
@@ -18,12 +18,11 @@
             ref="loadmore">
               <div class="lectureList">
                 <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                  <span>{{ item.topic }}</span>
+                  <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
                   <section>
-                    <p>
+                    <!-- <p>
                       <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
-                      <!-- <span>{{item.status}}</span> -->
-                    </p>
+                    </p> -->
                       <span>{{ getTime(item.startAt) }}</span>
                   </section>
                 </router-link>
@@ -37,42 +36,64 @@
         <mt-tab-container-item id="mine">
           <div class="page-part">
             <div>
-              <mt-cell v-on:click.native="toogle(0)" class="account" :title="'学院专业讲座×' + mine.marjorCount">
-                <img class="arrow" src="../assets/icon/show.png" v-if="show[0]"/>
-                <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[0]"/>
-              </mt-cell>
-              <transition name="slide-fade">
-                <div class="lectureList" v-if="show[0]">
-                  <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                    <span>{{ item.topic }}</span>
-                    <section>
-                      <p>
-                        <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                        <span>{{item.status}}</span>
-                      </p>
-                        <span>{{ getTime(item.startAt) }}</span>
-                    </section>
-                  </router-link>
-                </div>
-              </transition>
-              <mt-cell v-on:click.native="toogle(1)" class="account" :title="'校团委讲座×' + mine.marjorCount">
-                <img class="arrow" src="../assets/icon/show.png" v-if="show[1]"/>
-                <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[1]"/>
-              </mt-cell>
-              <transition name="slide-fade">
-                <div class="lectureList" v-if="show[1]">
-                  <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                    <span>{{ item.topic }}</span>
-                    <section>
-                      <p>
-                        <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                        <span>{{item.status}}</span>
-                      </p>
-                        <span>{{ getTime(item.startAt) }}</span>
-                    </section>
-                  </router-link>
-                </div>
-              </transition>
+              <div v-if="$store.state.data.type == 1">
+                <mt-cell v-on:click.native="toogle(0)" class="account" :title="'已参与的学院专业讲座×' + mine.marjorCount">
+                  <img class="arrow" src="../assets/icon/show.png" v-if="show[0]"/>
+                  <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[0]"/>
+                </mt-cell>
+                <transition name="slide-fade">
+                  <div class="lectureList" v-if="show[0]">
+                    <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                      <span>{{ item.topic }}</span>
+                      <section>
+                        <p>
+                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                          <span>{{item.status}}</span>
+                        </p>
+                          <span>{{ getTime(item.startAt) }}</span>
+                      </section>
+                    </router-link>
+                  </div>
+                </transition>
+                <mt-cell v-on:click.native="toogle(1)" class="account" :title="'已参与的校团委讲座×' + mine.marjorCount">
+                  <img class="arrow" src="../assets/icon/show.png" v-if="show[1]"/>
+                  <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[1]"/>
+                </mt-cell>
+                <transition name="slide-fade">
+                  <div class="lectureList" v-if="show[1]">
+                    <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                      <span>{{ item.topic }}</span>
+                      <section>
+                        <p>
+                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                          <span>{{item.status}}</span>
+                        </p>
+                          <span>{{ getTime(item.startAt) }}</span>
+                      </section>
+                    </router-link>
+                  </div>
+                </transition>
+              </div>
+              <div v-if="permit.lectureCreate === true">
+                <mt-cell v-on:click.native="toogle(2)" class="account" :title="'已创建讲座×' + mine.createCount">
+                  <img class="arrow" src="../assets/icon/show.png" v-if="show[2]"/>
+                  <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[2]"/>
+                </mt-cell>
+                <transition name="slide-fade">
+                  <div class="lectureList" v-if="show[2]">
+                    <router-link v-for="item in mine.createList" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+                      <span>{{ item.topic }}</span>
+                      <section>
+                        <p>
+                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
+                          <span>{{item.status}}</span>
+                        </p>
+                          <span>{{ getTime(item.startAt) }}</span>
+                      </section>
+                    </router-link>
+                  </div>
+                </transition>
+              </div>
             </div>
             <mt-button @click="logout" type="danger">登出</mt-button>
           </div>
@@ -98,7 +119,7 @@ export default {
   data() {
     return {
       selected: 'list',
-      show: [false, false],
+      show: [false, false, false],
       list2: [
         {
           'id': 1,
@@ -128,6 +149,7 @@ export default {
         marjorCount: 0,
         // 参与校团委讲他做数目
         schoolCount: 0,
+        createCount: 0,
         list: [
           // {
           //   // 讲座id
@@ -140,7 +162,8 @@ export default {
           //   startAt: 1519389118000,
           //   signType: 'qcode'
           // }
-        ]
+        ],
+        createList: []
       },
       options: [1, 2, 3],
       lectures: {
@@ -161,8 +184,9 @@ export default {
           return '';
       }
     },
-    type() {
-      return this.$store.state.data.type;
+    permit() {
+      // console.log(this.$store.state.data.permit)
+      return this.$store.state.data.permit;
     }
   },
   methods: {
@@ -177,7 +201,7 @@ export default {
         }
       })
     },
-    getMineData() {
+    getMineData(next) {
       let _self = this;
       _self.$ajax({
         url: '/user/lectures',
@@ -185,7 +209,31 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
+          _self.mine.marjorCount = data.marjorCount;
+          _self.mine.schoolCount = data.schoolCount;
           _self.mine.list = data.list;
+        } else {
+          _self.$toast(data.msg);
+        }
+      })
+    },
+    getCreateList(next = 0) {
+      let _self = this;
+      _self.$ajax({
+        url: 'lectures',
+        method: 'get',
+        params: {
+          owner: _self.$store.state.data.id,
+          next: next
+        }
+      }).then(res => {
+        let data = res.data;
+        if (data.status === 'ok') {
+          if (data.data.length !== 0) {
+            _self.mine.createList.push(...data.data);
+            _self.mine.createCount = _self.mine.createList.length;
+            _self.getCreateList(data.next);
+          }
         } else {
           _self.$toast(data.msg);
         }
@@ -208,8 +256,6 @@ export default {
         } else {
           _self.lectures.list.push(...data.data);
           _self.lectures.next = data.next;
-          console.log(_self.lectures.next);
-          console.log(_self.lectures.list);
         }
       });
     },
@@ -260,11 +306,16 @@ export default {
     // }
   },
   mounted() {
+    console.log(this.permit)
+    console.log(11)
     console.log('mounted')
     console.log(this.lectures.list);
     this.wrapInit();
     this.loadBottom();
     this.getMineData();
+    if (this.permit.lectureCreate) {
+      this.getCreateList();
+    }
   },
   beforeRouteLeave(to, from, next) {
     let position = document.getElementsByClassName('loadmore_wrap')[0].scrollTop;
@@ -317,12 +368,23 @@ export default {
   // border: 0.5rem black dotted;
   // border-top:none;
   border-radius: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1rem;
   background-color: white;
+  >span{
+    >span{
+      margin-right: 0.5rem;
+    }
+    flex: 0 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
   >section {
     display: flex;
     flex-direction: column;
     font-size: 1rem;
+    flex-basis: 1;
+    flex:0 0 auto;
     >p {
       display: flex;
       justify-content: flex-end;
@@ -357,5 +419,12 @@ export default {
   >button{
     flex: 0 0 auto;
   }
+}
+.lectureList{
+  padding: 0.5rem 0 0 0;
+  box-sizing: border-box;
+}
+.lectureList>:not(:first-child){
+  border-top: 1px gainsboro solid;
 }
 </style>

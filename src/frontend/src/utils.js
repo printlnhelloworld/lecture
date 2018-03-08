@@ -27,8 +27,12 @@ function formatDate(now) {
   let date = time.getDate();
   let hour = time.getHours();
   let minute = time.getMinutes();
+  month = month < 10 ? '0' + month : month;
+  date = date < 10 ? '0' + date : date;
+  hour = hour < 10 ? '0' + hour : hour;
+  minute = minute < 10 ? '0' + minute : minute;
   // let second = now.getSeconds();
-  return year + '/' + month + '/' + date + '/' + ' ' + hour + ':' + minute;
+  return year + '/' + month + '/' + date + ' ' + hour + ':' + minute;
 }
 export { formatDateYMD, formatDateHM, formatDate }
 // export { formatDateYMD, formatDateHM }

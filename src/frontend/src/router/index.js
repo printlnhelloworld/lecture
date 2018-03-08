@@ -4,6 +4,7 @@ import Index from '@/components/Index'
 import Login from '@/components/Login'
 import Lecture from '@/components/Lecture'
 import EditLecture from '@/components/EditLecture'
+import SignManage from '@/components/SignManage'
 import Tips from '@/components/loginStatus/Tips'
 import Error from '@/components/loginStatus/Error'
 Vue.use(Router)
@@ -55,6 +56,14 @@ const router = new Router({
       path: '/editLecture',
       name: 'EditLecture',
       component: EditLecture,
+      meta: {
+        keepAlive: false
+      }
+    },
+    {
+      path: '/signManage',
+      name: 'SignManage',
+      component: SignManage,
       meta: {
         keepAlive: false
       }

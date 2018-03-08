@@ -6,22 +6,30 @@
       </div>
     </mt-header>
     <section>
-      <ul class="detials">
-        <li><span>主题：{{ lecture.topic }}</span></li>
+        <!-- <li><span>主题：{{ lecture.topic }}</span></li>
         <li><span>时间：{{ getTime(lecture.startAt) }}</span></li>
         <li><span>地点：{{ lecture.location }}</span></li>
         <li><span>主办方：{{ lecture.host }}</span></li>
         <li><span>主讲人：{{ lecture.lecturer }}</span></li>
         <li><span>讲座类型：{{ lecture.type }}</span></li>
-        <li><span>内容简介：{{ lecture.introduction }}</span></li>
-      </ul>
+        <li><span>内容简介：{{ lecture.introduction }}</span></li> -->
+        <mt-field label="主题" placeholder="主题名称" v-model="lecture.topic" readonly></mt-field>
+        <mt-field label="时间" :placeholder="getTime(lecture.startAt)" v-on:click.native="openPicker" readonly></mt-field>
+        <mt-field label="地点" placeholder="地点" v-model="lecture.location" readonly></mt-field>
+        <mt-field label="主办方" placeholder="主办方名称" v-model="lecture.host" readonly></mt-field>
+        <mt-field label="主讲人" placeholder="主讲人姓名" v-model="lecture.lecturer" readonly></mt-field>
+        <mt-field label="讲座类型" placeholder="请选择讲座类型" v-model="lecture.type" v-on:click.native="handleClick" readonly></mt-field>
+        <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="lecture.introduction" readonly></mt-field>
       <div class="buttonGroup" v-if="authority">
-        <mt-button v-if="lecture.status === 'prepare'" type="primary" size="small" @click="changeStatus('runing')">开始讲座</mt-button>
-        <mt-button v-if="lecture.status != 'ended'" type="primary" size="small" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
-        <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">签到管理</mt-button>
-        <mt-button v-if="lecture.status != 'prepare'" type="primary" size="small">签到记录</mt-button>
-        <mt-button v-if="lecture.status != 'ended'" type="danger" size="small" @click="deleteLecture">删除讲座</mt-button>
-        <mt-button v-if="lecture.status === 'runing'" type="danger" size="small" @click="changeStatus('ended')">结束讲座</mt-button>
+        <!-- <mt-button v-if="lecture.status === 'prepare'" type="primary" size="small" @click="changeStatus('runing')">开始讲座</mt-button> -->
+        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">签到管理</mt-button> -->
+        <mt-button @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
+        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">开始签到</mt-button> -->
+        <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button>
+        <!-- <mt-button v-if="lecture.status != 'prepare'" type="primary">签到记录</mt-button> -->
+        <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
+        <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
+        <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
       <div v-if="$store.state.data.type == 1">
         <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
@@ -30,22 +38,6 @@
         </div>
       </div>
     </section>
-    <mt-datetime-picker
-      ref="picker"
-      v-model="pickerTime"
-      type="datetime"
-      year-format="{value}"
-      month-format="{value}"
-      date-format="{value}"
-      hourFormat="{value}"
-      minuteFormat="{value}"
-      @confirm="handleConfirm">
-    </mt-datetime-picker>
-    <mt-popup
-      v-model="popupVisible"
-      position="bottom">
-        <mt-picker :slots="slots" @change="TypeChange"></mt-picker>
-    </mt-popup>
   </div>
 </template>
 
@@ -54,12 +46,14 @@ import { formatDate } from '../utils.js'
 export default {
   data() {
     return {
+      flag: false,
       slots: [
         {
           values: ['', '校团委讲座', '机械工程学院', '计算机学院讲座', '数字媒体与艺术设计学院', '国际教育学院', '外国语学院', '经济学院', '理学院', '材料与环境工程学院']
         }
       ],
       signCode: '',
+      lectureCode: 'dasdasd',
       pickerValue: null,
       title: '讲座详情',
       lecture: {
@@ -73,7 +67,7 @@ export default {
         host: '',
         lecturer: '',
         type: '',
-        status: 'runing',
+        status: 'notsiging',
         createAt: 0,
         finishedAt: 0,
         finished: false,
@@ -123,12 +117,13 @@ export default {
         if (data.status === 'ok') {
           _self.lecture = data.data;
         } else {
-          alert(data.msg);
+          _self.$toast(data.msg);
         }
       })
     },
     goback() {
-      history.back();
+      // history.back();
+      this.$router.push('/index');
     },
     getTime(time) {
       return formatDate(time);
@@ -148,9 +143,13 @@ export default {
       let _self = this;
       let tips, msg;
       switch (status) {
-        case 'runing' :
-          msg = '讲座已开始';
-          tips = '是否确认开始讲座？'
+        case 'signing' :
+          msg = '签到已开始';
+          tips = '是否确认开始签到？'
+          break;
+        case 'notsigning' :
+          msg = '签到已结束';
+          tips = '是否确认结束签到？'
           break;
         case 'ended' :
           msg = '讲座已结束';
@@ -165,18 +164,18 @@ export default {
           _self.$indicator.open('Loading...');
           _self.$ajax({
             url: '/lectures/' + _self.lecture.id + '/status',
-            method: 'patch',
+            method: 'put',
             data: {
               status: status
-            }.then(res => {
-              _self.$indicator.close();
-              let data = res.data;
-              if (data.status === 'ok') {
-                _self.$messageBox('提示', '操作成功');
-              } else {
-                _self.$toast(msg);
-              }
-            })
+            }
+          }).then(res => {
+            _self.$indicator.close();
+            let data = res.data;
+            if (data.status === 'ok') {
+              _self.$messageBox('提示', '操作成功');
+            } else {
+              _self.$toast(msg);
+            }
           })
         } else {
           console.log('concel');
@@ -228,6 +227,13 @@ export default {
         url: '',
         type: ''
       })
+    },
+    signStart() {
+      let _self = this;
+      _self.$ajax({
+        url: '',
+        type: ''
+      })
     }
   },
   created() {
@@ -260,7 +266,9 @@ section{
   display:flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
   >button{
+    margin: 0.2rem 0 0 0;
     width: 80%;
   }
 }
@@ -275,5 +283,21 @@ section{
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
+}
+.modal{
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+}
+.mask{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top:10rem;
+  width: 100%;
+  height: 100%;
+  >button{
+    width: 50%;
+  }
 }
 </style>
