@@ -43,7 +43,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	lectures := apiv1.Group("/lectures")
 	{
 		lectures.GET("", GetLectures())
-		lectures.POST("", CreateLecture())
+		lectures.POST("", middlewares.RequirePermitOr(middlewares.PermitLectureCreate), CreateLecture())
 		lectures = lectures.Group("",
 			middlewares.PathParamMustBeInt("lectureid"), //讲座id必须为数字
 			middlewares.LectureMustBeExist("lectureid"), //讲座必须存在
