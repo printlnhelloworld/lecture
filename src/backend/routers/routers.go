@@ -78,11 +78,29 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	admin := apiv1.Group("/admin")
 	{
 		admin.GET("/users", GetAdminUsers())
-		admin.POST("/users", AddAdminUser())
-		admin.PATCH("/users/:userid", PatchAdminUser())
-		admin.DELETE("/users/:userid", DeleteAdminUser())
-		admin.GET("/output", AdminOutput())
-		admin.GET("/record", AdminRecords())
+		admin.POST(
+			"/users",
+			middlewares.RequirePermitOr(middlewares.PermitSiteAdmin),
+			AddAdminUser(),
+		)
+		admin.PATCH(
+			"/users/:userid",
+			middlewares.RequirePermitOr(middlewares.PermitSiteAdmin),
+			PatchAdminUser(),
+		)
+		admin.DELETE("/users/:userid",
+			middlewares.RequirePermitOr(middlewares.PermitSiteAdmin),
+			DeleteAdminUser(),
+		)
+		admin.GET("/output",
+			middlewares.RequirePermitOr(middlewares.PermitRecordView),
+			AdminOutput(),
+		)
+		admin.GET("/record",
+			middlewares.RequirePermitOr(middlewares.PermitRecordView),
+			AdminRecords(),
+		)
+
 	}
 	//公告
 	ann := apiv1.Group("/announcements")
