@@ -98,6 +98,14 @@
         个人
       </mt-tab-item>
     </mt-tabbar>
+    <mt-popup
+      class="announcement"
+      closeOnClickModal="true"
+      v-model="announcement.visible">
+      <h3><span>{{_self.announcement.list[0].title}}</span></h3>
+      <p class="message">{{_self.announcement.list[0].content}}</p>
+      <p class="announcementTime">{{getTime(_self.announcement.list[0].createAt)}}</p>
+    </mt-popup>
   </div>
 </template>
 
@@ -106,6 +114,17 @@ import { formatDate } from '../utils.js'
 export default {
   data() {
     return {
+      announcement: {
+        // 是否显示公告
+        visible: true,
+        // 已阅读的公告id数组
+        idList: new Set(JSON.parse(localStorage.getItem('announcements')) || []),
+        list: [{
+          title: '',
+          content: '',
+          createAt: 0
+        }]
+      },
       selected: 'list',
       show: [false, false, false],
       list2: [
@@ -240,6 +259,10 @@ export default {
         _self.$refs.loadmore.onBottomLoaded();
         if (data.data.length === 0) {
           _self.lectures.allLoaded = true;
+          _self.$toast({
+            message: '已加载完毕',
+            position: 'bottom'
+          });
           console.log(_self.lectures.allLoaded)
         } else {
           _self.lectures.list.push(...data.data);
@@ -267,6 +290,7 @@ export default {
       let wrapHeight = document.getElementsByClassName('loadmore_wrap')[0].offsetHeight;
       // document.getElementsByClassName('loadmore_wrap')[0].style.height = wrapHeight - searchBarHeight + 'px';
       document.getElementsByClassName('lectureList')[0].style.minHeight = wrapHeight + 'px';
+      // document.getElementsByClassName('mint-loadmore')[0].style.height = wrapHeight + 'px';
     },
     toogle(index) {
       this.show.splice(index, 1, !this.show[index]);
@@ -285,6 +309,26 @@ export default {
           console.log(data.msg);
         }
       })
+    },
+    getAnnouncement() {
+      let _self = this;
+      _self.$ajax({
+        url: '/announcements',
+        method: 'get'
+      }).then(res => {
+        let data = res.data;
+        console.log(_self.announcement.idList)
+        if (data.status === 'ok') {
+          // 检查本地是否存储最新的公告id
+          _self.announcement.list = data.data;
+          if (!_self.announcement.idList.has(data.data[0].id)) {
+            _self.announcement.idList.add(data.data[0].id);
+            _self.announcement.visible = true;
+            // 把公告id存储到本地 即已读
+            localStorage.setItem('announcements', JSON.stringify(Array.from(_self.announcement.idList)));
+          }
+        }
+      })
     }
     // getYMD(time) {
     //   return formatDateYMD(time);
@@ -301,6 +345,7 @@ export default {
     this.wrapInit();
     this.loadBottom();
     this.getMineData();
+    this.getAnnouncement();
     if (this.permit.lectureCreate) {
       this.getCreateList();
     }
@@ -350,9 +395,9 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: 2.5rem;
-  margin: 0.4rem 0.5rem 0.4rem 0.5rem;
   // font-size: 1rem;
   padding: 0 1rem 0 1rem;
+  margin: 0 1rem 0 1rem;
   // border: 0.5rem black dotted;
   // border-top:none;
   border-radius: 0.5rem;
@@ -379,9 +424,17 @@ export default {
     }
   }
 }
+.lectureList{
+  padding-top: 0.4rem;
+  box-sizing: border-box;
+}
+.lectureList>:not(:last-child){
+  // border-top: 1px gainsboro solid;
+  margin-bottom: 0.4rem;
+}
 .mint-cell-wrapper{
   height:1rem;
-  font-size: 0.75rem;
+  font-size: 0.2rem;
 }
 .arrow{
   height: 1rem;
@@ -408,7 +461,21 @@ export default {
     flex: 0 0 auto;
   }
 }
-.lectureList>:not(:first-child){
-  border-top: 1px gainsboro solid;
+.announcement{
+  width:20rem;
+  padding: 1rem;
+  >h3{
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    border-bottom: 1px gainsboro solid;
+  }
+  .announcementTime{
+    text-align: right;
+  }
+  .message{
+    margin: 1rem;
+    text-indent: 2rem;
+  }
 }
 </style>
