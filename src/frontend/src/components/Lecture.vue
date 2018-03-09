@@ -6,32 +6,22 @@
       </div>
     </mt-header>
     <section>
-        <!-- <li><span>主题：{{ lecture.topic }}</span></li>
-        <li><span>时间：{{ getTime(lecture.startAt) }}</span></li>
-        <li><span>地点：{{ lecture.location }}</span></li>
-        <li><span>主办方：{{ lecture.host }}</span></li>
-        <li><span>主讲人：{{ lecture.lecturer }}</span></li>
-        <li><span>讲座类型：{{ lecture.type }}</span></li>
-        <li><span>内容简介：{{ lecture.introduction }}</span></li> -->
         <mt-field label="主题" placeholder="主题名称" v-model="lecture.topic" readonly></mt-field>
-        <mt-field label="时间" :placeholder="getTime(lecture.startAt)" v-on:click.native="openPicker" readonly></mt-field>
+        <mt-field label="时间" :placeholder="getTime(lecture.startAt)" readonly></mt-field>
         <mt-field label="地点" placeholder="地点" v-model="lecture.location" readonly></mt-field>
         <mt-field label="主办方" placeholder="主办方名称" v-model="lecture.host" readonly></mt-field>
         <mt-field label="主讲人" placeholder="主讲人姓名" v-model="lecture.lecturer" readonly></mt-field>
-        <mt-field label="讲座类型" placeholder="请选择讲座类型" v-model="lecture.type" v-on:click.native="handleClick" readonly></mt-field>
+        <mt-field label="讲座类型" placeholder="请选择讲座类型" v-model="lecture.type" readonly></mt-field>
         <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="lecture.introduction" readonly></mt-field>
       <div class="buttonGroup" v-if="authority">
-        <!-- <mt-button v-if="lecture.status === 'prepare'" type="primary" size="small" @click="changeStatus('runing')">开始讲座</mt-button> -->
-        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">签到管理</mt-button> -->
         <mt-button @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
-        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary" size="small">开始签到</mt-button> -->
         <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button>
         <!-- <mt-button v-if="lecture.status != 'prepare'" type="primary">签到记录</mt-button> -->
         <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
-      <div v-if="$store.state.data.type == 1">
+      <div v-if="!authority">
         <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
@@ -53,8 +43,6 @@ export default {
         }
       ],
       signCode: '',
-      lectureCode: 'dasdasd',
-      pickerValue: null,
       title: '讲座详情',
       lecture: {
         id: 1,
@@ -67,7 +55,7 @@ export default {
         host: '',
         lecturer: '',
         type: '',
-        status: 'notsiging',
+        status: '',
         createAt: 0,
         finishedAt: 0,
         finished: false,
@@ -75,32 +63,14 @@ export default {
         remark: '',
         signin: {
           isSigned: false, // 当前token的用户是否已经完成签到
-          SignedAt: 111111111111111, // 签到时间
-          type: 'byhand', // 签到类型
+          SignedAt: 0, // 签到时间
+          type: '', // 签到类型
           remark: '' // 备注
         }
-      },
-      temp: {
-        topic: '',
-        location: '',
-        introduction: '',
-        startAt: new Date(),
-        host: '',
-        lecturer: '',
-        type: ''
-      },
-      // 编辑模式 时间控件临时参数
-      pickerTime: new Date(),
-      // 编辑模式 切换讲座类下选择的弹出层
-      popupVisible: false,
-      // 区别是创建还是修改 默认创建
-      create: true
+      }
     }
   },
   computed: {
-    type() {
-      return this.$store.state.data.type;
-    },
     authority() {
       console.log(this.$store.state.data.id === this.lecture.creatorUserID)
       return this.$store.state.data.id === this.lecture.creatorUserID
@@ -127,17 +97,6 @@ export default {
     },
     getTime(time) {
       return formatDate(time);
-    },
-    // 创建/修改讲座信息
-    submit() {
-      let _self = this;
-      let url = _self.create ? '/lectures/' : '/lectures/' + _self.lecture.id
-      let method = _self.create ? 'post' : 'patch'
-      _self.$ajax({
-        url: url,
-        method: method,
-        data: _self.temp
-      })
     },
     changeStatus(status) {
       let _self = this;
@@ -206,19 +165,6 @@ export default {
           console.log('cancel');
         }
       })
-    },
-    openPicker() {
-      this.$refs.picker.open();
-    },
-    handleConfirm() {
-      this.temp.startAt = this.pickerTime;
-    },
-    // 讲座类型点击后显示选择的弹出层
-    handleClick() {
-      this.popupVisible = true;
-    },
-    TypeChange(picker, values) {
-      this.temp.type = values[0]
     },
     // 签到码签到
     signIn() {

@@ -44,13 +44,9 @@
                 <transition name="slide-fade">
                   <div class="lectureList" v-if="show[0]">
                     <router-link v-for="item in mine.list" v-if="item.type != '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                      <span>{{ item.topic }}</span>
+                      <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
                       <section>
-                        <p>
-                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                          <span>{{item.status}}</span>
-                        </p>
-                          <span>{{ getTime(item.startAt) }}</span>
+                        <span>{{ getTime(item.startAt) }}</span>
                       </section>
                     </router-link>
                   </div>
@@ -62,13 +58,9 @@
                 <transition name="slide-fade">
                   <div class="lectureList" v-if="show[1]">
                     <router-link v-for="item in mine.list" v-if="item.type === '校团委讲座'" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                      <span>{{ item.topic }}</span>
+                      <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
                       <section>
-                        <p>
-                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                          <span>{{item.status}}</span>
-                        </p>
-                          <span>{{ getTime(item.startAt) }}</span>
+                        <span>{{ getTime(item.startAt) }}</span>
                       </section>
                     </router-link>
                   </div>
@@ -82,13 +74,9 @@
                 <transition name="slide-fade">
                   <div class="lectureList" v-if="show[2]">
                     <router-link v-for="item in mine.createList" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-                      <span>{{ item.topic }}</span>
+                      <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
                       <section>
-                        <p>
-                          <mt-badge size="small" color="#888">{{item.type}}</mt-badge>
-                          <span>{{item.status}}</span>
-                        </p>
-                          <span>{{ getTime(item.startAt) }}</span>
+                        <span>{{ getTime(item.startAt) }}</span>
                       </section>
                     </router-link>
                   </div>
@@ -361,10 +349,10 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 4rem;
-  margin: 0 0.5rem 0 0.5rem;
+  height: 2.5rem;
+  margin: 0.4rem 0.5rem 0.4rem 0.5rem;
   // font-size: 1rem;
-  padding: 0 0.5rem 0 0.5rem;
+  padding: 0 1rem 0 1rem;
   // border: 0.5rem black dotted;
   // border-top:none;
   border-radius: 0.5rem;
@@ -419,10 +407,6 @@ export default {
   >button{
     flex: 0 0 auto;
   }
-}
-.lectureList{
-  padding: 0.5rem 0 0 0;
-  box-sizing: border-box;
 }
 .lectureList>:not(:first-child){
   border-top: 1px gainsboro solid;
