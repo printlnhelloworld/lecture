@@ -226,7 +226,6 @@ func PutLectureByID() func(*gin.Context) {
 
 //UpdateLectureStatusByID 更新讲座状态
 func UpdateLectureStatusByID() func(*gin.Context) {
-
 	return func(c *gin.Context) {
 
 	}
@@ -295,6 +294,12 @@ func GetLectureCodeByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 		lid := 0 //TODO
 		initLectureCode(lid)
+		c.JSON(http.StatusOK, gin.H{
+			"status":     "ok",
+			"msg":        "ok",
+			"signinCode": "123456",
+			"exipreAt":   1111111,
+		})
 	}
 }
 
