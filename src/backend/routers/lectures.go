@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 )
 
@@ -227,7 +228,53 @@ func PutLectureByID() func(*gin.Context) {
 //UpdateLectureStatusByID 更新讲座状态
 func UpdateLectureStatusByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-
+		type status struct {
+			Status string `json:"status" binding:"required"`
+		}
+		var s status
+		if err := c.ShouldBindWith(&s, binding.JSON); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"status": "badRequest",
+				"msg":    "参数错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		switch s.Status {
+		case "signing", "notsigning", "ended":
+			if lecif, exist := c.Get(middlewares.NameLecture); exist {
+				lec := lecif.(*model.Lecture)
+				if lec.Finished {
+					c.JSON(http.StatusBadRequest, gin.H{
+						"status": "badRequest",
+						"msg":    "讲座已经结束、不能进行操作",
+					})
+					return
+				}
+				if err := model.UpdateLectureStatus(lec.ID, s.Status); err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"status": "databaseErr",
+						"msg":    "数据库错误",
+						"err":    err.Error(),
+					})
+				} else {
+					c.JSON(http.StatusOK, gin.H{
+						"status": "ok",
+						"msg":    "ok",
+					})
+				}
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"status": "ServerError",
+					"msg":    "服务器错误，lec 不存在",
+				})
+			}
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "badStatus",
+				"msg":    "状态必须是 signing, notsigning, ended 中的一种",
+			})
+		}
 	}
 }
 
@@ -468,8 +515,8 @@ func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
 func getLectureStatus(lec model.Lecture) string {
 	if lec.Finished {
 		return "ended"
-	} else if lec.SignCode == "" {
-		return "notsiging"
+	} else if lec.CanSignin {
+		return "signing"
 	}
-	return "siging"
+	return "notsigning"
 }

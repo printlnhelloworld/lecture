@@ -109,3 +109,17 @@ func DeleteLectureByID(id int) error {
 	_ = DeleteLectureAllRecord(id)
 	return db.Error
 }
+
+//UpdateLectureStatus 更新讲座状态
+func UpdateLectureStatus(lid int, status string) error {
+	var err error
+	switch status {
+	case "signing":
+		err = DB.Model(Lecture{ID: lid}).Update("can_signin", "1").Error
+	case "notsigning":
+		err = DB.Model(Lecture{ID: lid}).Update("can_signin", "0").Error
+	case "ended":
+		err = DB.Model(Lecture{ID: lid}).Update(Lecture{Finished: true, FinishedAt: time.Now()}).Error
+	}
+	return err
+}
