@@ -56,7 +56,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		lectures.GET("/:"+lectureidstr+"/users/:userid", GetOneSigninRecordLecturesByID())
 		lectures.PUT("/:"+lectureidstr,
 			middlewares.MustBeLectureOwner(lectureidstr), //必须是讲座所有者
-			PatchLectureByID(),
+			PutLectureByID(),
 		) //修改讲座
 		lectures.PUT("/:"+lectureidstr+"/status",
 			middlewares.MustBeLectureOwner(lectureidstr),

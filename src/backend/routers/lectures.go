@@ -141,8 +141,8 @@ func CreateLecture() func(*gin.Context) {
 	}
 }
 
-//PatchLectureByID 修改讲座，不用带上全部参数
-func PatchLectureByID() func(*gin.Context) {
+//PutLectureByID 修改讲座，不用带上全部参数
+func PutLectureByID() func(*gin.Context) {
 	type lecture struct {
 		Topic        *string `json:"topic"`
 		Location     *string `json:"location"`
