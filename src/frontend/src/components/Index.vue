@@ -116,7 +116,7 @@ export default {
     return {
       announcement: {
         // 是否显示公告
-        visible: true,
+        visible: false,
         // 已阅读的公告id数组
         idList: new Set(JSON.parse(localStorage.getItem('announcements')) || []),
         list: [{

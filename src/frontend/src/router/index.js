@@ -21,7 +21,8 @@ const router = new Router({
       name: 'index',
       component: Index,
       meta: {
-        keepAlive: true
+        keepAlive: true,
+        requireAuth: true
       }
     },
     {
@@ -49,7 +50,8 @@ const router = new Router({
       name: 'Lecture',
       component: Lecture,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        requireAuth: true
       }
     },
     {
@@ -57,7 +59,8 @@ const router = new Router({
       name: 'EditLecture',
       component: EditLecture,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        requireAuth: true
       }
     },
     {
@@ -65,7 +68,8 @@ const router = new Router({
       name: 'SignManage',
       component: SignManage,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        requireAuth: true
       }
     }
   ]
@@ -83,14 +87,16 @@ const router = new Router({
   // }
 })
 router.beforeEach((to, from, next) => {
-  var auth = localStorage.getItem('auth');
-  console.log(auth);
-  if (auth || to.path === '/login') {
-    next();
-  } else {
-    next({
-      path: '/login'
-    })
+  if (to.meta.requireAuth) {
+    var auth = localStorage.getItem('auth');
+    console.log(auth);
+    if (auth) {
+      next();
+    } else {
+      next({
+        path: '/login'
+      })
+    }
   }
 })
 export default router

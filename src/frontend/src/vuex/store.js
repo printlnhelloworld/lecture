@@ -5,7 +5,10 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     data: JSON.parse(localStorage.getItem('data')),
-    position: 0
+    position: 0,
+    timeout: {
+      getSignCode: ''
+    }
   },
   mutations: {
     initData(state, data) {

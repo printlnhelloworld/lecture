@@ -15,8 +15,8 @@
         <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="lecture.introduction" readonly></mt-field>
       <div class="buttonGroup" v-if="authority">
         <mt-button @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
-        <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button>
-        <!-- <mt-button v-if="lecture.status != 'prepare'" type="primary">签到记录</mt-button> -->
+        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button> -->
+        <mt-button v-if="lecture.status != 'prepare'" type="primary">签到记录</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
@@ -170,8 +170,18 @@ export default {
     signIn() {
       let _self = this;
       _self.$ajax({
-        url: '',
-        type: ''
+        url: '/lectures/' + _self.leccture.id + '/users',
+        method: 'post',
+        data: {
+          code: _self.signCode
+        }
+      }).then(res => {
+        let data = res.data;
+        if (data.status === 'ok') {
+          _self.$toast('签到成功');
+        } else {
+          _self.$toast(data.msg);
+        }
       })
     },
     signStart() {
