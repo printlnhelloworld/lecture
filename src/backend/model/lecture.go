@@ -8,21 +8,22 @@ import (
 
 //Lecture 讲座表
 type Lecture struct {
-	ID           int       `gorm:"type:int AUTO_INCREMENT;primary_key;not null"`
-	UserID       string    `gorm:"type:varchar(20);index;not null"`
-	Topic        string    `gorm:"type:varchar(50);not null;"`
-	Introduction string    `gorm:"type:text;not null;"`
-	StartAt      time.Time `gorm:"type:datetime;index;not null;"`
-	Location     string    `gorm:"type:varchar(100);not null;"`
-	Host         string    `gorm:"type:varchar(50);not null;"`
-	Lecturer     string    `gorm:"type:varchar(50);not null;"`
-	Type         string    `gorm:"type:varchar(50);index;not null;"`
-	Reviewed     bool      `gorm:"type:bool;index;not null;"`
-
-	SignCode         string    `gorm:"type:varchar(20);not null;default:''"`
-	SignCodeExpireAt time.Time `gorm:"type:datetime;not null;"`
-	Finished         bool      `gorm:"type:bool;index;not null;"`
-	FinishedAt       time.Time `gorm:"type:datetime;not null;"`
+	ID               int       `gorm:"type:int AUTO_INCREMENT;primary_key;not null"` //讲座id
+	UserID           string    `gorm:"type:varchar(20);index;not null"`              //创建者
+	Topic            string    `gorm:"type:varchar(50);not null;"`                   //主题
+	Introduction     string    `gorm:"type:text;not null;"`                          //简介
+	StartAt          time.Time `gorm:"type:datetime;index;not null;"`                //开始时间
+	Location         string    `gorm:"type:varchar(100);not null;"`                  //地点
+	Host             string    `gorm:"type:varchar(50);not null;"`                   //主办方
+	Lecturer         string    `gorm:"type:varchar(50);not null;"`                   //主讲人
+	Type             string    `gorm:"type:varchar(50);index;not null;"`             //讲座类型
+	Reviewed         bool      `gorm:"type:bool;index;not null;"`                    //是否同意讲座
+	ReviewedBy       string    `gorm:"type:varchar(20);not null;"`                   //同意讲座的人
+	CanSignin        bool      `gorm:"type:bool;not null;"`                          //讲座是否开始签到
+	SignCode         string    `gorm:"type:varchar(20);not null;default:''"`         //签到码
+	SignCodeExpireAt time.Time `gorm:"type:datetime;not null;"`                      //签到码过期时间
+	Finished         bool      `gorm:"type:bool;index;not null;"`                    //讲座是否结束
+	FinishedAt       time.Time `gorm:"type:datetime;not null;"`                      //讲座结束时间
 
 	CreateAt time.Time `gorm:"type:datetime;not null;"`
 	Remark   string    `gorm:"type:varchar(100);not null;"`
