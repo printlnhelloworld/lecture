@@ -34,14 +34,15 @@ type Lecture struct {
 func GetLectures(limit, next int, owner, status, sort string, now time.Time) (*[]Lecture, error) {
 	//TODO 添加 reviewed 参数，来表示是否通过审核
 	var db *gorm.DB
+	db = DB.Order("finished asc")
 	switch sort {
 	case "id":
-		db = DB.Order("id desc")
+		db = db.Order("id desc")
 		if next != 0 {
 			db = db.Where("id < ?", next)
 		}
 	case "startAt":
-		db = DB.Order("start_at desc")
+		db = db.Order("start_at desc")
 		if next != 0 {
 			db = db.Where("start_at < ?", next)
 		}
