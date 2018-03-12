@@ -10,8 +10,14 @@ import './assets/css/my-mint.scss'
 import store from './vuex/store'
 require('es6-promise').polyfill();
 Vue.use(Mint);
+// 设置调试模式
+console.log(localStorage.getItem('debug'))
+const debug = localStorage.getItem('debug');
+const baseURL = debug ? 'http://localhost:8080' : 'https://lecture.hduhelp.com';
+localStorage.setItem('baseURL', baseURL);
+const apiBaseUrl = baseURL + '/api/v1'
 const axiosInstance = axios.create({
-  baseURL: localStorage.getItem('baseURL') ? localStorage.getItem('baseURL') : 'https://lecture.hduhelp.com/api/v1'
+  baseURL: apiBaseUrl
 })
 Vue.prototype.$ajax = axiosInstance;
 Vue.prototype.$messageBox = Mint.MessageBox;

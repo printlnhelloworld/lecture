@@ -24,6 +24,7 @@
 
 <script>
 import QRCode from 'qrcodejs2'
+let qrcode;
 export default {
   data() {
     return {
@@ -52,10 +53,6 @@ export default {
     signCode(cur, old) {
       let _self = this;
       if (_self.lecture.status === 'signing') {
-        const qrcode = new QRCode(document.getElementById('qrcode'), {
-          width: 200,
-          height: 200
-        });
         qrcode.makeCode(_self.signCode)
       }
     }
@@ -82,8 +79,12 @@ export default {
         }
       })
     },
+    // 初始化二维码对象
     qrcodeInit() {
-      // this.qrcode.makeCode('https://www.baicu.com')
+      qrcode = new QRCode(document.getElementById('qrcode'), {
+        width: 200,
+        height: 200
+      });
     },
     getSignCode () {
       let _self = this;
@@ -100,7 +101,7 @@ export default {
         _self.signCode = 'www.baidu.com'
         if (data.status === 'ok') {
           if (_self.signCode !== data.signinCode) {
-            _self.signCode = window.location.host + '/lecture?id=' + _self.lecture.id + '&signinCode=' + data.signinCode;
+            _self.signCode = localStorage.getItem('baseURL') + '/lecture?id=' + _self.lecture.id + '&signinCode=' + data.signinCode;
           }
         } else {
           this.$toast(data.msg);
@@ -154,9 +155,8 @@ export default {
     }
   },
   mounted() {
-    // let _self = this;
-    // console.log(new Date());
-    // _self.qrcodeInit()
+    // 初始化二维码对象
+    this.qrcodeInit();
     // 保证定时器唯一
     if (this.timeOut) {
       clearTimeout(this.timeOut);
