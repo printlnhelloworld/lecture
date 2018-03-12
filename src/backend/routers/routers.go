@@ -56,6 +56,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		lectures.GET("/:"+lectureidstr+"/users/:userid", GetOneSigninRecordLecturesByID())
 		lectures.PUT("/:"+lectureidstr,
 			middlewares.MustBeLectureOwner(lectureidstr), //必须是讲座所有者
+			middlewares.LectureMustBeNotFinished(),
 			PutLectureByID(),
 		) //修改讲座
 		lectures.PUT("/:"+lectureidstr+"/status",
@@ -66,11 +67,11 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			middlewares.MustBeLectureOwner(lectureidstr),
 			DeleteLectureByID(),
 		)
-		lectures.GET("/:"+lectureidstr+"/signinCode", GetLectureCodeByID())           //获取签到码
-		lectures.POST("/:"+lectureidstr+"/users/code", AddSigninRecordLecturesByID()) //签到码签到
+		lectures.GET("/:"+lectureidstr+"/signinCode", GetLectureCodeByID())            //获取签到码
+		lectures.POST("/:"+lectureidstr+"/users/code", AddLectureSigninRecordByCode()) //签到码签到
 		lectures.POST("/:"+lectureidstr+"/users/byhand",
 			middlewares.MustBeLectureOwner(lectureidstr),
-			AddSigninRecordLecturesByID(), //手动签到
+			AddLectureSigninRecordByhand(), //手动签到
 		)
 		lectures.GET("/:"+lectureidstr+"/users", //特定讲座签到记录
 			middlewares.MustBeLectureOwner(lectureidstr),

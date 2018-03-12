@@ -60,6 +60,18 @@ func Auth(prefix string, unAuthPath ...string) func(*gin.Context) {
 	}
 }
 
+//GetUserIDFromContext 从上下文中获取用户ID
+func GetUserIDFromContext(c *gin.Context) string {
+	userif, _ := c.Get("UserID")
+	return userif.(string)
+}
+
+//GetTokenFromContext 从上下文中获取 Token
+func GetTokenFromContext(c *gin.Context) string {
+	tokenif, _ := c.Get("Token")
+	return tokenif.(string)
+}
+
 //PathParamMustBeInt 指定 Path 参数必须为数字
 func PathParamMustBeInt(args ...string) func(*gin.Context) {
 	return func(c *gin.Context) {

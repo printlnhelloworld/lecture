@@ -123,3 +123,11 @@ func UpdateLectureStatus(lid int, status string) error {
 	}
 	return err
 }
+
+//UpdateLectureSignCode 获取讲座签到码
+func UpdateLectureSignCode(lid int, code string, t time.Time) error {
+	lec := Lecture{
+		ID: lid,
+	}
+	return DB.Model(&lec).Update(Lecture{SignCode: code, SignCodeExpireAt: t}).Error
+}
