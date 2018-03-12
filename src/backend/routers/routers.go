@@ -41,6 +41,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 	//讲座
 	lectures := apiv1.Group("/lectures")
 	{
+		//TODO 讲座结束后不能进行写操作
 		lectureidstr := "lectureid"
 		lectures.GET("", GetLectures())
 		lectures.POST("",

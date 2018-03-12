@@ -6,6 +6,7 @@ import "time"
 type LectureRecord struct {
 	LectureID int       `gorm:"type:int;primary_key"`
 	UserID    string    `gorm:"type:varchar(20);primary_key"`
+	UserInfo  UserInfo  `gorm:"foreignkey:UserID;association_foreignkey:UserID"`
 	Type      string    `gorm:"type:varchar(20);not null"`
 	CreateAt  time.Time `gorm:"type:datetime;index;not null;"`
 	Remark    string    `gorm:"type:varchar(20);not null;default ''"`
@@ -14,6 +15,9 @@ type LectureRecord struct {
 //GetLectureRecordsByLectureID 根据讲座 id 获取签到记录
 func GetLectureRecordsByLectureID(lid int) (total int, lrs []LectureRecord) {
 	DB.Order("`create_at` desc").Where("`lecture_id` = ?", lid).Find(&lrs)
+	for i := range lrs {
+		DB.Find(&lrs[i].UserInfo, lrs[i].UserID)
+	}
 	return len(lrs), lrs
 }
 
@@ -21,6 +25,9 @@ func GetLectureRecordsByLectureID(lid int) (total int, lrs []LectureRecord) {
 func GetLectureRecordsByUserID(uid string) []LectureRecord {
 	var lrs []LectureRecord
 	DB.Find(&lrs, "`user_id` = ?", uid)
+	for i := range lrs {
+		DB.Find(&lrs[i].UserInfo, lrs[i].UserID)
+	}
 	return lrs
 }
 
@@ -34,6 +41,7 @@ func AddLectureRecord(rtype, uid string, lid int) (LectureRecord, error) {
 		Remark:    "",
 	}
 	err := DB.Create(&lr).Error
+	DB.Find(&lr.UserInfo, lr.UserID)
 	return lr, err
 }
 
@@ -45,7 +53,8 @@ func DeleteLectureRecord(lid int, uid string) error {
 //GetLectureRecord 获取特定签到记录
 func GetLectureRecord(lid int, uid string) (LectureRecord, error) {
 	var lr LectureRecord
-	err := DB.Find(&lr, "`lecture_id` = ? AND `user_id` = ? AND `type` = 'byhand'", lid, uid).Error
+	err := DB.Find(&lr, "`lecture_id` = ? AND `user_id` = ?", lid, uid).Error
+	DB.Find(&lr.UserInfo, &lr.UserID)
 	return lr, err
 }
 

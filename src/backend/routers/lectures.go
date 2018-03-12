@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
@@ -349,7 +351,7 @@ func getLectureCodeByIDAndUpdateOnExpired(c *gin.Context) (string, time.Time) {
 	lid, code, expireAt := getLectureCodeFromContext(c)
 	if !time.Now().Before(expireAt) {
 		code = newSignCode()
-		expireAt = time.Now().Add(time.Second * 30)
+		expireAt = time.Now().Add(time.Second * 10)
 		model.UpdateLectureSignCode(lid, code, expireAt)
 	}
 	return code, expireAt
@@ -398,16 +400,12 @@ func AddLectureSigninRecordByhand() func(*gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"status": "ok",
 				"msg":    "ok",
-				"data": map[string]interface{}{
-					"lecture_id": lr.LectureID,
-					"user_id":    lr.UserID,
-					"type":       lr.Type,
-					"createAt":   lr.CreateAt.Unix(),
-					"remark":     lr.Remark,
+				"data": gin.H{
+					"id":   lr.UserID,
+					"name": lr.UserInfo.Name, //TODO 获取姓名
 				},
 			})
 		}
-
 	}
 }
 
@@ -447,7 +445,7 @@ func AddLectureSigninRecordByCode() func(*gin.Context) {
 				}
 
 			}
-			lr, err := model.AddLectureRecord(ty, uid, lid)
+			_, err := model.AddLectureRecord(ty, uid, lid)
 			if err != nil {
 				if strings.Contains(err.Error(), "1062") {
 					c.JSON(http.StatusOK, gin.H{
@@ -466,7 +464,6 @@ func AddLectureSigninRecordByCode() func(*gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
 					"status": "ok",
 					"msg":    "ok",
-					"data":   lr, //TODO 完善返回值
 				})
 			}
 		} else {
@@ -489,7 +486,7 @@ func GetSigninRecordLecturesByID() func(*gin.Context) {
 		for _, lr := range lrs {
 			tmp = append(tmp, map[string]interface{}{
 				"userId":   lr.UserID,
-				"name":     "", //TODO 实现获取名字
+				"name":     lr.UserInfo.Name, //TODO 实现获取名字
 				"signedAt": lr.CreateAt.Unix(),
 				"type":     lr.Type,
 				"remark":   lr.Remark,
@@ -536,6 +533,13 @@ func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
 		userid := c.Param("userid")
 		lr, err := model.GetLectureRecord(lid, userid)
 		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{
+					"status": "NotFound",
+					"msg":    "签到记录不存在",
+				})
+				return
+			}
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status": "databaseErr",
 				"msg":    "数据库错误",
@@ -545,7 +549,11 @@ func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"status": "ok",
 				"msg":    "ok",
-				"data":   lr,
+				"data": gin.H{
+					"signedAt": lr.CreateAt.Unix(),
+					"type":     lr.Type,
+					"remark":   lr.Remark,
+				},
 			})
 		}
 	}
