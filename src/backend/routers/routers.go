@@ -62,19 +62,23 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		) //修改讲座
 		lectures.PUT("/:"+lectureidstr+"/status",
 			middlewares.MustBeLectureOwner(lectureidstr),
+			middlewares.LectureMustBeNotFinished(),
 			UpdateLectureStatusByID(),
 		)
 		lectures.DELETE("/:"+lectureidstr,
 			middlewares.MustBeLectureOwner(lectureidstr),
+			middlewares.LectureMustBeNotFinished(),
 			DeleteLectureByID(),
 		)
 		lectures.GET("/:"+lectureidstr+"/signinCode",
 			middlewares.MustBeLectureOwner(lectureidstr),
+			middlewares.LectureMustBeNotFinished(), //TODO 必须在签到状态
 			GetLectureCodeByID(),
 		) //获取签到码
 		lectures.POST("/:"+lectureidstr+"/users/code", AddLectureSigninRecordByCode()) //签到码签到
 		lectures.POST("/:"+lectureidstr+"/users/byhand",
 			middlewares.MustBeLectureOwner(lectureidstr),
+			middlewares.LectureMustBeNotFinished(),
 			AddLectureSigninRecordByhand(), //手动签到
 		)
 		lectures.GET("/:"+lectureidstr+"/users", //特定讲座签到记录
@@ -83,6 +87,7 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		)
 		lectures.DELETE("/:"+lectureidstr+"/users/:userid",
 			middlewares.MustBeLectureOwner(lectureidstr),
+			middlewares.LectureMustBeNotFinished(),
 			DeleteOneSigninRecordLecturesByID(),
 		)
 	}
