@@ -217,7 +217,7 @@ export default {
   flex-direction: column;
 }
 .mint-header{
-  flex: 1 0 auto;
+  flex: 0 0 auto;
 }
 section{
   padding:2rem;

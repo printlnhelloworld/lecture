@@ -97,16 +97,21 @@ const router = new Router({
   // }
 })
 router.beforeEach((to, from, next) => {
+  console.log('defend')
   if (to.meta.requireAuth) {
     var auth = localStorage.getItem('auth');
     console.log(auth);
     if (auth) {
+      console.log('has auth')
       next();
     } else {
+      console.log('no auth')
       next({
         path: '/login'
       })
     }
+  } else {
+    next();
   }
 })
 export default router
