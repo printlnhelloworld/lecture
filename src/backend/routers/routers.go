@@ -67,7 +67,10 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			middlewares.MustBeLectureOwner(lectureidstr),
 			DeleteLectureByID(),
 		)
-		lectures.GET("/:"+lectureidstr+"/signinCode", GetLectureCodeByID())            //获取签到码
+		lectures.GET("/:"+lectureidstr+"/signinCode",
+			middlewares.MustBeLectureOwner(lectureidstr),
+			GetLectureCodeByID(),
+		) //获取签到码
 		lectures.POST("/:"+lectureidstr+"/users/code", AddLectureSigninRecordByCode()) //签到码签到
 		lectures.POST("/:"+lectureidstr+"/users/byhand",
 			middlewares.MustBeLectureOwner(lectureidstr),
