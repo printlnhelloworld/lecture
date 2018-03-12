@@ -184,6 +184,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
+          _self.getData();
           _self.$toast('签到成功');
         } else {
           _self.$toast(data.msg);
