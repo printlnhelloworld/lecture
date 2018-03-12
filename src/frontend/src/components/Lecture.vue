@@ -46,7 +46,7 @@ export default {
           values: ['', '校团委讲座', '机械工程学院', '计算机学院讲座', '数字媒体与艺术设计学院', '国际教育学院', '外国语学院', '经济学院', '理学院', '材料与环境工程学院']
         }
       ],
-      signCode: '',
+      signCode: this.$route.query.signCode ? this.$route.query.signCode : '',
       title: '讲座详情',
       lecture: {
         id: 1,
@@ -204,6 +204,10 @@ export default {
   mounted() {
     this.getData().then(() => {
       this.$indicator.close();
+      if (this.signCode) {
+        console.log('has signCode')
+        this.signIn();
+      }
     });
   }
 }
