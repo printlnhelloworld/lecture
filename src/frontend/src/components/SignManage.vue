@@ -101,7 +101,7 @@ export default {
         _self.signCode = 'www.baidu.com'
         if (data.status === 'ok') {
           if (_self.signCode !== data.signinCode) {
-            _self.signCode = localStorage.getItem('baseURL') + '/lecture?id=' + _self.lecture.id + '&signinCode=' + data.signinCode;
+            _self.signCode = localStorage.getItem('baseURL') + '/lecture?id=' + _self.lecture.id + '&signCode=' + data.signinCode;
           }
         } else {
           this.$toast(data.msg);
