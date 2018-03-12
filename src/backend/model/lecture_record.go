@@ -7,6 +7,7 @@ type LectureRecord struct {
 	LectureID int       `gorm:"type:int;primary_key"`
 	UserID    string    `gorm:"type:varchar(20);primary_key"`
 	UserInfo  UserInfo  `gorm:"foreignkey:UserID;association_foreignkey:UserID"`
+	Lecture   Lecture   `gorm:"foreignkey:LectureID;association_foreignkey:ID"`
 	Type      string    `gorm:"type:varchar(20);not null"`
 	CreateAt  time.Time `gorm:"type:datetime;index;not null;"`
 	Remark    string    `gorm:"type:varchar(20);not null;default ''"`
@@ -26,7 +27,7 @@ func GetLectureRecordsByUserID(uid string) []LectureRecord {
 	var lrs []LectureRecord
 	DB.Find(&lrs, "`user_id` = ?", uid)
 	for i := range lrs {
-		DB.Find(&lrs[i].UserInfo, lrs[i].UserID)
+		DB.Find(&lrs[i].Lecture, lrs[i].LectureID)
 	}
 	return lrs
 }

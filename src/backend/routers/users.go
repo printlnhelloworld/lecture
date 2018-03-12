@@ -46,7 +46,31 @@ func GetUserInfo() func(*gin.Context) {
 //GetUserLectures 获取用户的参加的讲座列表
 func GetUserLectures() func(*gin.Context) {
 	return func(c *gin.Context) {
+		lrs := model.GetLectureRecordsByUserID(middlewares.GetUserIDFromContext(c))
+		var majorCount, schoolCount int
+		var tmp []gin.H
+		for _, lr := range lrs {
+			tmp = append(tmp, gin.H{
+				"id":       lr.LectureID,
+				"topic":    lr.Lecture.Topic,
+				"type":     lr.Lecture.Type,
+				"startAt":  lr.Lecture.StartAt.Unix(),
+				"signType": lr.Type,
+			})
+			if topic := lr.Lecture.Topic; topic == "校团委" || topic == "校团委讲座" {
+				schoolCount++
+			} else {
+				majorCount++
+			}
 
+		}
+		c.JSON(http.StatusOK, gin.H{ //TODO 实现
+			"status":      "ok",
+			"msg":         "ok",
+			"majorCount":  majorCount,
+			"schoolCount": schoolCount,
+			"list":        tmp,
+		})
 	}
 }
 
