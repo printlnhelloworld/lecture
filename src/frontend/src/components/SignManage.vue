@@ -6,18 +6,18 @@
       </router-link>
       <mt-button icon="more" slot="right"></mt-button>
     </mt-header>
-    <div v-if="lecture.status === 'notsiging'" class="signWrap">
+    <div v-if="lecture.status === 'notsigning'" class="signWrap">
       请选择发起签到的方式
       <div class="buttonGroup">
-        <mt-button @click="changeStatus('siging')" :disabled="lecture.status === 'ended'" type="primary">手机展示二维码</mt-button>
-        <mt-button @click="changeStatus('siging')" :disabled="lecture.status === 'ended'" type="primary">大屏幕展示二维码</mt-button>
+        <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">手机展示二维码</mt-button>
+        <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">大屏幕展示二维码</mt-button>
       </div>
-      <!-- <mt-field v-if="lecture.status === 'siging'" label="签到码网址" v-model="lectureCode" disabled></mt-field>
-      <mt-field v-if="lecture.status === 'siging'" label="讲座认证号" v-model="signCode" disabled></mt-field> -->
+      <!-- <mt-field v-if="lecture.status === 'signing'" label="签到码网址" v-model="lectureCode" disabled></mt-field>
+      <mt-field v-if="lecture.status === 'signing'" label="讲座认证号" v-model="signCode" disabled></mt-field> -->
     </div>
-    <div v-show="lecture.status === 'siging'" class="qrWrap">
+    <div v-show="lecture.status === 'signing'" class="qrWrap">
       <div id="qrcode"></div>
-      <mt-button @click="changeStatus('notsiging')" type="primary">暂停签到</mt-button>
+      <mt-button @click="changeStatus('notsigning')" type="primary">暂停签到</mt-button>
     </div>
   </div>
 </template>
@@ -29,7 +29,7 @@ export default {
     return {
       lecture: {
         id: this.$route.query.id,
-        status: 'notsiging'
+        status: 'notsigning'
       },
       signCode: ''
     }
@@ -51,7 +51,7 @@ export default {
   watch: {
     signCode(cur, old) {
       let _self = this;
-      if (_self.lecture.status === 'siging') {
+      if (_self.lecture.status === 'signing') {
         const qrcode = new QRCode(document.getElementById('qrcode'), {
           width: 200,
           height: 200
@@ -70,9 +70,9 @@ export default {
         let data = res.data;
         if (data.status === 'ok') {
           _self.lecture = data.data;
-          if (_self.lecture.status === 'siging') {
+          if (_self.lecture.status === 'signing') {
             _self.getSignCode()
-          } else if (_self.lecture.status === 'notsiging') {
+          } else if (_self.lecture.status === 'notsigning') {
             if (_self.timeOut) {
               clearTimeout(_self.timeOut);
             }
@@ -112,11 +112,11 @@ export default {
       let _self = this;
       let tips, msg;
       switch (status) {
-        case 'siging' :
+        case 'signing' :
           msg = '签到已开始';
           tips = '是否确认开始签到？'
           break;
-        case 'notsiging' :
+        case 'notsigning' :
           msg = '签到已结束';
           tips = '是否确认结束签到？'
           break;
@@ -172,6 +172,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
   .signWrap{
     flex: 1 1 auto;
     display: flex;

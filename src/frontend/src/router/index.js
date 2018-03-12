@@ -5,6 +5,7 @@ import Login from '@/components/Login'
 import Lecture from '@/components/Lecture'
 import EditLecture from '@/components/EditLecture'
 import SignManage from '@/components/SignManage'
+import SignRecord from '@/components/SignRecord'
 import Tips from '@/components/loginStatus/Tips'
 import Error from '@/components/loginStatus/Error'
 Vue.use(Router)
@@ -67,6 +68,15 @@ const router = new Router({
       path: '/signManage',
       name: 'SignManage',
       component: SignManage,
+      meta: {
+        keepAlive: false,
+        requireAuth: true
+      }
+    },
+    {
+      path: '/signRecord',
+      name: 'SignRecord',
+      component: SignRecord,
       meta: {
         keepAlive: false,
         requireAuth: true

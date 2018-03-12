@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="wrap">
     <mt-header :title="title">
       <div @click="goback"  slot="left">
         <mt-button icon="back">返回</mt-button>
@@ -16,16 +16,20 @@
       <div class="buttonGroup" v-if="authority">
         <mt-button @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
         <!-- <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button> -->
-        <mt-button v-if="lecture.status != 'prepare'" type="primary">签到记录</mt-button>
+        <mt-button @click="$router.push({path: '/signRecord',query:{id: $route.query.id}})" type="primary">签到记录</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
       <div v-if="!authority">
-        <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
+        <div v-if="lecture.status === 'signing'" class="sign">
+          <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
+          <mt-button type="primary" size="small" @click="signIn()">签到</mt-button>
+        </div>
+        <!-- <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
-        </div>
+        </div> -->
       </div>
     </section>
   </div>
@@ -167,13 +171,15 @@ export default {
       })
     },
     // 签到码签到
-    signIn() {
+    signIn(qrType = 'code') {
+      console.log(qrType)
       let _self = this;
       _self.$ajax({
-        url: '/lectures/' + _self.leccture.id + '/users',
+        url: '/lectures/' + _self.lecture.id + '/users/' + qrType,
         method: 'post',
         data: {
-          code: _self.signCode
+          code: _self.signCode,
+          type: qrType
         }
       }).then(res => {
         let data = res.data;
@@ -204,8 +210,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.wrap{
+  height: 100%;
+  overflow: height;
+  display: flex;
+  flex-direction: column;
+}
+.mint-header{
+  flex: 1 0 auto;
+}
 section{
   padding:2rem;
+  overflow: scroll;
+  flex-basis: 1;
+  flex: 0 1 auto;
 }
 .detials{
   display: flex;
