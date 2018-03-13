@@ -14,14 +14,14 @@
         <mt-field label="讲座类型" placeholder="请选择讲座类型" v-model="lecture.type" readonly></mt-field>
         <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="lecture.introduction" readonly></mt-field>
       <div class="buttonGroup" v-if="authority">
-        <mt-button @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
+        <mt-button v-if="lecture.status !== 'ended'" @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
         <!-- <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button> -->
         <mt-button @click="$router.push({path: '/signRecord',query:{id: $route.query.id}})" type="primary">签到记录</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
-      <div v-if="authority">
+      <div v-if="!authority">
         <div v-if="lecture.status === 'signing'" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn()">签到</mt-button>
@@ -132,6 +132,7 @@ export default {
               status: status
             }
           }).then(res => {
+            _self.getData();
             _self.$indicator.close();
             let data = res.data;
             if (data.status === 'ok') {
