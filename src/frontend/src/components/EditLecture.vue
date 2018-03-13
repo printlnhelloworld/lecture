@@ -46,7 +46,7 @@ export default {
     return {
       slots: [
         {
-          values: ['', '校团委讲座', '机械工程学院', '计算机学院讲座', '数字媒体与艺术设计学院', '国际教育学院', '外国语学院', '经济学院', '理学院', '材料与环境工程学院']
+          values: ['']
         }
       ],
       signCode: '',
@@ -83,16 +83,34 @@ export default {
   methods: {
     getData() {
       let _self = this;
-      _self.$ajax({
+      _self.axios.all([_self.getLectureData(), _self.getLectureType()])
+        .then(_self.axios.spread((res1, res2) => {
+          let data1 = res1.data;
+          let data2 = res2.data;
+          if (data2.status === 'ok') {
+            _self.slots[0].values.push(...data2.data);
+          } else {
+            _self.$toast(data1.msg);
+          }
+          if (data1.status === 'ok') {
+            _self.temp = data1.data;
+          } else {
+            _self.$toast(data1.msg);
+          }
+        }))
+    },
+    getLectureData() {
+      let _self = this;
+      return _self.$ajax({
         url: '/lectures/' + _self.$route.query.id,
         method: 'get'
-      }).then(res => {
-        let data = res.data;
-        if (data.status === 'ok') {
-          _self.temp = data.data;
-        } else {
-          alert(data.msg);
-        }
+      })
+    },
+    getLectureType() {
+      let _self = this;
+      return _self.$ajax({
+        url: '/public/lecture_type',
+        method: 'get'
       })
     },
     goback() {
@@ -201,7 +219,8 @@ export default {
       this.popupVisible = true;
     },
     TypeChange(picker, values) {
-      this.temp.type = values[0]
+      console.log(picker, values)
+      this.temp.type = values[0];
     },
     // 签到码签到
     signIn() {

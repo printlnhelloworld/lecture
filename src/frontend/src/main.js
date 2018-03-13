@@ -20,6 +20,7 @@ const axiosInstance = axios.create({
   baseURL: apiBaseUrl
 })
 Vue.prototype.$ajax = axiosInstance;
+Vue.prototype.axios = axios;
 Vue.prototype.$messageBox = Mint.MessageBox;
 Vue.prototype.$toast = Mint.Toast;
 Vue.prototype.$indicator = Mint.Indicator;
@@ -55,9 +56,7 @@ axiosInstance.interceptors.response.use(function (response) {
     router.replace({
       path: '/login/error'
     })
-  } else if (error.response.status === 403) {
-    Vue.$toast('无权限执行该操作')
-  };
+  }
   return Promise.reject(error);
 });
 /* eslint-disable no-new */

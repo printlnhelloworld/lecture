@@ -22,10 +22,11 @@
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
       <div v-if="!authority">
-        <div v-if="lecture.status === 'signing'" class="sign">
+        <div v-if="lecture.status === 'signing' && !lecture.signin.isSigned" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn()">签到</mt-button>
         </div>
+        <div v-if="lecture.signin.isSigned" >你已在{{getTime(lecture.signin.signedAt)}}签到</div>
         <!-- <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
@@ -67,7 +68,7 @@ export default {
         remark: '',
         signin: {
           isSigned: false, // 当前token的用户是否已经完成签到
-          SignedAt: 0, // 签到时间
+          signedAt: 0, // 签到时间
           type: '', // 签到类型
           remark: '' // 备注
         }

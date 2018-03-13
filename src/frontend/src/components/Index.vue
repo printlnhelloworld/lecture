@@ -100,11 +100,12 @@
     </mt-tabbar>
     <mt-popup
       class="announcement"
-      closeOnClickModal="true"
+      closeOnClickModal="false"
       v-model="announcement.visible">
       <h3><span>{{_self.announcement.list[0].title}}</span></h3>
       <p class="message">{{_self.announcement.list[0].content}}</p>
       <p class="announcementTime">{{getTime(_self.announcement.list[0].createAt)}}</p>
+      <p class="confirm" type="primary" @click="announcement.visible = !announcement.visible">确定</p>
     </mt-popup>
   </div>
 </template>
@@ -463,15 +464,22 @@ export default {
 }
 .announcement{
   width:20rem;
-  padding: 1rem;
+  padding: 0 1rem 0 1rem;
   >h3{
-    height: 2rem;
-    line-height: 2rem;
+    height: 3rem;
+    line-height: 3rem;
     text-align: center;
     border-bottom: 1px gainsboro solid;
   }
   .announcementTime{
     text-align: right;
+  }
+  .confirm{
+    height: 3rem;
+    line-height: 3rem;
+    text-align: center;
+    color: #8ACDFF;
+    border-top: 1px gainsboro solid;
   }
   .message{
     margin: 1rem;
