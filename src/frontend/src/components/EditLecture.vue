@@ -68,7 +68,6 @@ export default {
       pickerTime: new Date(),
       // 编辑模式 切换讲座类下选择的弹出层
       popupVisible: false
-      // 区别是创建还是修改 默认创建
     }
   },
   computed: {
@@ -78,6 +77,15 @@ export default {
     authority() {
       console.log(this.$store.state.data.id === this.lecture.creatorUserID)
       return this.$store.state.data.id === this.lecture.creatorUserID
+    }
+  },
+  watch: {
+    temp: {
+      handler: function (newVal) {
+        console.log(newVal);
+        this.pickerTime = new Date(newVal.startAt * 1000);
+      },
+      deep: true
     }
   },
   methods: {
@@ -144,75 +152,11 @@ export default {
         }
       })
     },
-    changeStatus(status) {
-      let _self = this;
-      let tips, msg;
-      switch (status) {
-        case 'runing' :
-          msg = '讲座已开始';
-          tips = '是否确认开始讲座？'
-          break;
-        case 'ended' :
-          msg = '讲座已结束';
-          tips = '结束讲座后将不能再编辑讲座,是否确认结束讲座？'
-          break;
-        default :
-          msg = 'error';
-          break;
-      }
-      _self.$messageBox.confirm(tips).then(action => {
-        if (action === 'confirm') {
-          _self.$indicator.open('Loading...');
-          _self.$ajax({
-            url: '/lectures/' + _self.lecture.id + '/status',
-            method: 'patch',
-            data: {
-              status: status
-            }.then(res => {
-              _self.$indicator.close();
-              let data = res.data;
-              if (data.status === 'ok') {
-                _self.$messageBox('提示', '操作成功');
-              } else {
-                _self.$toast(msg);
-              }
-            })
-          })
-        } else {
-          console.log('concel');
-        }
-      });
-    },
-    // 删除讲座信息
-    deleteLecture() {
-      let _self = this;
-      _self.$messageBox.confirm('是否确认删除讲座？').then(action => {
-        if (action === 'confirm') {
-          _self.$indicator.open('Loading...');
-          _self.$ajax({
-            url: '/lectures/' + _self.lecture.id,
-            method: 'delete'
-          }).then(res => {
-            _self.$indicator.close();
-            let data = res.data;
-            if (data.status === 'ok') {
-              _self.$messageBox.alert('删除成功').then(action => {
-                _self.$router.go(-1);
-              });
-            } else {
-              _self.$toast.alert(data.msg);
-            }
-          })
-        } else {
-          console.log('cancel');
-        }
-      })
-    },
     openPicker() {
       this.$refs.picker.open();
     },
     handleConfirm() {
-      this.temp.startAt = this.pickerTime;
+      this.temp.startAt = this.pickerTime.getTime() / 1000;
     },
     // 讲座类型点击后显示选择的弹出层
     handleClick() {
@@ -221,14 +165,6 @@ export default {
     TypeChange(picker, values) {
       console.log(picker, values)
       this.temp.type = values[0];
-    },
-    // 签到码签到
-    signIn() {
-      let _self = this;
-      _self.$ajax({
-        url: '',
-        type: ''
-      })
     }
   },
   mounted() {
