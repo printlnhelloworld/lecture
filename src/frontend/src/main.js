@@ -52,6 +52,7 @@ axiosInstance.interceptors.response.use(function (response) {
   // 对响应错误做点什么
   if (error.response.status === 401) {
     console.log('token过期');
+    localStorage.setItem('redirect', window.location.href);
     localStorage.removeItem('auth');
     router.replace({
       path: '/login/error'

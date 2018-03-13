@@ -106,6 +106,8 @@ router.beforeEach((to, from, next) => {
       next();
     } else {
       console.log('no auth')
+      console.log(window.location.href);
+      localStorage.setItem('redirect', window.location.href);
       next({
         path: '/login'
       })

@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { redirect } from '../../utils.js'
 export default {
   data() {
     return {
@@ -42,6 +43,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
+          redirect()
           _self.$router.push('/index');
         } else {
           console.log(data.msg);

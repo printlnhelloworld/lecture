@@ -34,5 +34,13 @@ function formatDate(now) {
   // let second = now.getSeconds();
   return year + '/' + month + '/' + date + ' ' + hour + ':' + minute;
 }
-export { formatDateYMD, formatDateHM, formatDate }
+function redirect() {
+  let url = localStorage.getItem('redirect');
+  console.log(url);
+  if (url) {
+    localStorage.removeItem('redirect');
+    window.location.href = url;
+  }
+}
+export { formatDateYMD, formatDateHM, formatDate, redirect }
 // export { formatDateYMD, formatDateHM }
