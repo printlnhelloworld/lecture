@@ -21,7 +21,7 @@
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
-      <div v-if="!authority">
+      <div v-if="authority">
         <div v-if="lecture.status === 'signing'" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn()">签到</mt-button>

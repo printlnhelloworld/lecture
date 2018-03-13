@@ -78,7 +78,7 @@ export default {
         let data = res.data;
         if (data.status === 'ok') {
           _self.getData();
-          if (data.name.lenth === 0) {
+          if (data.data.name.lenth === 0) {
             _self.$toast('签到成功');
           } else {
             _self.$messageBox('签到成功,但该学号未曾登录本系统,因此无法获取姓名,请确保该学号正确');
