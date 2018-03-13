@@ -37,7 +37,7 @@
           <div class="page-part">
             <div>
               <div v-if="$store.state.data.type == 1">
-                <mt-cell v-on:click.native="toogle(0)" class="account" :title="'已参与的学院专业讲座×' + mine.marjorCount">
+                <mt-cell v-on:click.native="toogle(0)" class="account" :title="'已参与的学院专业讲座×' + mine.majorCount">
                   <img class="arrow" src="../assets/icon/show.png" v-if="show[0]"/>
                   <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[0]"/>
                 </mt-cell>
@@ -51,7 +51,7 @@
                     </router-link>
                   </div>
                 </transition>
-                <mt-cell v-on:click.native="toogle(1)" class="account" :title="'已参与的校团委讲座×' + mine.marjorCount">
+                <mt-cell v-on:click.native="toogle(1)" class="account" :title="'已参与的校团委讲座×' + mine.schoolCount">
                   <img class="arrow" src="../assets/icon/show.png" v-if="show[1]"/>
                   <img class="arrow" src="../assets/icon/hidden.png" v-if="!show[1]"/>
                 </mt-cell>
@@ -153,7 +153,7 @@ export default {
       scrollMode: 'auto',
       mine: {
         // 参与专业讲座数目
-        marjorCount: 0,
+        majorCount: 0,
         // 参与校团委讲他做数目
         schoolCount: 0,
         createCount: 0,
@@ -216,7 +216,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
-          _self.mine.marjorCount = data.marjorCount;
+          _self.mine.majorCount = data.majorCount;
           _self.mine.schoolCount = data.schoolCount;
           _self.mine.list = data.list;
         } else {
