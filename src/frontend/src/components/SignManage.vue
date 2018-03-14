@@ -102,7 +102,7 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
-          _self.expiredIn = data.expiredIn;
+          _self.expireIn = data.expireIn;
           console.log(data.expireIn)
           if (_self.signCode !== data.signinCode) {
             _self.signCode = data.signinCode;
