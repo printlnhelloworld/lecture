@@ -32,8 +32,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "6434a292ac52e6964adebfdce3f9ce6d9f16be01"
-  version = "v1.10.4"
+  revision = "d1edcdeb0cc5f68dacccdb5b63dcb055a8b32663"
+  version = "v1.10.5"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -47,14 +47,14 @@
     ".",
     "dialects/mysql"
   ]
-  revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
-  version = "v1.0"
+  revision = "6ed508ec6a4ecb3531899a69cbc746ccf65a4166"
+  version = "v1.9.1"
 
 [[projects]]
   branch = "master"
   name = "github.com/jinzhu/inflection"
   packages = ["."]
-  revision = "1c35d901db3da928c72a72d8458480cc9ade058f"
+  revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
   name = "github.com/mattn/go-isatty"
@@ -90,7 +90,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "932fb2287bee613f2a65e71685c9d9c0020da979"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -99,10 +99,10 @@
   version = "v8.18.2"
 
 [[projects]]
-  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
+  version = "v2.1.1"
 
 [solve-meta]
   analyzer-name = "dep"

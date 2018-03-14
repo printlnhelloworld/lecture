@@ -8,11 +8,12 @@ import (
 
 //Conf 配置文件
 type Conf struct {
-	App        string   `toml:"app"`        //App 名称
-	ListenAddr string   `toml:"listenAddr"` //监听地址如 0.0.0.0:8000
-	BaseURL    string   `toml:"baseURL"`    //外部地址
-	Agreement  []string `toml:"agreement"`  //用户协议
-	Database   Database `toml:"database"`   //数据库配置
+	App        string            `toml:"app"`        //App 名称
+	ListenAddr string            `toml:"listenAddr"` //监听地址如 0.0.0.0:8000
+	BaseURL    string            `toml:"baseURL"`    //外部地址
+	Agreement  []string          `toml:"agreement"`  //用户协议
+	Database   Database          `toml:"database"`   //数据库配置
+	Unit       map[string]string `toml:"unit"`       //学院信息
 }
 
 //Database 数据库配置

@@ -16,4 +16,5 @@ func TestConf(t *testing.T) {
 	t.Log(c.BaseURL)
 	t.Log(c.Database)
 	t.Log(c.Agreement)
+	t.Log(c.Unit)
 }

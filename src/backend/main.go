@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"git.hduhelp.com/hduhelper/lecture/src/backend/conf"
+	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/routers"
 )
@@ -17,6 +18,8 @@ func main() {
 
 	err = model.InitDB(&conf.Database)
 	checkErr(err)
+
+	middlewares.SetUnitMap(conf.Unit) //设置学院列表
 
 	r := routers.SetupRouters(conf)
 	checkErr(r.Run(conf.ListenAddr))

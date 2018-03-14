@@ -1,14 +1,18 @@
 package routers
 
 import (
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
+	"git.hduhelp.com/hduhelper/lecture/src/backend/middlewares"
 	"git.hduhelp.com/hduhelper/lecture/src/backend/model"
 )
 
@@ -46,16 +50,10 @@ func GetLectures() func(*gin.Context) {
 			})
 			return
 		}
-		type lecture struct {
-			ID      int    `json:"id"`
-			Topic   string `json:"topic"`
-			Type    string `json:"type"`
-			Status  string `json:"status"`
-			StartAt int64  `json:"startAt"`
-		}
+
 		now := time.Now()
 		lecs, err := model.GetLectures(limit, next, owner, status, sort, now)
-		ls := make([]lecture, 0)
+		ls := make([]gin.H, 0)
 		var newNext int64
 		if ll := len(*lecs); ll > 0 {
 			switch sort {
@@ -66,12 +64,14 @@ func GetLectures() func(*gin.Context) {
 			}
 		}
 		for _, lec := range *lecs {
-			ls = append(ls, lecture{
-				ID:      lec.ID,
-				Topic:   lec.Topic,
-				Type:    lec.Type,
-				Status:  getLectureStatus(lec),
-				StartAt: lec.StartAt.Unix(),
+			ls = append(ls, gin.H{
+				"id":       lec.ID,
+				"topic":    lec.Topic,
+				"type":     lec.Type,
+				"status":   getLectureStatus(lec),
+				"startAt":  lec.StartAt.Unix(),
+				"location": lec.Location,
+				"lecturer": lec.Lecturer,
 			})
 		}
 		if err != nil {
@@ -141,8 +141,8 @@ func CreateLecture() func(*gin.Context) {
 	}
 }
 
-//PatchLectureByID 修改讲座，不用带上全部参数
-func PatchLectureByID() func(*gin.Context) {
+//PutLectureByID 修改讲座，不用带上全部参数
+func PutLectureByID() func(*gin.Context) {
 	type lecture struct {
 		Topic        *string `json:"topic"`
 		Location     *string `json:"location"`
@@ -226,9 +226,54 @@ func PatchLectureByID() func(*gin.Context) {
 
 //UpdateLectureStatusByID 更新讲座状态
 func UpdateLectureStatusByID() func(*gin.Context) {
-
 	return func(c *gin.Context) {
-
+		type status struct {
+			Status string `json:"status" binding:"required"`
+		}
+		var s status
+		if err := c.ShouldBindWith(&s, binding.JSON); err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"status": "badRequest",
+				"msg":    "参数错误",
+				"err":    err.Error(),
+			})
+			return
+		}
+		switch s.Status {
+		case "signing", "notsigning", "ended":
+			if lecif, exist := c.Get(middlewares.NameLecture); exist {
+				lec := lecif.(*model.Lecture)
+				if lec.Finished {
+					c.JSON(http.StatusBadRequest, gin.H{
+						"status": "badRequest",
+						"msg":    "讲座已经结束、不能进行操作",
+					})
+					return
+				}
+				if err := model.UpdateLectureStatus(lec.ID, s.Status); err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"status": "databaseErr",
+						"msg":    "数据库错误",
+						"err":    err.Error(),
+					})
+				} else {
+					c.JSON(http.StatusOK, gin.H{
+						"status": "ok",
+						"msg":    "ok",
+					})
+				}
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"status": "ServerError",
+					"msg":    "服务器错误，lec 不存在",
+				})
+			}
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "badStatus",
+				"msg":    "状态必须是 signing, notsigning, ended 中的一种",
+			})
+		}
 	}
 }
 
@@ -237,9 +282,9 @@ func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 		lectureidStr, _ := c.Get("lectureid")
 		lectureid := lectureidStr.(int)
-
+		userid := middlewares.GetUserIDFromContext(c)
 		lec, _ := model.GetLectureByID(lectureid)
-
+		lr, err2 := model.GetLectureRecord(lectureid, userid)
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
@@ -259,6 +304,12 @@ func GetlectureByID() func(*gin.Context) {
 				"finished":      lec.Finished,
 				"finishedAt":    lec.FinishedAt.Unix(),
 				"remark":        lec.Remark,
+				"signin": gin.H{
+					"isSigned": err2 != gorm.ErrRecordNotFound,
+					"signedAt": lr.CreateAt.Unix(),
+					"type":     lr.Type,
+					"remark":   lr.Remark,
+				},
 			},
 		})
 
@@ -280,52 +331,64 @@ func DeleteLectureByID() func(*gin.Context) {
 	}
 }
 
-//lectureCode 讲座的状态
-var lectureCodeMap = map[int]lectureCode{}
-
-type lectureCode struct {
-	canSign  bool      //是否能签到
-	isEnd    bool      //是否结束
-	code     string    //签到码
-	expireAt time.Time //签到码过期时间
-}
-
 //GetLectureCodeByID 生成特定讲座的签到码
 func GetLectureCodeByID() func(*gin.Context) {
 	return func(c *gin.Context) {
-		lid := 0 //TODO
-		initLectureCode(lid)
+		code, expireAt := getLectureCodeByIDAndUpdateOnExpired(c)
+		c.JSON(http.StatusOK, gin.H{
+			"status":     "ok",
+			"msg":        "ok",
+			"signinCode": code,
+			"expireAt":   expireAt.Unix(),
+			"expireIn":   int(expireAt.Sub(time.Now()).Seconds()),
+		})
 	}
 }
 
-func initLectureCode(lid int) {
-	if _, ok := lectureCodeMap[lid]; ok {
-		return
-	}
-
-	l, _ := model.GetLectureByID(lid)
-	lectureCodeMap[lid] = lectureCode{
-		canSign:  false,
-		isEnd:    l.Finished,
-		code:     "",
-		expireAt: time.Now(),
-	}
+func getLectureCodeFromContext(c *gin.Context) (int, string, time.Time) {
+	lec := middlewares.GetLectureFromContext(c)
+	return lec.ID, lec.SignCode, lec.SignCodeExpireAt
 }
 
-//AddSigninRecordLecturesByID 添加特定讲座签到记录
-func AddSigninRecordLecturesByID() func(*gin.Context) {
+func getLectureCodeByIDAndUpdateOnExpired(c *gin.Context) (string, time.Time) {
+	lid, code, expireAt := getLectureCodeFromContext(c)
+	if !time.Now().Before(expireAt) {
+		code = newSignCode()
+		expireAt = time.Now().Add(time.Second * 10)
+		model.UpdateLectureSignCode(lid, code, expireAt)
+	}
+	return code, expireAt
+}
+
+func newSignCode() string {
+	code := strconv.Itoa((rand.Intn(999999) + 100000) % 1000000)
+	return trimSignCode(code, 6)
+}
+
+func trimSignCode(code string, l int) string {
+	tmp := "000000"
+	cl := len(code)
+	if cl != l {
+		if cl > l {
+			code = code[:l]
+		} else {
+			code = (tmp + code)[cl : l+cl] //实现签到码为指定位数
+		}
+	}
+	return code
+}
+
+//AddLectureSigninRecordByhand 添加特定讲座签到记录
+func AddLectureSigninRecordByhand() func(*gin.Context) {
 	return func(c *gin.Context) {
 		type record struct {
-			Type *string `json:"type" binding:"required"`
-			Code *string `json:"code"`
-			ID   *string `json:"id"`
-			Name *string `json:"name"`
+			ID *string `json:"id" binding:"required"`
 		}
 		r := record{}
 		if err := c.ShouldBindWith(&r, binding.JSON); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "ParamErr",
-				"msg":    "参数 type 是必须包含的",
+				"msg":    "参数 id 是必须包含的",
 				"err":    err.Error(),
 			})
 			return
@@ -334,54 +397,96 @@ func AddSigninRecordLecturesByID() func(*gin.Context) {
 		lid := lectureidStr.(int)
 
 		lecture, _ := model.GetLectureByID(lid)
-		switch *r.Type {
-		case "byhand":
-			userid, _ := c.Get("UserID")
-			if lecture.UserID != userid {
-				c.JSON(http.StatusForbidden, gin.H{
-					"status": "ok",
-					"msg":    "只有讲座创建者才能手动添加签到记录",
+		//TODO 返回系统中没有用户的情况
+		lr, err := model.AddLectureRecord("byhand", *r.ID, lecture.ID)
+		if err != nil {
+			if strings.Contains(err.Error(), "1062") {
+				c.JSON(http.StatusOK, gin.H{
+					"status": "CreatedErr",
+					"msg":    "已经添加过了",
+					"err":    err.Error(),
 				})
 			} else {
-				//TODO 返回系统中没有用户的情况
-				lr, err := model.AddLectureRecord("byhand", *r.ID, lecture.ID)
-				if err != nil {
-					if strings.Contains(err.Error(), "1062") {
-						c.JSON(http.StatusOK, gin.H{
-							"status": "CreatedErr",
-							"msg":    "已经添加过了",
-							"err":    err.Error(),
-						})
-					} else {
-						c.JSON(http.StatusInternalServerError, gin.H{
-							"status": "DatabaseErr",
-							"msg":    "数据库错误",
-							"err":    err.Error(),
-						})
-					}
-				} else {
-					c.JSON(http.StatusOK, gin.H{
-						"status": "ok",
-						"msg":    "ok",
-						"data": map[string]interface{}{
-							"lecture_id": lr.LectureID,
-							"user_id":    lr.UserID,
-							"type":       lr.Type,
-							"createAt":   lr.CreateAt.Unix(),
-							"remark":     lr.Remark,
-						},
-					})
-				}
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"status": "DatabaseErr",
+					"msg":    "数据库错误",
+					"err":    err.Error(),
+				})
 			}
-		case "qcode", "code":
-			c.JSON(http.StatusNotImplemented, gin.H{
-				"satatus": "ok",
-				"msg":     "ok",
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "ok",
+				"msg":    "ok",
+				"data": gin.H{
+					"id":   lr.UserID,
+					"name": lr.UserInfo.Name, //TODO 获取姓名
+				},
 			})
-		default:
+		}
+	}
+}
+
+//AddLectureSigninRecordByCode 添加特定讲座签到记录
+func AddLectureSigninRecordByCode() func(*gin.Context) {
+	return func(c *gin.Context) {
+		type record struct {
+			Code *string `json:"code" binding:"required"`
+			Type *string `json:"type"`
+		}
+		r := record{}
+		if err := c.ShouldBindWith(&r, binding.JSON); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status": "ParamErr",
-				"msg":    "type 值不对，必须是 byhand/qcode/code 中的一种",
+				"msg":    "参数 code 是必须包含的",
+				"err":    err.Error(),
+			})
+			return
+		}
+		uid := middlewares.GetUserIDFromContext(c)
+		lid := middlewares.GetLectureIDFromContext(c, "lectureid")
+
+		_, code, expireAt := getLectureCodeFromContext(c)
+		if code == *r.Code && time.Now().Before(expireAt) {
+			//TODO 完善文档
+			ty := ""
+			if r.Type != nil {
+				switch *r.Type {
+				case "code", "qcode":
+					ty = *r.Type
+				default:
+					c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+						"status": "ParamErr",
+						"msg":    "type 必须为 code/qcode",
+					})
+					return
+				}
+
+			}
+			_, err := model.AddLectureRecord(ty, uid, lid)
+			if err != nil {
+				if strings.Contains(err.Error(), "1062") {
+					c.JSON(http.StatusOK, gin.H{
+						"status": "CreatedErr",
+						"msg":    "已经添加过了",
+						"err":    err.Error(),
+					})
+				} else {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"status": "DatabaseErr",
+						"msg":    "数据库错误",
+						"err":    err.Error(),
+					})
+				}
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"status": "ok",
+					"msg":    "ok",
+				})
+			}
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": "badCode",
+				"msg":    "错误的签到码",
 			})
 		}
 	}
@@ -398,7 +503,7 @@ func GetSigninRecordLecturesByID() func(*gin.Context) {
 		for _, lr := range lrs {
 			tmp = append(tmp, map[string]interface{}{
 				"userId":   lr.UserID,
-				"name":     "", //TODO 实现获取名字
+				"name":     lr.UserInfo.Name, //TODO 实现获取名字
 				"signedAt": lr.CreateAt.Unix(),
 				"type":     lr.Type,
 				"remark":   lr.Remark,
@@ -437,34 +542,11 @@ func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 	}
 }
 
-//GetOneSigninRecordLecturesByID 获取特定讲座的特定用户签到记录
-func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
-	return func(c *gin.Context) {
-		lectureidStr, _ := c.Get("lectureid")
-		lid := lectureidStr.(int)
-		userid := c.Param("userid")
-		lr, err := model.GetLectureRecord(lid, userid)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "databaseErr",
-				"msg":    "数据库错误",
-				"err":    err.Error(),
-			})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-				"msg":    "ok",
-				"data":   lr,
-			})
-		}
-	}
-}
-
 func getLectureStatus(lec model.Lecture) string {
 	if lec.Finished {
 		return "ended"
-	} else if lec.SignCode == "" {
-		return "notsiging"
+	} else if lec.CanSignin {
+		return "signing"
 	}
-	return "siging"
+	return "notsigning"
 }

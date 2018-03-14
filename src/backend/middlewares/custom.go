@@ -14,8 +14,12 @@ func CorsHeader(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")
 	c.Header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Authorization,Content-type")
-	c.Header("X-Powered-By", "php")
 	return
+}
+
+//PHP 伪装PHP
+func PHP(c *gin.Context) {
+	c.Header("X-Powered-By", "php")
 }
 
 //Auth 认证授权等
@@ -38,20 +42,34 @@ func Auth(prefix string, unAuthPath ...string) func(*gin.Context) {
 				"status": "Unauthorized",
 				"msg":    "需要登录",
 			})
-		} else {
-			c.Set("Token", token)
-			userid, err := model.GetUserIDByToken(token)
-			if err == nil {
-				c.Set("UserID", userid)
-			} else {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-					"status": "badTokenErr",
-					"msg":    "错误或过期的token",
-					"token":  token,
-				})
-			}
+			return
 		}
+
+		userid, err := model.GetUserIDByToken(token)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"status": "badTokenErr",
+				"msg":    "错误或过期的token",
+				"token":  token,
+			})
+			return
+		}
+		c.Set("Token", token)
+		c.Set("UserID", userid)
+
 	}
+}
+
+//GetUserIDFromContext 从上下文中获取用户ID
+func GetUserIDFromContext(c *gin.Context) string {
+	userif, _ := c.Get("UserID")
+	return userif.(string)
+}
+
+//GetTokenFromContext 从上下文中获取 Token
+func GetTokenFromContext(c *gin.Context) string {
+	tokenif, _ := c.Get("Token")
+	return tokenif.(string)
 }
 
 //PathParamMustBeInt 指定 Path 参数必须为数字
@@ -67,20 +85,6 @@ func PathParamMustBeInt(args ...string) func(*gin.Context) {
 				return
 			}
 			c.Set(arg, tmp)
-		}
-	}
-}
-
-//RequireSiteAdmin 需要管理员权限
-func RequireSiteAdmin() func(*gin.Context) {
-	return func(c *gin.Context) {
-		uidif, _ := c.Get("UserID")
-		uid := uidif.(string)
-		if uid != "15051236" { //TODO 实现真正的权限控制
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"status": "Forbidden",
-				"msg":    "你没有站点管理员权限",
-			})
 		}
 	}
 }

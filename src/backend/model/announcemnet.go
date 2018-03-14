@@ -24,7 +24,7 @@ func GetAnnouncements(next, limit int) *[]Announcement {
 		DB.Order("id desc").Where("id < ?", next).Limit(limit).Find(&anns)
 	}
 	for i := range anns {
-		//好像性能差不多 都是 5~10ms
+		//TODO 好像性能差不多 都是 5~10ms
 		DB.Find(&anns[i].Author, anns[i].UserID)
 		//DB.Model(&anns[i]).Related(&anns[i].Author, "UserID")
 	}

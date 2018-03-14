@@ -1,0 +1,11 @@
+[Unit]
+Description=Lecture 线上讲座平台
+After=network.target
+Wants=network.target
+[Service]
+User=lecture
+Group=lecture
+ExecStart=/usr/bin/lecture -confile=/etc/lecture/app.toml # 需要自己定义好位置
+Restart=always
+[Install]
+WantedBy=multi-user.target
