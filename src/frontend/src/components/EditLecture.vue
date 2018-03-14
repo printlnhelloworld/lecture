@@ -75,7 +75,6 @@ export default {
       return this.$store.state.data.type;
     },
     authority() {
-      console.log(this.$store.state.data.id === this.lecture.creatorUserID)
       return this.$store.state.data.id === this.lecture.creatorUserID
     }
   },
@@ -98,7 +97,7 @@ export default {
           if (data2.status === 'ok') {
             _self.slots[0].values.push(...data2.data);
           } else {
-            _self.$toast(data1.msg);
+            _self.$toast(data2.msg);
           }
           if (data1.status === 'ok') {
             _self.temp = data1.data;
@@ -168,10 +167,20 @@ export default {
     }
   },
   mounted() {
+    let _self = this;
     if (!this.create) {
       this.getData();
+    } else {
+      this.getLectureType()
+        .then(res => {
+          let data = res.data;
+          if (data.status === 'ok') {
+            _self.slots[0].values.push(...data.data);
+          } else {
+            _self.$toast(data.msg);
+          }
+        });
     }
-    console.log(!this.create)
   }
 }
 </script>
