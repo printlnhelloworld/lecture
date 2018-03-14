@@ -57,7 +57,7 @@ func GetUserLectures() func(*gin.Context) {
 				"startAt":  lr.Lecture.StartAt.Unix(),
 				"signType": lr.Type,
 			})
-			if topic := lr.Lecture.Topic; topic == "校团委" || topic == "校团委讲座" {
+			if lecType := lr.Lecture.Type; lecType == "校团委" || lecType == "校团委讲座" {
 				schoolCount++
 			} else {
 				majorCount++
