@@ -78,3 +78,16 @@ func LectureMustBeNotFinished() func(*gin.Context) {
 		}
 	}
 }
+
+//LectureMustBeSigning 讲座必须在签到中
+func LectureMustBeSigning() func(*gin.Context) {
+	return func(c *gin.Context) {
+		lec := GetLectureFromContext(c)
+		if !lec.CanSignin {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"status": "Forbidden",
+				"msg":    "讲座未开始签到或签到已经结束",
+			})
+		}
+	}
+}

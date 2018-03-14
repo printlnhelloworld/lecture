@@ -71,10 +71,14 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 		)
 		lectures.GET("/:"+lectureidstr+"/signinCode",
 			middlewares.MustBeLectureOwner(lectureidstr),
-			middlewares.LectureMustBeNotFinished(), //TODO 必须在签到状态
-			GetLectureCodeByID(),
-		) //获取签到码
-		lectures.POST("/:"+lectureidstr+"/users/code", AddLectureSigninRecordByCode()) //签到码签到
+			middlewares.LectureMustBeSigning(),
+			middlewares.LectureMustBeNotFinished(),
+			GetLectureCodeByID(),                   //获取签到码
+		)
+		lectures.POST("/:"+lectureidstr+"/users/code",
+			middlewares.LectureMustBeSigning(),
+			AddLectureSigninRecordByCode(), //签到码签到
+		)
 		lectures.POST("/:"+lectureidstr+"/users/byhand",
 			middlewares.MustBeLectureOwner(lectureidstr),
 			middlewares.LectureMustBeNotFinished(),
