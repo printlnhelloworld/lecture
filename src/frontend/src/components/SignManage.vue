@@ -9,14 +9,16 @@
     <div v-if="lecture.status === 'notsigning'" class="signWrap">
       请选择发起签到的方式
       <div class="buttonGroup">
-        <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">手机展示二维码</mt-button>
-        <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">大屏幕展示二维码</mt-button>
+        <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">开始签到</mt-button>
+        <!-- <mt-button @click="changeStatus('signing')" :disabled="lecture.status === 'ended'" type="primary">大屏幕展示二维码</mt-button> -->
       </div>
       <!-- <mt-field v-if="lecture.status === 'signing'" label="签到码网址" v-model="lectureCode" disabled></mt-field>
       <mt-field v-if="lecture.status === 'signing'" label="讲座认证号" v-model="signCode" disabled></mt-field> -->
     </div>
     <div v-show="lecture.status === 'signing'" class="qrWrap">
+      <p><span>刷新时间:</span><span>{{ expireIn }}</span></p>
       <div id="qrcode"></div>
+      <p><span>签到码:</span><span>{{signCode}}</span></p>
       <mt-button @click="changeStatus('notsigning')" type="primary">暂停签到</mt-button>
     </div>
   </div>
@@ -32,7 +34,8 @@ export default {
         id: this.$route.query.id,
         status: 'notsigning'
       },
-      signCode: ''
+      signCode: '',
+      expireIn: 0
     }
   },
   computed: {
@@ -53,7 +56,7 @@ export default {
     signCode(cur, old) {
       let _self = this;
       if (_self.lecture.status === 'signing') {
-        qrcode.makeCode(_self.signCode)
+        qrcode.makeCode(localStorage.getItem('baseURL') + '/lecture?id=' + _self.lecture.id + '&signCode=' + _self.signCode);
       }
     }
   },
@@ -98,15 +101,20 @@ export default {
         method: 'get'
       }).then(res => {
         let data = res.data;
-        _self.signCode = 'www.baidu.com'
         if (data.status === 'ok') {
+          _self.expiredIn = data.expiredIn;
+          console.log(data.expireIn)
           if (_self.signCode !== data.signinCode) {
-            _self.signCode = localStorage.getItem('baseURL') + '/lecture?id=' + _self.lecture.id + '&signCode=' + data.signinCode;
+            _self.signCode = data.signinCode;
           }
         } else {
           this.$toast(data.msg);
         }
-        _self.timeOut = setTimeout(_self.getSignCode, 2000);
+        _self.timeOut = setTimeout(_self.getSignCode, 1000);
+      }).catch(err => {
+        if (err.response.data.status === 'Forbidden') {
+          _self.getData();
+        }
       })
     },
     changeStatus(status) {
@@ -185,6 +193,9 @@ export default {
       width: 50%;
     }
   }
+}
+.mint-header{
+  flex: 0 0 auto;
 }
 .qrWrap{
   display: flex;
