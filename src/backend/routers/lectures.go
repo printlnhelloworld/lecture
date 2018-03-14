@@ -344,6 +344,7 @@ func GetLectureCodeByID() func(*gin.Context) {
 			"msg":        "ok",
 			"signinCode": code,
 			"exipreAt":   expireAt.Unix(),
+			"exipreIn":   int(expireAt.Sub(time.Now()).Seconds()),
 		})
 	}
 }
