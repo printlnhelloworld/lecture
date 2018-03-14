@@ -53,7 +53,7 @@ func GetLectures() func(*gin.Context) {
 
 		now := time.Now()
 		lecs, err := model.GetLectures(limit, next, owner, status, sort, now)
-		var ls []gin.H
+		ls := make([]gin.H, 0)
 		var newNext int64
 		if ll := len(*lecs); ll > 0 {
 			switch sort {
