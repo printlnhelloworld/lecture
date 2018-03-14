@@ -286,9 +286,9 @@ func GetlectureByID() func(*gin.Context) {
 	return func(c *gin.Context) {
 		lectureidStr, _ := c.Get("lectureid")
 		lectureid := lectureidStr.(int)
-
+		userid := middlewares.GetUserIDFromContext(c)
 		lec, _ := model.GetLectureByID(lectureid)
-
+		lr, err2 := model.GetLectureRecord(lectureid, userid)
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 			"msg":    "ok",
@@ -308,6 +308,12 @@ func GetlectureByID() func(*gin.Context) {
 				"finished":      lec.Finished,
 				"finishedAt":    lec.FinishedAt.Unix(),
 				"remark":        lec.Remark,
+				"signin": gin.H{
+					"isSigned": err2 != gorm.ErrRecordNotFound,
+					"signedAt": lr.CreateAt.Unix(),
+					"type":     lr.Type,
+					"remark":   lr.Remark,
+				},
 			},
 		})
 
@@ -520,40 +526,6 @@ func DeleteOneSigninRecordLecturesByID() func(*gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"status": "ok",
 				"msg":    "ok",
-			})
-		}
-	}
-}
-
-//GetOneSigninRecordLecturesByID 获取特定讲座的特定用户签到记录
-func GetOneSigninRecordLecturesByID() func(c *gin.Context) {
-	return func(c *gin.Context) {
-		lectureidStr, _ := c.Get("lectureid")
-		lid := lectureidStr.(int)
-		userid := c.Param("userid")
-		lr, err := model.GetLectureRecord(lid, userid)
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				c.JSON(http.StatusNotFound, gin.H{
-					"status": "NotFound",
-					"msg":    "签到记录不存在",
-				})
-				return
-			}
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "databaseErr",
-				"msg":    "数据库错误",
-				"err":    err.Error(),
-			})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"status": "ok",
-				"msg":    "ok",
-				"data": gin.H{
-					"signedAt": lr.CreateAt.Unix(),
-					"type":     lr.Type,
-					"remark":   lr.Remark,
-				},
 			})
 		}
 	}

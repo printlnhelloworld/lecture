@@ -54,7 +54,6 @@ func SetupRouters(conf *conf.Conf) *gin.Engine {
 			middlewares.LectureMustBeExist(lectureidstr), //讲座必须存在
 		)
 		lectures.GET("/:"+lectureidstr, GetlectureByID())
-		lectures.GET("/:"+lectureidstr+"/users/:userid", GetOneSigninRecordLecturesByID())
 		lectures.PUT("/:"+lectureidstr,
 			middlewares.MustBeLectureOwner(lectureidstr), //必须是讲座所有者
 			middlewares.LectureMustBeNotFinished(),
