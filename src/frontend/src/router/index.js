@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Index from '@/components/Index'
-import Login from '@/components/Login'
-import Lecture from '@/components/Lecture'
-import EditLecture from '@/components/EditLecture'
-import SignManage from '@/components/SignManage'
-import SignRecord from '@/components/SignRecord'
-import Tips from '@/components/loginStatus/Tips'
-import Error from '@/components/loginStatus/Error'
+const Index = () => import('@/components/Index')
+const Login = () => import('@/components/Login')
+const Lecture = () => import('@/components/Lecture')
+const EditLecture = () => import('@/components/EditLecture')
+const SignManage = () => import('@/components/SignManage')
+const SignRecord = () => import('@/components/SignRecord')
+const Tips = () => import('@/components/loginStatus/Tips')
+const Error = () => import('@/components/loginStatus/Error')
 Vue.use(Router)
 
 const router = new Router({
