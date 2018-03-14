@@ -339,8 +339,8 @@ func GetLectureCodeByID() func(*gin.Context) {
 			"status":     "ok",
 			"msg":        "ok",
 			"signinCode": code,
-			"exipreAt":   expireAt.Unix(),
-			"exipreIn":   int(expireAt.Sub(time.Now()).Seconds()),
+			"expireAt":   expireAt.Unix(),
+			"expireIn":   int(expireAt.Sub(time.Now()).Seconds()),
 		})
 	}
 }
@@ -361,7 +361,21 @@ func getLectureCodeByIDAndUpdateOnExpired(c *gin.Context) (string, time.Time) {
 }
 
 func newSignCode() string {
-	return strconv.Itoa((rand.Intn(999999) + 100000) % 1000000)
+	code := strconv.Itoa((rand.Intn(999999) + 100000) % 1000000)
+	return trimSignCode(code, 6)
+}
+
+func trimSignCode(code string, l int) string {
+	tmp := "000000"
+	cl := len(code)
+	if cl != l {
+		if cl > l {
+			code = code[:l]
+		} else {
+			code = (tmp + code)[cl : l+cl] //实现签到码为指定位数
+		}
+	}
+	return code
 }
 
 //AddLectureSigninRecordByhand 添加特定讲座签到记录
