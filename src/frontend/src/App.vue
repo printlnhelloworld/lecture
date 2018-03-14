@@ -20,7 +20,7 @@ export default {
 }
 a {
     text-decoration:none;
-    out-line: none;
+    outline: none;
     color: black;
 }
 html, body, #app{

@@ -10,10 +10,17 @@ import './assets/css/my-mint.scss'
 import store from './vuex/store'
 require('es6-promise').polyfill();
 Vue.use(Mint);
+// 设置调试模式
+console.log(localStorage.getItem('debug'))
+const debug = localStorage.getItem('debug');
+const baseURL = debug ? 'http://localhost:8080' : 'https://lecture.hduhelp.com';
+localStorage.setItem('baseURL', baseURL);
+const apiBaseUrl = baseURL + '/api/v1'
 const axiosInstance = axios.create({
-  baseURL: localStorage.getItem('baseURL') ? localStorage.getItem('baseURL') : 'https://lecture.hduhelp.com/api/v1'
+  baseURL: apiBaseUrl
 })
 Vue.prototype.$ajax = axiosInstance;
+Vue.prototype.axios = axios;
 Vue.prototype.$messageBox = Mint.MessageBox;
 Vue.prototype.$toast = Mint.Toast;
 Vue.prototype.$indicator = Mint.Indicator;
@@ -44,12 +51,13 @@ axiosInstance.interceptors.response.use(function (response) {
   Vue.$toast(error.response.data.msg);
   // 对响应错误做点什么
   if (error.response.status === 401) {
+    console.log('token过期');
+    localStorage.setItem('redirect', window.location.href);
+    localStorage.removeItem('auth');
     router.replace({
       path: '/login/error'
     })
-  } else if (error.response.status === 403) {
-    Vue.$toast('无权限执行该操作')
-  };
+  }
   return Promise.reject(error);
 });
 /* eslint-disable no-new */

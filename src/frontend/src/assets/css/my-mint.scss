@@ -8,6 +8,9 @@ $font-family: "Microsoft YaHei";
   font-weight: bold;
   border-bottom: #eeeeee 1px solid;
 }
+// .mint-cell, .mint-field, .mint-field-core{
+//   font-family: $font-family;
+// }
 .page-wrap{
   height: 100%;
   background-color: #bfd7e2;
@@ -17,7 +20,7 @@ $font-family: "Microsoft YaHei";
   min-height: 2rem;
 }
 .mint-cell-wrapper{
-  font-size: 0.75rem;
+  font-size: 1rem;
 }
 .mint-tab-container-wrap{
   height: 100%;

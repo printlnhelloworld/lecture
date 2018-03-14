@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { redirect } from '../utils.js'
 export default {
   data() {
     return {
@@ -44,6 +45,7 @@ export default {
           // console.log(_self.$store.state.data)
           // 判断是否阅读相关规则并同意使用本系统
           if (_self.agree === true) {
+            redirect();
             _self.$router.push('/index');
           } else {
             _self.$router.push('/login/tips');

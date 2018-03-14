@@ -4,6 +4,8 @@ import Index from '@/components/Index'
 import Login from '@/components/Login'
 import Lecture from '@/components/Lecture'
 import EditLecture from '@/components/EditLecture'
+import SignManage from '@/components/SignManage'
+import SignRecord from '@/components/SignRecord'
 import Tips from '@/components/loginStatus/Tips'
 import Error from '@/components/loginStatus/Error'
 Vue.use(Router)
@@ -20,7 +22,8 @@ const router = new Router({
       name: 'index',
       component: Index,
       meta: {
-        keepAlive: true
+        keepAlive: true,
+        requireAuth: true
       }
     },
     {
@@ -48,7 +51,8 @@ const router = new Router({
       name: 'Lecture',
       component: Lecture,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        requireAuth: true
       }
     },
     {
@@ -56,7 +60,26 @@ const router = new Router({
       name: 'EditLecture',
       component: EditLecture,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        requireAuth: true
+      }
+    },
+    {
+      path: '/signManage',
+      name: 'SignManage',
+      component: SignManage,
+      meta: {
+        keepAlive: false,
+        requireAuth: true
+      }
+    },
+    {
+      path: '/signRecord',
+      name: 'SignRecord',
+      component: SignRecord,
+      meta: {
+        keepAlive: false,
+        requireAuth: true
       }
     }
   ]
@@ -74,14 +97,23 @@ const router = new Router({
   // }
 })
 router.beforeEach((to, from, next) => {
-  var auth = localStorage.getItem('auth');
-  console.log(auth);
-  if (auth || to.path === '/login') {
-    next();
+  console.log('defend')
+  if (to.meta.requireAuth) {
+    var auth = localStorage.getItem('auth');
+    console.log(auth);
+    if (auth) {
+      console.log('has auth')
+      next();
+    } else {
+      console.log('no auth')
+      console.log(window.location.href);
+      localStorage.setItem('redirect', window.location.href);
+      next({
+        path: '/login'
+      })
+    }
   } else {
-    next({
-      path: '/login'
-    })
+    next();
   }
 })
 export default router
