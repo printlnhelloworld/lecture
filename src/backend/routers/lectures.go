@@ -50,16 +50,10 @@ func GetLectures() func(*gin.Context) {
 			})
 			return
 		}
-		type lecture struct {
-			ID      int    `json:"id"`
-			Topic   string `json:"topic"`
-			Type    string `json:"type"`
-			Status  string `json:"status"`
-			StartAt int64  `json:"startAt"`
-		}
+
 		now := time.Now()
 		lecs, err := model.GetLectures(limit, next, owner, status, sort, now)
-		ls := make([]lecture, 0)
+		var ls []gin.H
 		var newNext int64
 		if ll := len(*lecs); ll > 0 {
 			switch sort {
@@ -70,12 +64,14 @@ func GetLectures() func(*gin.Context) {
 			}
 		}
 		for _, lec := range *lecs {
-			ls = append(ls, lecture{
-				ID:      lec.ID,
-				Topic:   lec.Topic,
-				Type:    lec.Type,
-				Status:  getLectureStatus(lec),
-				StartAt: lec.StartAt.Unix(),
+			ls = append(ls, gin.H{
+				"id":       lec.ID,
+				"topic":    lec.Topic,
+				"type":     lec.Type,
+				"status":   getLectureStatus(lec),
+				"startAt":  lec.StartAt.Unix(),
+				"location": lec.Location,
+				"lecturer": lec.Lecturer,
 			})
 		}
 		if err != nil {
