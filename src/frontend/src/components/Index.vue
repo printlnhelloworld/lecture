@@ -305,6 +305,8 @@ export default {
       }).then(res => {
         let data = res.data;
         if (data.status === 'ok') {
+          // 清除auth
+          localStorage.removeItem('auth');
           window.open('http://i.hdu.edu.cn/dcp/logout0.jsp');
         } else {
           console.log(data.msg);
