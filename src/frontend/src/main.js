@@ -8,7 +8,6 @@ import Mint from 'mint-ui'
 import 'mint-ui/lib/style.css'
 import './assets/css/my-mint.scss'
 import store from './vuex/store'
-require('es6-promise').polyfill();
 Vue.use(Mint);
 Vue.prototype.$ajax = axiosInstance;
 Vue.prototype.$messageBox = Mint.MessageBox;

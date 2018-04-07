@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import axios from 'axios';
 import router from '../router';
+require('es6-promise').polyfill();
 // 设置调试模式
 console.log(localStorage.getItem('debug'))
 const debug = localStorage.getItem('debug');
@@ -32,8 +33,8 @@ axiosInstance.interceptors.response.use(function (response) {
   // 对响应数据做点什么
   return response;
 }, function (error) {
-  Vue.$indicator.close();
-  Vue.$toast(error.response.data.msg);
+  Vue.prototype.$indicator.close();
+  Vue.prototype.$toast(error.response.data.msg);
   // 对响应错误做点什么
   if (error.response.status === 401) {
     console.log('token过期');
