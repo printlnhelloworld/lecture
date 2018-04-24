@@ -281,4 +281,8 @@ section{
     width: 50%;
   }
 }
+/deep/ textarea{
+  line-height: 1rem;
+  font-family: 'Microsoft YaHei'
+}
 </style>
