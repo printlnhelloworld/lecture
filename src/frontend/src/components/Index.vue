@@ -366,8 +366,6 @@ export default {
 .wrap{
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
 }
 .mint-cell{
   position:relative;
@@ -376,7 +374,9 @@ export default {
 }
 .page-wrap{
   overflow: hidden;
-  flex: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding-bottom: 55px;
   display: flex;
   flex-direction: column;
 }
@@ -387,7 +387,6 @@ export default {
 }
 .page-tabbar-container{
   flex:1;
-  margin-bottom: 55px;
   overflow: hidden;
 }
 #mine{
