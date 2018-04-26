@@ -67,43 +67,7 @@ import { formatDate } from '../../utils.js'
 export default {
   data() {
     return {
-      announcement: {
-        // 是否显示公告
-        visible: false,
-        // 已阅读的公告id数组
-        idList: new Set(JSON.parse(localStorage.getItem('announcements')) || []),
-        list: [{
-          title: '',
-          content: '',
-          createAt: 0
-        }]
-      },
-      selected: 'list',
       show: [false, false, false],
-      list2: [
-        {
-          'id': 1,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startAt': 1519389118000
-        },
-        {
-          'id': 2,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startAt': 1519389118000
-        },
-        {
-          'id': 3,
-          'topic': 'xxx讲座',
-          'type': 'xxx',
-          'status': '未开始',
-          'startAt': 1519389118000
-        }
-      ],
-      scrollMode: 'auto',
       mine: {
         // 参与专业讲座数目
         majorCount: 0,
@@ -124,12 +88,6 @@ export default {
           // }
         ],
         createList: []
-      },
-      options: [1, 2, 3],
-      lectures: {
-        allLoaded: false,
-        next: 0,
-        list: []
       }
     }
   },
@@ -204,7 +162,6 @@ export default {
   },
   mounted() {
     console.log(this.permit)
-    console.log(this.lectures.list);
     this.getMineData();
     if (this.permit.lectureCreate) {
       this.getCreateList();
