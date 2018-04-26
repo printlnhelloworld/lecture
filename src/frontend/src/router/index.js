@@ -31,7 +31,8 @@ const router = new Router({
       name: 'Login',
       component: Login,
       meta: {
-        keepAlive: false
+        keepAlive: false,
+        savedPosition: 0
       },
       children: [
         {
@@ -85,14 +86,14 @@ const router = new Router({
   ]
   // scrollBehavior(to, from, savedPosition) {
   //   if (savedPosition) {
-  //     console.log(router.app.$store.state.position)
-  //     return new Promise((resolve, reject) => {
-  //       setTimeout(() => {
-  //         window.scrollTo(0, 0)
-  //       }, 500)
-  //     })
+  //     return savedPosition
   //   } else {
-  //     return { x: 0, y: 0 };
+  //     if (from.meta.keepAlive) {
+  //       console.log('alive')
+  //       from.meta.savedPosition = 30;
+  //     }
+  //     console.log(to.meta)
+  //     return { x: 0, y: to.meta.savedPosition || 0 }
   //   }
   // }
 })
