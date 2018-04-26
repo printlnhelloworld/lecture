@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <mt-header :title="title">
-      <div @click="goback"  slot="left">
+      <div @click="$router.go('-1')"  slot="left">
         <mt-button icon="back">返回</mt-button>
       </div>
     </mt-header>
@@ -95,10 +95,6 @@ export default {
           _self.$toast(data.msg);
         }
       })
-    },
-    goback() {
-      // history.back();
-      this.$router.push('/index');
     },
     getTime(time) {
       return formatDate(time);

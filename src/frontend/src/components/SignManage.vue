@@ -1,9 +1,9 @@
 <template>
   <div class="wrap">
     <mt-header title="签到管理">
-      <router-link :to="{path:'/lecture', query:{id: lecture.id}}" slot="left">
+      <div @click="$router.go('-1')"  slot="left">
         <mt-button icon="back">返回</mt-button>
-      </router-link>
+      </div>
       <mt-button icon="more" slot="right"></mt-button>
     </mt-header>
     <div v-if="lecture.status === 'notsigning'" class="signWrap">

@@ -1,9 +1,9 @@
 <template>
   <div class="wrap">
     <mt-header title="签到记录">
-      <router-link :to="{path:'/lecture', query:{id: lecture.id}}" slot="left">
+      <div @click="$router.go('-1')"  slot="left">
         <mt-button icon="back">返回</mt-button>
-      </router-link>
+      </div>
       <mt-button @click="openSign" slot="right">手动签到</mt-button>
     </mt-header>
     <table>
