@@ -26,8 +26,8 @@ const router = new Router({
       redirect: '/index/lectures',
       component: Index,
       meta: {
-        requireAuth: true,
-        keepAlive: true
+        keepAlive: true,
+        requireAuth: true
       },
       children: [
         {
