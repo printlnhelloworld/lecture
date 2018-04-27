@@ -43,6 +43,7 @@
 
 <script>
 import { formatDate } from '../utils.js'
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -92,8 +93,8 @@ export default {
   methods: {
     getData() {
       let _self = this;
-      _self.axios.all([_self.getLectureData(), _self.getLectureType()])
-        .then(_self.axios.spread((res1, res2) => {
+      axios.all([_self.getLectureData(), _self.getLectureType()])
+        .then(axios.spread((res1, res2) => {
           let data1 = res1.data;
           let data2 = res2.data;
           if (data2.status === 'ok') {
