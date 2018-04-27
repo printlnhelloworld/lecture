@@ -21,12 +21,16 @@
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
         <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
-      <div v-if="!authority">
+      <div v-if="!authority" class="tips">
         <div v-if="lecture.status === 'signing' && !lecture.signin.isSigned" class="sign">
-          <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
-          <mt-button type="primary" size="small" @click="signIn()">签到</mt-button>
+          <span>未签到,请扫码签到</span>
+          <!-- <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
+          <mt-button type="primary" size="small" @click="signIn()">签到</mt-button> -->
         </div>
-        <div v-if="lecture.signin.isSigned" >你已在{{getTime(lecture.signin.signedAt)}}签到</div>
+        <div v-if="lecture.status === 'ended'">
+          <div v-if="lecture.signin.isSigned" >你已在{{getTime(lecture.signin.signedAt)}}签到</div>
+          <div v-if="!lecture.signin.isSigned" >讲座已结束</div>
+        </div>
         <!-- <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
           <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
           <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
@@ -276,6 +280,10 @@ section{
   >button{
     width: 50%;
   }
+}
+.tips{
+  display: flex;
+  justify-content: center;
 }
 /deep/ textarea{
   line-height: 1rem;

@@ -16,9 +16,9 @@
       <mt-field v-if="lecture.status === 'signing'" label="讲座认证号" v-model="signCode" disabled></mt-field> -->
     </div>
     <div v-show="lecture.status === 'signing'" class="qrWrap">
-      <p><span>刷新时间:</span><span>{{ expireIn }}</span></p>
       <div id="qrcode"></div>
-      <p><span>签到码:</span><span>{{signCode}}</span></p>
+      <!-- <p><span>签到码:</span><span>{{signCode}}</span></p> -->
+      <p>请微信扫码参与签到</p>
       <mt-button @click="changeStatus('notsigning')" type="primary">暂停签到</mt-button>
     </div>
   </div>
@@ -203,6 +203,10 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100%;
+  font-size: 2rem;
+  >p{
+    margin: 1rem 0 ;
+  }
   >button {
     margin: 1rem;
   }
