@@ -2,13 +2,10 @@
   <div class="page-part scroll">
     <div>
       <div class="info">
-        <!-- <img src="../assets/logo.png" alt=""> -->
+        <span class="realName">{{$store.state.data.name}}</span>
         <div>
-          <span><label>姓名:</label>{{$store.state.data.name}}</span>
-          <span><label>学号:</label>{{$store.state.data.id}}</span>
-        </div>
-        <div>
-          <span><label>{{$store.state.data.id === 3 ? '归属单位' : '学院'}}:</label>{{$store.state.data.unitName}}</span>
+          <span>{{$store.state.data.id}}</span>
+          <span>{{$store.state.data.unitName}}</span>
         </div>
       </div>
       <div v-if="$store.state.data.type == 1">
@@ -175,9 +172,10 @@ export default {
   // border-top: 1px gainsboro solid;
   margin-bottom: 0.4rem;
 }
-.mint-cell-wrapper{
-  height:1rem;
-  font-size: 0.2rem;
+/deep/ .mint-cell-wrapper{
+  // height:1rem;
+  // font-size: 0.2rem;
+  padding: 0 1rem;
 }
 .arrow{
   height: 1rem;
@@ -245,17 +243,19 @@ export default {
 .info {
   background-color: white;
   height: 4rem;
-  padding: 0 1rem;
+  padding: 10px 1rem;
+  margin: 1rem 0;
   display: flex;
   align-items: center;
-  img {
-    width: 2rem;
-    height: 2rem;
-  }
-  div {
+  >div {
     display: flex;
     flex-direction: column;
-    margin: 0 1rem;
+  }
+  .realName {
+    font-size: 1.5rem;
+  }
+  >span {
+    margin-right: 1rem;
   }
 }
 </style>
