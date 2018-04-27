@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '../vuex/store'
 const Index = () => import('@/components/Index')
 const Login = () => import('@/components/Login')
 const Lecture = () => import('@/components/Lecture')
@@ -8,6 +9,8 @@ const SignManage = () => import('@/components/SignManage')
 const SignRecord = () => import('@/components/SignRecord')
 const Tips = () => import('@/components/loginStatus/Tips')
 const Error = () => import('@/components/loginStatus/Error')
+const LectureList = () => import('@/components/pages/LectureList')
+const Mine = () => import('@/components/pages/Mine')
 Vue.use(Router)
 
 const router = new Router({
@@ -20,18 +23,36 @@ const router = new Router({
     {
       path: '/index',
       name: 'index',
+      redirect: '/index/lectures',
       component: Index,
       meta: {
-        keepAlive: true,
-        requireAuth: true
-      }
+        requireAuth: true,
+        keepAlive: true
+      },
+      children: [
+        {
+          path: 'lectures',
+          name: 'lectures',
+          component: LectureList,
+          meta: {
+            keepAlive: true
+          }
+        },
+        {
+          path: 'mine',
+          name: 'mine',
+          component: Mine,
+          meta: {
+            keepAlive: true
+          }
+        }
+      ]
     },
     {
       path: '/login',
       name: 'Login',
       component: Login,
       meta: {
-        keepAlive: false,
         savedPosition: 0
       },
       children: [
@@ -52,7 +73,6 @@ const router = new Router({
       name: 'Lecture',
       component: Lecture,
       meta: {
-        keepAlive: false,
         requireAuth: true
       }
     },
@@ -61,7 +81,6 @@ const router = new Router({
       name: 'EditLecture',
       component: EditLecture,
       meta: {
-        keepAlive: false,
         requireAuth: true
       }
     },
@@ -70,7 +89,6 @@ const router = new Router({
       name: 'SignManage',
       component: SignManage,
       meta: {
-        keepAlive: false,
         requireAuth: true
       }
     },
@@ -79,25 +97,41 @@ const router = new Router({
       name: 'SignRecord',
       component: SignRecord,
       meta: {
-        keepAlive: false,
         requireAuth: true
       }
     }
-  ]
-  // scrollBehavior(to, from, savedPosition) {
-  //   if (savedPosition) {
-  //     return savedPosition
-  //   } else {
-  //     if (from.meta.keepAlive) {
-  //       console.log('alive')
-  //       from.meta.savedPosition = 30;
-  //     }
-  //     console.log(to.meta)
-  //     return { x: 0, y: to.meta.savedPosition || 0 }
-  //   }
-  // }
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    console.log(to.name)
+    if (to.meta.keepAlive) {
+      let scrollTop = store.state.common.scrollPos[to.name] || 0
+      if (!scrollTop) {
+        return;
+      }
+      // 对scroll元素进行设置
+      new Promise((resolve, reject) => {
+        resolve()
+      }).then(() => {
+        let documentElem = document.querySelector('.scroll')
+        console.log(documentElem);
+        if (documentElem) {
+          try {
+            documentElem.scrollTop = scrollTop;
+          } catch (err) {
+            console.log(err)
+          }
+        }
+      })
+    }
+  }
 })
 router.beforeEach((to, from, next) => {
+  // 记录上一个页面的scroll位置
+  if (from.name) {
+    let contentElem = document.querySelector('.scroll')
+    let scrollTop = contentElem ? contentElem.scrollTop : '0'
+    store.state.common.scrollPos[from.name] = scrollTop;
+  }
   console.log('defend')
   if (to.meta.requireAuth) {
     var auth = localStorage.getItem('auth');

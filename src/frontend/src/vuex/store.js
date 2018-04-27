@@ -8,6 +8,9 @@ const store = new Vuex.Store({
     position: 0,
     timeout: {
       getSignCode: ''
+    },
+    common: {
+      scrollPos: {}
     }
   },
   mutations: {

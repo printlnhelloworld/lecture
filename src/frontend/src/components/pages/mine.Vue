@@ -1,5 +1,5 @@
 <template>
-  <div class="page-part">
+  <div class="page-part scroll">
     <div>
       <div class="info">
         <!-- <img src="../assets/logo.png" alt=""> -->

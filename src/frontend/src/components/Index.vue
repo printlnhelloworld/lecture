@@ -7,23 +7,18 @@
         </router-link>
       </mt-header>
       <!-- tabcontainer -->
-      <mt-tab-container class="page-tabbar-container" v-model="selected" ref="wrap">
-        <mt-tab-container-item id="list">
-          <lecture-list></lecture-list>
-        </mt-tab-container-item>
-        <mt-tab-container-item id="mine">
-          <mine></mine>
-        </mt-tab-container-item>
-      </mt-tab-container>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </div>
     <mt-tabbar v-model="selected">
-      <mt-tab-item id="list">
+      <mt-tab-item id="lectures">
         <img slot="icon" src="../assets/icon/list.png">
         列表
       </mt-tab-item>
       <mt-tab-item id="mine">
-        <img slot="icon" src="../assets/icon/mine.png">
-        个人
+          <img slot="icon" src="../assets/icon/mine.png">
+          个人
       </mt-tab-item>
     </mt-tabbar>
     <mt-popup
@@ -40,8 +35,6 @@
 
 <script>
 import { formatDate } from '../utils.js'
-import LectureList from './pages/lectureList'
-import Mine from './pages/Mine'
 export default {
   data() {
     return {
@@ -56,7 +49,6 @@ export default {
           createAt: 0
         }]
       },
-      selected: 'list',
       show: [false, false, false],
       list2: [
         {
@@ -112,9 +104,17 @@ export default {
     }
   },
   computed: {
+    selected: {
+      get: function () {
+        return this.$route.name;
+      },
+      set: function (to) {
+        this.$router.push({name: to});
+      }
+    },
     title() {
       switch (this.selected) {
-        case 'list':
+        case 'lectures':
           return '讲座列表';
         case 'mine':
           return '我的';
@@ -158,19 +158,9 @@ export default {
     //   return formatDateHM(time);
     // }
   },
-  components: {
-    'lecture-list': LectureList,
-    'mine': Mine
-  },
   mounted() {
     console.log(this.permit)
     console.log(this.lectures.list);
-  },
-  beforeRouteLeave(to, from, next) {
-    let position = document.getElementsByClassName('loadmore_wrap')[0].scrollTop;
-    console.log(position);
-    this.$store.commit('savePosition', position); // 离开路由时把位置存起来
-    next()
   }
 }
 </script>

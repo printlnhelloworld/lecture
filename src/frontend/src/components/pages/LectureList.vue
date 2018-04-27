@@ -1,31 +1,33 @@
 <template>
-  <div class="loadmore_wrap">
+  <div class="page-part">
     <div class="searchbar">
       <div>1</div>
       <div>2</div>
       <div>3</div>
     </div>
-    <mt-loadmore
-    :top-method="loadTop"
-    :bottom-method="loadBottom"
-    :bottom-all-loaded="lectures.allLoaded"
-    :auto-fill="false"
-    ref="loadmore">
-      <div class="lectureList">
-        <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-          <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
-          <section>
-            <!-- <p>
-              <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
-            </p> -->
-              <span>{{ getTime(item.startAt) }}</span>
-          </section>
-        </router-link>
-      </div>
-      <!-- <ul class="page-loadmore-list">
-        <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
-      </ul> -->
-    </mt-loadmore>
+    <div class="loadmore_wrap scroll">
+      <mt-loadmore
+      :top-method="loadTop"
+      :bottom-method="loadBottom"
+      :bottom-all-loaded="lectures.allLoaded"
+      :auto-fill="false"
+      ref="loadmore">
+        <div class="lectureList">
+          <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+            <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
+            <section>
+              <!-- <p>
+                <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
+              </p> -->
+                <span>{{ getTime(item.startAt) }}</span>
+            </section>
+          </router-link>
+        </div>
+        <!-- <ul class="page-loadmore-list">
+          <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
+        </ul> -->
+      </mt-loadmore>
+    </div>
   </div>
 </template>
 
@@ -109,6 +111,11 @@ export default {
 
 <style lang='scss' scoped>
 $searchbarHeight: 2rem;
+.page-part{
+  height: 100%;
+  padding-top: $searchbarHeight;
+  overflow: hidden;
+}
 .lectureList{
   padding: 0.4rem 0;
   box-sizing: border-box;
@@ -118,9 +125,6 @@ $searchbarHeight: 2rem;
   margin-bottom: 0.4rem;
 }
 .loadmore_wrap{
-  box-sizing: border-box;
-  position: relative;
-  padding-top: $searchbarHeight;
   overflow: scroll;
   height: 100%;
 }
@@ -163,7 +167,6 @@ $searchbarHeight: 2rem;
   box-sizing: border-box;
 }
 .searchbar{
-  position: fixed;
   margin-top: -$searchbarHeight;
   display: flex;
   align-items: center;
