@@ -8,10 +8,13 @@
     <div class="loadmore_wrap scroll">
       <mt-loadmore
       :top-method="loadTop"
-      :bottom-method="loadBottom"
       :bottom-all-loaded="lectures.allLoaded"
       :auto-fill="false"
       ref="loadmore">
+      <ul
+        v-infinite-scroll="loadMore"
+        infinite-scroll-disabled="lectures.allLoaded"
+        infinite-scroll-distance="10">
         <div class="lectureList">
           <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
             <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
@@ -23,6 +26,7 @@
             </section>
           </router-link>
         </div>
+      </ul>
         <!-- <ul class="page-loadmore-list">
           <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
         </ul> -->
@@ -40,7 +44,8 @@ export default {
         allLoaded: false,
         next: 0,
         list: []
-      }
+      },
+      loading: false
     }
   },
   methods: {
@@ -61,17 +66,13 @@ export default {
         }
       })
     },
-    // 上拉加载更多
-    loadBottom() {
+    // 加载更多
+    loadMore() {
       let _self = this;
-      if (_self.lectures.allLoaded) {
-        _self.$refs.loadmore.onBottomLoaded();
-        return;
-      }
-      console.log('bottom');
+      _self.loading = true;
       _self.getData().then(res => {
+        this.loading = false;
         let data = res.data;
-        _self.$refs.loadmore.onBottomLoaded();
         if (data.data.length === 0) {
           _self.lectures.allLoaded = true;
           _self.$toast({
@@ -104,7 +105,6 @@ export default {
   },
   mounted () {
     this.wrapInit();
-    this.loadBottom();
   }
 }
 </script>
