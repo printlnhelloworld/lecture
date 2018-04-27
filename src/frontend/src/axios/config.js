@@ -3,9 +3,12 @@ import axios from 'axios';
 import router from '../router';
 require('es6-promise').polyfill();
 // 设置调试模式
-console.log(localStorage.getItem('debug'))
-const debug = localStorage.getItem('debug');
-const baseURL = debug ? 'http://localhost:8080' : 'https://lecture.hduhelp.com';
+console.log(localStorage.getItem('debugUrl'))
+const debugUrl = localStorage.getItem('debugUrl');
+let baseURL = window.location.protocol + '//' + window.location.host;
+if (debugUrl) {
+  baseURL = debugUrl;
+}
 localStorage.setItem('baseURL', baseURL);
 const apiBaseUrl = baseURL + '/api/v1'
 const axiosInstance = axios.create({

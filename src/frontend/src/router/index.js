@@ -35,7 +35,8 @@ const router = new Router({
           name: 'lectures',
           component: LectureList,
           meta: {
-            keepAlive: true
+            keepAlive: true,
+            requireAuth: true
           }
         },
         {
@@ -43,7 +44,8 @@ const router = new Router({
           name: 'mine',
           component: Mine,
           meta: {
-            keepAlive: true
+            keepAlive: true,
+            requireAuth: true
           }
         }
       ]
