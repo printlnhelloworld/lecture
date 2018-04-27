@@ -226,4 +226,8 @@ section{
 .mint-switch{
   margin: 0.2rem;
 }
+/deep/ textarea{
+  line-height: 1rem;
+  font-family: 'Microsoft YaHei'
+}
 </style>
