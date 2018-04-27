@@ -6,6 +6,7 @@
       </div>
     </mt-header>
     <section>
+      <div class="message">
         <mt-field label="主题" placeholder="主题名称" v-model="lecture.topic" readonly></mt-field>
         <mt-field label="时间" :placeholder="getTime(lecture.startAt)" readonly></mt-field>
         <mt-field label="地点" placeholder="地点" v-model="lecture.location" readonly></mt-field>
@@ -13,29 +14,30 @@
         <mt-field label="主讲人" placeholder="主讲人姓名" v-model="lecture.lecturer" readonly></mt-field>
         <mt-field label="讲座类型" placeholder="请选择讲座类型" v-model="lecture.type" readonly></mt-field>
         <mt-field label="简介"  class="introduction" placeholder="简介" type="textarea" rows="8" v-model="lecture.introduction" readonly></mt-field>
-      <div class="buttonGroup" v-if="authority">
-        <mt-button v-if="lecture.status !== 'ended'" @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
-        <!-- <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button> -->
-        <mt-button @click="$router.push({path: '/signRecord',query:{id: $route.query.id}})" type="primary">签到记录</mt-button>
-        <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
-        <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
-        <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
       </div>
-      <div v-if="!authority" class="tips">
-        <div v-if="lecture.status === 'signing' && !lecture.signin.isSigned" class="sign">
-          <span>未签到,请扫码签到</span>
-          <!-- <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
-          <mt-button type="primary" size="small" @click="signIn()">签到</mt-button> -->
+        <div class="buttonGroup" v-if="authority">
+          <mt-button v-if="lecture.status !== 'ended'" @click="$router.push({path: '/signManage',query:{id: $route.query.id}})" type="primary">签到管理</mt-button>
+          <!-- <mt-button v-if="lecture.status === 'runing'" type="primary">暂停签到</mt-button> -->
+          <mt-button @click="$router.push({path: '/signRecord',query:{id: $route.query.id}})" type="primary">签到记录</mt-button>
+          <mt-button v-if="lecture.status !== 'ended'" type="primary" @click="$router.push({path: '/editLecture', query:{id: $route.query.id}})">编辑讲座</mt-button>
+          <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="deleteLecture">删除讲座</mt-button>
+          <mt-button v-if="lecture.status !== 'ended'" type="danger" @click="changeStatus('ended')">结束讲座</mt-button>
         </div>
-        <div v-if="lecture.status === 'ended'">
-          <div v-if="lecture.signin.isSigned" >你已在{{getTime(lecture.signin.signedAt)}}签到</div>
-          <div v-if="!lecture.signin.isSigned" >讲座已结束</div>
+        <div v-if="!authority" class="tips">
+          <div v-if="lecture.status === 'signing' && !lecture.signin.isSigned" class="sign">
+            <span>未签到,请扫码签到</span>
+            <!-- <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
+            <mt-button type="primary" size="small" @click="signIn()">签到</mt-button> -->
+          </div>
+          <div v-if="lecture.status === 'ended'">
+            <div v-if="lecture.signin.isSigned" >你已在{{getTime(lecture.signin.signedAt)}}签到</div>
+            <div v-if="!lecture.signin.isSigned" >讲座已结束</div>
+          </div>
+          <!-- <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
+            <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
+            <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
+          </div> -->
         </div>
-        <!-- <div v-if="lecture.canSignin && !lecture.signin.isSigned" class="sign">
-          <mt-field label="签到" placeholder="请输入签到码" v-model="signCode"></mt-field>
-          <mt-button type="primary" size="small" @click="signIn">签到</mt-button>
-        </div> -->
-      </div>
     </section>
   </div>
 </template>
@@ -219,7 +221,7 @@ export default {
 <style lang="scss" scoped>
 .wrap{
   height: 100%;
-  overflow: height;
+  overflow: scroll;
   display: flex;
   flex-direction: column;
 }
@@ -229,8 +231,7 @@ export default {
 section{
   padding:2rem;
   overflow: scroll;
-  flex-basis: 1;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
 }
 .detials{
   display: flex;
@@ -243,7 +244,6 @@ section{
   }
 }
 .buttonGroup{
-  margin: 2rem 0 0 0;
   display:flex;
   flex-direction: column;
   align-items: center;
@@ -280,6 +280,9 @@ section{
   >button{
     width: 50%;
   }
+}
+.message{
+  margin-bottom: 1rem;
 }
 .tips{
   display: flex;
