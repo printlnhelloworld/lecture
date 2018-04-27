@@ -207,4 +207,12 @@ export default {
     margin: 1rem;
   }
 }
+#qrcode{
+  height: 60vmin;
+  width: 60vmin;
+  /deep/ img{
+    width: 100%;
+    height: 100%;
+  }
+}
 </style>
