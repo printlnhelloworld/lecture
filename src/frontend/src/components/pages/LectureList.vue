@@ -16,7 +16,7 @@
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="lectures.allLoaded"
         infinite-scroll-distance="10">
-          <router-link is="li" v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+          <li is="router-link" v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
             <div class="item-main">
               <p class="lecTopic">{{ item.topic }}</p>
               <p class="lecType"><img src="../../assets/icon/school2.png"/> {{ item.type }}</p>
@@ -26,7 +26,7 @@
                 <span>{{ getYMD(item.startAt) }}</span>
                 <span>{{ getHM(item.startAt) }}</span>
             </section>
-          </router-link>
+          </li>
       </ul>
         <!-- <ul class="page-loadmore-list">
           <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
