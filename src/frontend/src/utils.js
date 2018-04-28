@@ -4,6 +4,8 @@ function formatDateYMD(now) {
   let year = time.getFullYear();
   let month = time.getMonth() + 1;
   let date = time.getDate();
+  month = month < 10 ? '0' + month : month;
+  date = date < 10 ? '0' + date : date;
   return year + '-' + month + '-' + date;
 }
 function formatDateHM(now) {
@@ -11,6 +13,8 @@ function formatDateHM(now) {
   let time = new Date(parseInt(now) * 1000)
   let hour = time.getHours();
   let minute = time.getMinutes();
+  hour = hour < 10 ? '0' + hour : hour;
+  minute = minute < 10 ? '0' + minute : minute;
   // let second = now.getSeconds();
   return hour + ':' + minute;
 }
