@@ -7,6 +7,7 @@ console.log(localStorage.getItem('debugUrl'))
 const debugUrl = localStorage.getItem('debugUrl');
 let baseURL = window.location.protocol + '//' + window.location.host;
 if (debugUrl) {
+  console.log('进入debug模式,当前接口地址域名为' + debugUrl + ',输入localstorage.removeItem("debugUrl"),退出当前模式');
   baseURL = debugUrl;
 }
 localStorage.setItem('baseURL', baseURL);
