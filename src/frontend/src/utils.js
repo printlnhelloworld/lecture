@@ -4,7 +4,7 @@ function formatDateYMD(now) {
   let year = time.getFullYear();
   let month = time.getMonth() + 1;
   let date = time.getDate();
-  return year + '年' + month + '月' + date + '日';
+  return year + '-' + month + '-' + date;
 }
 function formatDateHM(now) {
   now = (now.toString().length === 13) ? now / 1000 : now;

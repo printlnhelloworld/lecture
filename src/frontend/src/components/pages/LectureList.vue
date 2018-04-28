@@ -12,20 +12,21 @@
       :auto-fill="false"
       ref="loadmore">
       <ul
+        class="lectureList"
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="lectures.allLoaded"
         infinite-scroll-distance="10">
-        <div class="lectureList">
-          <router-link v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
-            <span><mt-badge :color="item.status === 'ended'? '#888' : (item.type === '校团委讲座' ? '#F44336' : '#26A2FF')">{{item.type === '校团委讲座' ? '校' : '院'}}</mt-badge>{{ item.topic }}</span>
+          <router-link is="li" v-for="item in lectures.list" :to="{path:'/lecture',query:{id:item.id}}" class="lectureItem" :key="item.item">
+            <div class="item-main">
+              <p class="lecTopic">{{ item.topic }}</p>
+              <p class="lecType"><img src="../../assets/icon/school2.png"/> {{ item.type }}</p>
+              <p class="lecLoc"><img src="../../assets/icon/location.png"/> {{ item.location }}</p>
+            </div>
             <section>
-              <!-- <p>
-                <mt-badge size="small" color="#888">{{item.type === '校团委讲座' ? '校团委讲座' : '学院专业讲座'}}</mt-badge>
-              </p> -->
-                <span>{{ getTime(item.startAt) }}</span>
+                <span>{{ getYMD(item.startAt) }}</span>
+                <span>{{ getHM(item.startAt) }}</span>
             </section>
           </router-link>
-        </div>
       </ul>
         <!-- <ul class="page-loadmore-list">
           <li v-for="item in list" class="page-loadmore-listitem" :key="item.item">{{ item.item }}</li>
@@ -36,7 +37,7 @@
 </template>
 
 <script>
-import { formatDate } from '../../utils.js'
+import { formatDate, formatDateYMD, formatDateHM } from '../../utils.js'
 export default {
   data() {
     return {
@@ -101,7 +102,13 @@ export default {
     },
     getTime(time) {
       return formatDate(time);
-    }
+    },
+    getYMD(time) {
+      return formatDateYMD(time);
+    },
+    getHM(time) {
+      return formatDateHM(time);
+    }    
   },
   mounted () {
     this.wrapInit();
@@ -121,8 +128,7 @@ $searchbarHeight: 2rem;
   box-sizing: border-box;
 }
 .lectureList>:not(:last-child){
-  /* border-top: 1px gainsboro solid; */
-  margin-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 .loadmore_wrap{
   overflow: scroll;
@@ -132,33 +138,46 @@ $searchbarHeight: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 2.5rem;
-  // font-size: 1rem;
-  padding: 0 1rem 0 1rem;
-  margin: 0 1rem 0 1rem;
+  // height: 2.5rem;
+  padding: 0.5rem 1rem;
   // border: 0.5rem black dotted;
   // border-top:none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
   background-color: white;
-  >span{
-    >span{
-      margin-right: 0.5rem;
+  .item-main{
+    flex:1 1 auto;
+    width: 5rem;
+    .lecTopic{
+      flex: 1 1 auto;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
-    flex: 0 1 auto;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    .lecLoc, .lecType{
+      display: flex;
+      align-items: center;
+      color: #666;
+      font-size: 14px;
+      >img{
+        width: 14px;
+        height: 14px;
+        margin-right: 0.2rem;
+      }
+    }
+    .lecType{
+      margin: 0.1rem 0;
+    }
   }
   >section {
     display: flex;
     flex-direction: column;
-    font-size: 1rem;
-    flex-basis: 1;
+    align-self: flex-start;
+    font-size: 12px;
     flex:0 0 auto;
-    >p {
+    >span {
       display: flex;
+      align-items: center;
       justify-content: flex-end;
+      height: 18px;
     }
   }
 }
@@ -178,9 +197,5 @@ $searchbarHeight: 2rem;
   >div{
     flex: 1 0 auto;
   }
-}
-.lectureList>:not(:last-child){
-  // border-top: 1px gainsboro solid;
-  margin-bottom: 0.4rem;
 }
 </style>

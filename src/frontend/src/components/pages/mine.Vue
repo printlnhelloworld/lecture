@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import { formatDate } from '../../utils.js'
+import { formatDate, formatDateYMD, formatDateHM } from '../../utils.js'
 export default {
   data() {
     return {
